@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(dotnet build *)",
-      "Bash(dotnet add *)"
+      "Bash(dotnet add *)",
+      "Bash(Start-Process -NoNewWindow -Wait -FilePath \"dotnet\" -ArgumentList \"run\",\"--project\",\"Server/THGameServer/THGameServer.csproj\",\"--no-build\" -RedirectStandardOutput \"run_stdout.txt\" -RedirectStandardError \"run_stderr.txt\")",
+      "Bash(Get-Content run_stdout.txt)",
+      "Bash(Get-Content run_stderr.txt)",
+      "Bash(Remove-Item run_stdout.txt,run_stderr.txt -ErrorAction SilentlyContinue)",
+      "PowerShell(Remove-Item *)"
     ]
   }
 }
