@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="THGameServer/THGameServer.csproj" />
+  <Project Path="THServerCommon/THServerCommon.csproj" Id="29d82522-c5e8-4ec2-9018-617bfa75c50a" />
+</Solution>
