@@ -7,7 +7,11 @@
       "Bash(Get-Content run_stdout.txt)",
       "Bash(Get-Content run_stderr.txt)",
       "Bash(Remove-Item run_stdout.txt,run_stderr.txt -ErrorAction SilentlyContinue)",
-      "PowerShell(Remove-Item *)"
+      "PowerShell(Remove-Item *)",
+      "Bash(timeout 5 dotnet run --project Server/THGameServer/THGameServer.csproj)",
+      "Bash(./THGameServer.exe)",
+      "Bash(kill %1)",
+      "Bash(wait)"
     ]
   }
 }

@@ -8,6 +8,7 @@
     <RootNamespace>TH.Server</RootNamespace>
     <BaseOutputPath>..\bin\</BaseOutputPath>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

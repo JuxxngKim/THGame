@@ -1,6 +1,7 @@
 ### C#
 # Build results
-[Bb]in/
+[Bb]in/*
+!**/[Bb]in/config/
 [Oo]bj/
 
 # Visual Studio cache/options directory
@@ -50,7 +51,8 @@ x86/
 [Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
-[Bb]in/
+[Bb]in/*
+!**/[Bb]in/config/
 [Oo]bj/
 
 # Visual Studio cache/options directory
