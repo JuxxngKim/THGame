@@ -1,0 +1,134 @@
+﻿syntax = "proto2";
+package th;
+
+import "enum.proto";
+import "protocol.proto";
+
+message NullMessage
+{
+	optional EMessageID			MessageID			= 99	[default = NULL_MESSAGE];
+	optional EErrorMsg			Error				= 95	[default = E_UNKNOWN];
+}
+
+message InternalEventTick
+{
+	optional EMessageID			MessageID			= 99	[default = INTERNAL_EVENT_TICK];
+	
+	optional int32				EventType			= 1;
+	optional int64				Value				= 2;
+}
+
+message ADLoginReq
+{
+	optional EMessageID			MessageID			= 99	[default = AD_LOGIN_REQ];
+	
+	required string				PID					= 1;
+	required int64				LogKey				= 2;
+	required MDateTime			UpdateDate			= 3;	
+	required bool				IsReconnect			= 4;
+	required int32				ServerID			= 5;
+	required int32				LanguageID			= 6;
+	optional string				AppVersion			= 7;
+	required EPlatformType		PlatformType		= 9;
+	optional string				IP					= 10;
+}
+
+message DALoginAck
+{
+	optional EMessageID			MessageID				= 99	[default = DA_LOGIN_ACK];
+	
+	required string				PID						= 1;
+	required int64				AccountId				= 2;
+	required int32				GameDbId				= 3;
+	required string				PlayerName				= 4;
+	required bool				IsReconnect				= 5;
+	required int32				ChannelID				= 6;
+	required int32				FreeNicknameChangeCount = 7;
+	required bool				IsNewAccount			= 8;
+	required MDateTime			UpdateTime				= 9;
+	required int32				LanguageID				= 10;
+	required int32				TotalPlayTime			= 11;
+	required bool				Authenticated			= 12;
+	required EPlatformType		PlatformType			= 13;
+	optional string				IP						= 14;
+}
+
+message DALoginNak
+{
+	optional EMessageID			MessageID			= 99	[default = DA_LOGIN_NAK];
+	
+	required EErrorMsg			Error				= 1;
+	required string				PID					= 2;
+	required bool				IsForceLogin		= 3;
+}
+
+message ADPlayerInfoReq
+{
+	optional EMessageID			MessageID			= 99	[default = AD_PLAYER_INFO_REQ];
+	
+	required string				PID								= 1;
+	required MDateTime			UpdateTime						= 2;
+	required string				DefaultData						= 3;
+	optional int32				DefaultProfilePortraitID		= 7;
+	optional int32				DefaultProfileFrameID			= 8;
+	optional int32				NewPlayerPeriod					= 9;
+	optional int32				ReturnPlayerPeriod				= 10;
+	optional int32				AbsencePeriodForReturnPlayer	= 11;
+}
+
+message DAPlayerInfoAck
+{
+	optional EMessageID			MessageID			= 99	[default = DA_PLAYER_INFO_ACK];
+	required EErrorMsg			Error				= 95;
+
+	optional int32				Exp					= 1;
+	optional int32				LevelRewardStep     = 2;
+	optional int32				PlayerType			= 3;
+	optional MDateTime			PlayerTypeCheckDate = 4;
+	optional bool				WithdrawalDBClear	= 5		[default = false];
+	optional int32 AppReviewStatus = 6;
+	optional int64				PurchasePoint		= 7		[default = 0];
+	optional MDateTime			LevelUpDate  		= 8;
+}
+
+message ADPlayerHeroReq
+{
+	optional EMessageID			MessageID			= 99	[default = AD_PLAYER_HERO_REQ];
+}
+
+message DAPlayerHeroAck
+{
+	optional EMessageID			MessageID			= 99	[default = DA_PLAYER_HERO_ACK];
+	required EErrorMsg			Error				= 95;
+
+	repeated MHero				Heros				= 1;
+}
+
+message ADPlayerEquipItemReq
+{
+	optional EMessageID			MessageID			= 99	[default = AD_PLAYER_EQUIP_ITEM_REQ];
+}
+
+message DAPlayerEquipItemAck
+{
+	optional EMessageID			MessageID			= 99	[default = DA_PLAYER_EQUIP_ITEM_ACK];
+	required EErrorMsg			Error				= 95;
+
+	repeated MEquipItem			EquipItems			= 1;
+}
+
+message ADEndofGameSessionReq
+{
+    optional EMessageID          MessageID            = 99    [default = AD_END_OF_GAME_SESSION_REQ];
+    required MDateTime           LastUpdateTime       = 1;
+    required int64               LogKey               = 2;
+    required int32               ChannelID            = 3;
+    required int32               GuildID              = 4;
+    required bool                IsSeqMaintenance     = 5;
+}
+
+message DAEndofGameSessionAck
+{
+    optional EMessageID          MessageID				= 99	[default = DA_END_OF_GAME_SESSION_ACK];
+    required EErrorMsg           Error					= 95;
+}

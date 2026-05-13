@@ -5,6 +5,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>TH.Common</RootNamespace>
+    <NoWarn>$(NoWarn);CS8981</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Common\Tool\ProtocolGenerator\generated\*.g.cs"
+             Link="Protocol\%(Filename)%(Extension)" />
+  </ItemGroup>
 
 </Project>

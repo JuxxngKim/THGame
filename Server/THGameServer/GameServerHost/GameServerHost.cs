@@ -23,6 +23,7 @@ public sealed class GameServerHost : BackgroundService
 
         // main loop(메인 루프)
         _logger.LogDebug("메인 루프 대기 중");
+
         await Task.Delay(Timeout.Infinite, stoppingToken);
 
         _logger.LogInformation("서버 종료");

@@ -1,0 +1,194 @@
+﻿syntax = "proto2";
+package th;
+
+import "enum.proto";
+
+// packet ///////////////////////////////////////////////////////////////////////////
+message NetConnect
+{
+	optional EMessageID			MessageID			= 99	[default = NET_CONNECT];
+
+	optional string				ConnectIP			= 1		[default = ""];
+	optional int32				ConnectPort			= 2		[default = 0];
+	optional int32				TimeoutMS			= 3		[default = 0];
+	optional int64				ServerTime			= 4		[default = 0];
+}
+
+message NetDisconnect
+{
+	optional EMessageID			MessageID			= 99	[default = NET_DISCONNECT];
+}
+
+message NetAliveReq
+{
+	optional EMessageID			MessageID			= 99	[default = NET_ALIVE_REQ];
+
+	optional int64				RequestMS			= 1		[default = 0];
+}
+
+message NetAliveAck
+{
+	optional EMessageID			MessageID			= 99	[default = NET_ALIVE_ACK];
+
+	optional int64				RequestMS			= 1		[default = 0];
+	optional int64				ResponseMS			= 2		[default = 0];
+}
+
+message WriteServerLog
+{
+	optional EMessageID			MessageID			= 99	[default = WRITE_SERVER_LOG];
+
+	required string				LogString			= 1;
+	required int32				LogLevel			= 2;
+	required int32				TargetType			= 3;
+	required MDateTime			LogDate = 4;
+}
+
+message ACCommonNak
+{
+	optional EMessageID			MessageID			= 99	[default = AC_COMMON_NAK];
+
+	required EErrorMsg			Error				= 1;
+	required int32				SuccessfulMsgId		= 2;
+}
+
+///clent <-> GateWay ///////////////////////////////////////////////////////////////////////////
+message CGAuthLoginReq
+{
+	optional EMessageID			MessageID			= 99	[default = CG_AUTH_LOGIN_REQ];
+	
+	required string				AuthToken			= 1;
+	required string				Pid					= 2;
+	required EPlatformType		PlatformType		= 4;
+	optional int32				NaverWorksCertCode	= 5;
+	optional string				Version				= 6;
+	optional string				JoinedCountry		= 7		[default = ""];
+	optional string				DLCVersion			= 8		[default = ""];
+	optional string				GameDataVersion		= 9		[default = ""];
+}
+
+message GCAuthLoginAck
+{
+	optional EMessageID			MessageID			= 99	[default = GC_AUTH_LOGIN_ACK];
+
+	required string				ConnectedIP			= 1;
+	required int32				ConnectedPort		= 2;
+}
+
+message GCAuthLoginNak
+{
+	optional EMessageID			MessageID			= 99	[default = GC_AUTH_LOGIN_NAK];
+
+	required EErrorMsg			Error				= 1;
+	//repeated MLoginBlockMessage	Messages			= 2;
+	//optional MMaintenanceServerInfo	MaintenanceServerInfo = 3;
+}
+
+///clent <-> adventure ///////////////////////////////////////////////////////////////////////////
+message CALoginReq
+{
+	optional EMessageID			MessageID				= 99	[default = CA_LOGIN_REQ];
+
+	required int32				CurrentVersion			= 1;
+	required string				Pid						= 2;
+	optional int32				LanguageID				= 3		[default = 1];
+	optional bool				IsReconnect				= 4;
+	required string				AuthToken				= 5;
+	required EPlatformType		PlatformType			= 7;
+	optional string				AppVersion				= 8;
+	optional string				IP						= 9;
+	optional bool				SequenceMaintenanceLogin = 10	[default = false];
+	optional string				JoinedCountry			= 11		[default = ""];
+}
+
+message ACLoginAck
+{
+	optional EMessageID			MessageID				= 99	[default = AC_LOGIN_ACK];
+
+	required int64				AccountId				= 1;
+	required string				AccountName				= 2;
+	required string				ConntectedIP			= 3;
+	required int32				ConnectedPort			= 4;
+	required bool				IsReconnect				= 5;
+	required bool				IsNewAccount			= 6;
+	required int32				FreeNicknameChangeCount = 7;
+	required string				Version					= 8;
+	required int32				ServerID				= 9;
+	required int32				ChannelID				= 10;
+}
+
+message CAGetPlayerReq
+{
+	optional EMessageID			MessageID			= 99	[default = CA_GET_PLAYER_REQ];
+}
+
+message ACGetPlayerAck
+{
+	optional EMessageID			MessageID			= 99	[default = AC_GET_PLAYER_ACK];
+}
+
+message ACGetPlayerInfoNoti
+{
+	optional EMessageID			MessageID			= 99	[default = AC_GET_PLAYER_INFO_NOTI];
+
+	required int32				AccountLevel		= 1;
+	required int32				AccountExp			= 2;
+	required int32				LevelRewardStep		= 3;
+	required int32				PlayerType			= 4;
+	optional MDateTime			LastLevelUpDate		= 5;
+}
+
+// struct ///////////////////////////////////////////////////////////////////////////
+message MSimplePlayer
+{
+	required int64 AccountUID = 1;
+	required string PlayerName = 2;
+	required int64 PlayerLevel = 3;
+}
+
+message MChatMessage
+{
+	//required MSimplePlayer	ChatPlayer				= 1;
+	//optional string			Message					= 2;
+	//optional int64			TargetAccountUID		= 3;
+	//required int64			SendTimeMS				= 4;
+	
+	//optional MChatLink		ChatLink		= 7;
+	//optional MSimplePlayer	MentionedPlayer	= 8;
+}
+
+message MDateTime
+{
+	optional int32				Year				= 1		[default = 0];
+	optional int32				Month				= 2		[default = 0];
+	optional int32				Day					= 3		[default = 0];
+	optional int32				Hour				= 4		[default = 0];
+	optional int32				Minute				= 5		[default = 0];
+	optional int32				Second				= 6		[default = 0];
+	optional int32				MilliSecond			= 7		[default = 0]; 
+	optional int32				DayOfWeek			= 8		[default = 0];
+}
+
+message MHero
+{
+	required int64				HeroUID				= 1;
+	optional int32				HeroTid				= 2;
+	optional int32				Lv					= 3		[default = 1];
+	optional int32				Exp					= 4		[default = 0];
+	optional int32				ReinforceLevel		= 6		[default = 0];
+	optional int32				TranscendCount		= 7		[default = 0];
+	repeated int32				ReinforcedSkillType	= 8;
+	optional int32				Status				= 9		[default = 1];
+	optional int32				LockStatus			= 10	[default = 0];
+	optional int32				BookmarkStatus		= 11	[default = 0];
+	optional int32				RewardResultType	= 13	[default = 0];
+	optional bool				WeaponSlotOpen		= 14	[default = false];
+	optional bool				ArmorSlotOpen		= 15	[default = false];
+	optional int32				CostumeID			= 16	[default = 0];
+}
+
+message MEquipItem
+{
+	optional int64				ItemUID				= 1 [default = 0];
+	optional int32				ItemTID				= 2 [default = 0];
+}

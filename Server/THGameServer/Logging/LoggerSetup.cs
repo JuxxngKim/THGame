@@ -9,7 +9,7 @@ namespace TH.Server.Logging;
 internal static class LoggerSetup
 {
     private const string OutputTemplate =
-        "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
+        "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u1}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
 
     public static void ConfigureSerilog(HostApplicationBuilder builder, ITimeProvider time)
     {
