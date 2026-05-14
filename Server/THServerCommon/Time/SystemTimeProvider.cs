@@ -1,6 +1,8 @@
-﻿namespace TH.Common.Time;
+﻿using TH.Common;
 
-public sealed class SystemTimeProvider : ITimeProvider
+namespace TH.Common.Time;
+
+public class SystemTimeProvider : Singleton<SystemTimeProvider>, ITimeProvider
 {
     private static readonly TimeZoneInfo _kstZone = LoadKstZone();
 

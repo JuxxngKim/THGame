@@ -12,7 +12,8 @@
       "Bash(./THGameServer.exe)",
       "Bash(kill %1)",
       "Bash(wait)",
-      "Bash(awk '{print $2}')"
+      "Bash(awk '{print $2}')",
+      "PowerShell(dotnet build *)"
     ]
   }
 }

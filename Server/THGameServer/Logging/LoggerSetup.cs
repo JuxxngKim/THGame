@@ -1,5 +1,3 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using TH.Common.Time;
@@ -11,7 +9,7 @@ internal static class LoggerSetup
     private const string OutputTemplate =
         "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u1}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
 
-    public static void ConfigureSerilog(HostApplicationBuilder builder, ITimeProvider time)
+    public static void Init(ITimeProvider time)
     {
         var startKst = time.NowKst();
         var dateFolder = $"{startKst.Year:D4}{startKst.Month:D2}{startKst.Day:D2}";
@@ -29,7 +27,7 @@ internal static class LoggerSetup
         var minLevel = LogEventLevel.Information;
 #endif
 
-        builder.Services.AddSerilog((sp, lc) => lc
+        Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Is(minLevel)
             .Enrich.FromLogContext()
             .WriteTo.Console(outputTemplate: OutputTemplate)
@@ -37,6 +35,7 @@ internal static class LoggerSetup
                 path: logPath,
                 outputTemplate: OutputTemplate,
                 shared: false,
-                flushToDiskInterval: TimeSpan.FromSeconds(1)));
+                flushToDiskInterval: TimeSpan.FromSeconds(1))
+            .CreateLogger();
     }
 }
