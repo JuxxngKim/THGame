@@ -11,7 +11,8 @@
       "Bash(timeout 5 dotnet run --project Server/THGameServer/THGameServer.csproj)",
       "Bash(./THGameServer.exe)",
       "Bash(kill %1)",
-      "Bash(wait)"
+      "Bash(wait)",
+      "Bash(awk '{print $2}')"
     ]
   }
 }
