@@ -2,9 +2,11 @@
 
 namespace TH.Common.Time;
 
-public class SystemTimeProvider : Singleton<SystemTimeProvider>, ITimeProvider
+public sealed class SystemTimeProvider : Singleton<SystemTimeProvider>, ITimeProvider
 {
     private static readonly TimeZoneInfo _kstZone = LoadKstZone();
+
+    private SystemTimeProvider() { }
 
     private static TimeZoneInfo LoadKstZone()
     {

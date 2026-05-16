@@ -3,11 +3,12 @@
 public sealed class IniFile
 {
     private readonly Dictionary<string, Dictionary<string, string>> _sections;
+    private IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>? _cachedSections;
 
     public string FilePath { get; }
 
     public IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Sections =>
-        _sections.ToDictionary(
+        _cachedSections ??= _sections.ToDictionary(
             kv => kv.Key,
             kv => (IReadOnlyDictionary<string, string>)kv.Value,
             StringComparer.OrdinalIgnoreCase);
