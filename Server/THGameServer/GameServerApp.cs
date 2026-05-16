@@ -14,11 +14,13 @@ public sealed class GameServerApp
     {
         try
         {
+            _ = TimeManager.Instance;
+
             var configDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "config"));
             if (!ConfigManager.Instance.Init(configDir))
                 return false;
 
-            LoggerSetup.Init(SystemTimeProvider.Instance);
+            LoggerSetup.Init(TimeManager.Instance);
 
             Log.Information("GameServer 시작 (Env={Env}, Id={Id})",
                 ConfigManager.Instance.Env, ConfigManager.Instance.Id);
