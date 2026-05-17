@@ -56,6 +56,8 @@ public sealed class NetworkManager : Singleton<NetworkManager>
         return s;
     }
 
+    public bool IsSessionAlive(long sessionId) => _sessions.ContainsKey(sessionId);
+
     public void CloseSession(long sessionId)
     {
         if (_sessions.TryGetValue(sessionId, out var s))
