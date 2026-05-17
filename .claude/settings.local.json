@@ -14,7 +14,10 @@
       "Bash(wait)",
       "Bash(awk '{print $2}')",
       "PowerShell(dotnet build *)",
-      "PowerShell(Get-Content *)"
+      "PowerShell(Get-Content *)",
+      "Bash(Test-Path C:\\\\Users\\\\juyeo\\\\OneDrive\\\\Desktop\\\\Project\\\\THGame\\\\Server\\\\THServerCommon\\\\Network *)",
+      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"Server\\\\THGameServer\\\\Program.cs\"\\)[0..2]; \"{0:X2} {1:X2} {2:X2}\" -f $bytes[0],$bytes[1],$bytes[2])",
+      "PowerShell(powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\juyeo\\\\OneDrive\\\\Desktop\\\\Project\\\\THGame\\\\.claude\\\\hooks\\\\notify.ps1\" -Message \"테스트\"; if \\($?\\) { \"OK\" } else { \"FAIL\" })"
     ]
   }
 }

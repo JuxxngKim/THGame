@@ -1,5 +1,6 @@
 using Serilog;
 using TH.Common.Config;
+using TH.Common.Network;
 using TH.Common.Time;
 using TH.Server.Logging;
 
@@ -24,6 +25,17 @@ public sealed class GameServerApp
 
             Log.Information("GameServer 시작 (Env={Env}, Id={Id})",
                 ConfigManager.Instance.Env, ConfigManager.Instance.Id);
+
+            var section  = $"Game.{ConfigManager.Instance.Id}";
+            var bindAddr = ConfigManager.Instance.GetRequired(section, "BindAddr");
+            if (!NetworkHelper.TryParseEndPoint(bindAddr, out var endPoint) || endPoint is null)
+            {
+                Log.Error("BindAddr 파싱 실패: {Addr}", bindAddr);
+                return false;
+            }
+
+            if (!NetworkManager.Instance.Init(endPoint))
+                return false;
 
             return true;
         }
@@ -60,6 +72,7 @@ public sealed class GameServerApp
 
         Log.Information("GameServer 종료");
 
+        NetworkManager.Instance.Shutdown();
         ConfigManager.Instance.Shutdown();
         Log.CloseAndFlush();
     }

@@ -1,8 +1,8 @@
 ﻿using System.Net;
 
-namespace TH.Server;
+namespace TH.Common.Network;
 
-internal static class NetworkHelper
+public static class NetworkHelper
 {
     public static bool TryParseEndPoint(string addr, out IPEndPoint? endPoint)
     {
