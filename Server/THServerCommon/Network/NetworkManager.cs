@@ -18,7 +18,7 @@ public sealed class NetworkManager : Singleton<NetworkManager>
     {
         if (_listener is not null)
         {
-            Log.Warning("NetworkManager 이미 초기화됨");
+            Log.Warning("NetworkManager already initialized");
             return true;
         }
 
@@ -32,7 +32,7 @@ public sealed class NetworkManager : Singleton<NetworkManager>
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "NetworkManager 초기화 실패 (endPoint={EndPoint})", endPoint);
+            Log.Error(ex, "NetworkManager init failed (endPoint={EndPoint})", endPoint);
             return false;
         }
     }
@@ -47,7 +47,7 @@ public sealed class NetworkManager : Singleton<NetworkManager>
 
         _sessions.Clear();
 
-        Log.Information("NetworkManager 종료");
+        Log.Information("NetworkManager shutdown");
     }
 
     public Session? FindSession(long sessionId)

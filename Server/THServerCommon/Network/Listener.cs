@@ -50,7 +50,7 @@ public sealed class Listener
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "AcceptAsync 호출 실패");
+                Log.Error(ex, "AcceptAsync call failed");
                 return;
             }
 
@@ -72,7 +72,7 @@ public sealed class Listener
         if (_acceptSaea.SocketError != SocketError.Success)
         {
             if (!_stopped)
-                Log.Warning("Accept 실패: {Error}", _acceptSaea.SocketError);
+                Log.Warning("Accept failed: {Error}", _acceptSaea.SocketError);
             return;
         }
 
@@ -89,7 +89,7 @@ public sealed class Listener
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "세션 생성/등록 실패");
+            Log.Error(ex, "Session create/register failed");
             if (session is not null)
             {
                 session.Close(notify: true);

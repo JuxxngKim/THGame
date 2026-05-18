@@ -15,7 +15,7 @@ public sealed class Session
 
     public long SessionId { get; }
 
-    private Socket? _socket;
+    private volatile Socket? _socket;
     private readonly SocketAsyncEventArgs _recvSaea;
     private readonly SocketAsyncEventArgs _sendSaea;
 
@@ -69,7 +69,7 @@ public sealed class Session
             int available = _recvBuffer.Length - _recvOffset;
             if (available <= 0)
             {
-                Log.Error("Session {Id} 수신 버퍼 포화 (offset={Off}, size={Size}). 강제 종료",
+                Log.Error("Session {Id} recv buffer full (offset={Off}, size={Size}), forcing close",
                     SessionId, _recvOffset, _recvBuffer.Length);
                 Close(notify: true);
                 return;
@@ -89,7 +89,7 @@ public sealed class Session
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Session {Id} ReceiveAsync 호출 실패", SessionId);
+                Log.Error(ex, "Session {Id} ReceiveAsync call failed", SessionId);
                 HandleDisconnect();
                 return;
             }
@@ -130,7 +130,7 @@ public sealed class Session
 
             if (length < PacketHeader.HeaderSize || length > MaxPacketSize)
             {
-                Log.Warning("Session {Id} 잘못된 패킷 길이 {Length}, 강제 종료", SessionId, length);
+                Log.Warning("Session {Id} invalid packet length {Length}, forcing close", SessionId, length);
                 Close(notify: true);
                 return false;
             }
@@ -159,7 +159,7 @@ public sealed class Session
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Session {Id} OnPacketReceived 핸들러 예외 (PacketId={PacketId})", SessionId, packetId);
+                Log.Error(ex, "Session {Id} OnPacketReceived handler exception (PacketId={PacketId})", SessionId, packetId);
             }
 
             consumed += length;
@@ -186,7 +186,7 @@ public sealed class Session
 
         if (totalLength > MaxPacketSize)
         {
-            Log.Warning("Session {Id} 송신 패킷 크기 초과 {Size}, 강제 종료", SessionId, totalLength);
+            Log.Warning("Session {Id} send packet too large {Size}, forcing close", SessionId, totalLength);
             Close(notify: true);
             return;
         }
@@ -196,7 +196,7 @@ public sealed class Session
         if (after > MaxPendingSendBytes)
         {
             Interlocked.Add(ref _pendingSendBytes, -totalLength);
-            Log.Warning("Session {Id} 송신 버퍼 초과 ({Bytes}B), 강제 종료", SessionId, after);
+            Log.Warning("Session {Id} send buffer overflow ({Bytes}B), forcing close", SessionId, after);
             Close(notify: true);
             return;
         }
@@ -279,7 +279,7 @@ public sealed class Session
                 ArrayPool<byte>.Shared.Return(buffer);
                 Interlocked.Add(ref _pendingSendBytes, -length);
                 _inflightLength = 0;
-                Log.Error(ex, "Session {Id} SendAsync 호출 실패", SessionId);
+                Log.Error(ex, "Session {Id} SendAsync call failed", SessionId);
                 HandleDisconnect();
                 Interlocked.Exchange(ref _sending, 0);
                 return;

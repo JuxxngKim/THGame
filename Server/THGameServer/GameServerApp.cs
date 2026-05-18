@@ -25,7 +25,7 @@ public sealed class GameServerApp
 
             LoggerSetup.Init(TimeManager.Instance);
 
-            Log.Information("GameServer 시작 (Env={Env}, Id={Id})",
+            Log.Information("GameServer started (Env={Env}, Id={Id})",
                 ConfigManager.Instance.Env, ConfigManager.Instance.Id);
 
             // OutGameService 초기화 시점에 OutGameLogicEventor 가 생성되며 핸들러가 모두 등록된다.
@@ -35,7 +35,7 @@ public sealed class GameServerApp
             var bindAddr = ConfigManager.Instance.GetRequired(section, "BindAddr");
             if (!NetworkHelper.TryParseEndPoint(bindAddr, out var endPoint) || endPoint is null)
             {
-                Log.Error("BindAddr 파싱 실패: {Addr}", bindAddr);
+                Log.Error("BindAddr parse failed: {Addr}", bindAddr);
                 return false;
             }
 
@@ -65,7 +65,7 @@ public sealed class GameServerApp
         }
         catch (Exception ex)
         {
-            Log.Fatal(ex, "GameServerApp.Start 실패");
+            Log.Fatal(ex, "GameServerApp.Start failed");
             return false;
         }
     }
@@ -78,7 +78,7 @@ public sealed class GameServerApp
             _shutdown = true;
         };
 
-        Log.Debug("메인 루프 대기 중");
+        Log.Debug("Main loop running");
 
         while (!_shutdown)
         {
@@ -94,7 +94,7 @@ public sealed class GameServerApp
             return;
         _exited = true;
 
-        Log.Information("GameServer 종료");
+        Log.Information("GameServer shutdown");
 
         NetworkManager.Instance.Shutdown();
         OutGameService.Instance.Shutdown();

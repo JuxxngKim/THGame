@@ -34,7 +34,7 @@ public abstract class LogicEventor
             }
             catch (InvalidProtocolBufferException ex)
             {
-                Log.Warning(ex, "패킷 파싱 실패 SessionId={Id} PacketId={Pid}", sessionId, packetId);
+                Log.Warning(ex, "Packet parse failed SessionId={Id} PacketId={Pid}", sessionId, packetId);
                 return;
             }
 
@@ -64,7 +64,11 @@ public abstract class LogicEventor
         {
             foreach (var pkt in packets)
             {
-                if (!_handlers.TryGetValue(pkt.PacketId, out var entry)) continue;
+                if (!_handlers.TryGetValue(pkt.PacketId, out var entry))
+                {
+                    Log.Debug("Unregistered packet dropped SessionId={Id} PacketId={Pid}", sessionId, pkt.PacketId);
+                    continue;
+                }
                 if ((entry.Phases & phase) == 0) continue;
 
                 try
@@ -73,7 +77,7 @@ public abstract class LogicEventor
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Eventor 핸들러 예외 SessionId={Id} PacketId={Pid} Phase={Phase}",
+                    Log.Error(ex, "Eventor handler exception SessionId={Id} PacketId={Pid} Phase={Phase}",
                         sessionId, pkt.PacketId, phase);
                 }
             }

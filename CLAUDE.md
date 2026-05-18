@@ -133,7 +133,9 @@ For multi-step tasks, present a brief plan first:
 ### 5.5. Logging
 
 - **Serilog** 사용. `Log.Information / Debug / Warning / Error / Fatal`
-- 로그 메시지는 **한글**, 구조화 로깅 (`"세션 {Id} 종료"` 형태로 placeholder + 인자 분리)
+- 로그 메시지는 **영어 (ASCII)**, 구조화 로깅 (`"Session {Id} closed"` 형태로 placeholder + 인자 분리)
+  - 이유: 콘솔 codepage / 파일 인코딩 호환성, 로그 수집·검색 도구(ELK, Loki 등) 친화성
+  - 단, 코드 주석은 §2 와 일관되게 **한글** 유지
 - 출력 템플릿 / Sink 는 `LoggerSetup` 에서만 구성, 다른 곳에서 재구성 금지
 
 ### 5.6. Network Layer Invariants (`Server/THServerCommon/Network/`)

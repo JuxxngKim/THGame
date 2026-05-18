@@ -36,7 +36,7 @@ public sealed class ConfigManager : Singleton<ConfigManager>
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "ConfigManager 초기화 실패 (configDirectory={Dir})", configDirectory);
+            Log.Error(ex, "ConfigManager init failed (configDirectory={Dir})", configDirectory);
             return false;
         }
     }

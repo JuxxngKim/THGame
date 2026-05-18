@@ -27,14 +27,14 @@ public sealed class OutGameService : Singleton<OutGameService>
         _mainThread = new Thread(MainLoop) { IsBackground = true, Name = "LogicMain" };
         _mainThread.Start();
 
-        Log.Information("OutGameService 시작 (Tick={Tick}ms)", TickIntervalMs);
+        Log.Information("OutGameService started (Tick={Tick}ms)", TickIntervalMs);
     }
 
     public void Shutdown()
     {
         _stopping = true;
         _mainThread?.Join();
-        Log.Information("OutGameService 종료");
+        Log.Information("OutGameService shutdown");
     }
 
     private void MainLoop()
@@ -66,13 +66,13 @@ public sealed class OutGameService : Singleton<OutGameService>
 
                 var elapsed = Stopwatch.GetElapsedTime(tickStart);
                 if (elapsed.TotalMilliseconds > TickIntervalMs)
-                    Log.Warning("Tick 초과: {Elapsed:F1}ms (목표 {Target}ms)", elapsed.TotalMilliseconds, TickIntervalMs);
+                    Log.Warning("Tick overrun: {Elapsed:F1}ms (target {Target}ms)", elapsed.TotalMilliseconds, TickIntervalMs);
                 else
                     Thread.Sleep(1);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "OutGameService MainLoop 예외");
+                Log.Error(ex, "OutGameService MainLoop exception");
             }
         }
     }

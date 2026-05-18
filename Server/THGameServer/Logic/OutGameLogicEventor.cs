@@ -93,7 +93,7 @@ public sealed class OutGameLogicEventor : LogicEventor
     private void OnCALoginReq(long sessionId, CALoginReq msg, byte flag)
     {
         // TODO: LoginPendingList 등록 후 Data 서버에 DALoginReq 발송
-        Log.Information("CALoginReq 수신 SessionId={Id} PID={Pid}", sessionId, msg.Pid);
+        Log.Information("CALoginReq received SessionId={Id} PID={Pid}", sessionId, msg.Pid);
     }
 
     private void OnCAGetPlayerReq(long sessionId, CAGetPlayerReq msg, byte flag)
