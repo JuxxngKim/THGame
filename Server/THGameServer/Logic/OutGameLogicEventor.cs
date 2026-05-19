@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf;
 using Serilog;
 using Th;
+using TH.Common.Game;
 using TH.Common.Network;
 using TH.Common.Time;
 
@@ -75,11 +76,12 @@ public sealed class OutGameLogicEventor : LogicEventor
     {
         if (IsPrepareEvent(flag))
         {
-            // TODO: Player abstraction 도입 후 LoginPendingList 정리
+            if (PlayerArchive.Instance.Remove(sessionId))
+                Log.Debug("PlayerArchive removed SessionId={Id}", sessionId);
         }
         else if (IsArrangeEvent(flag))
         {
-            // TODO: PlayerArchive 에서 세션 idle 처리 / 단위 정리
+            // TODO: InField 단계 정리 (게임 상태 cleanup)
             Log.Debug("Session {Id} disconnect (Arrange)", sessionId);
         }
     }
@@ -92,8 +94,38 @@ public sealed class OutGameLogicEventor : LogicEventor
 
     private void OnCALoginReq(long sessionId, CALoginReq msg, byte flag)
     {
-        // TODO: LoginPendingList 등록 후 Data 서버에 DALoginReq 발송
-        Log.Information("CALoginReq received SessionId={Id} PID={Pid}", sessionId, msg.Pid);
+        // 멱등성: 동일 세션에서 중복 CALoginReq 차단.
+        if (PlayerArchive.Instance.Find(sessionId) is not null)
+        {
+            Log.Warning("CALoginReq duplicated SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
+            return;
+        }
+
+        // AccountId 는 Data 서버에서 받아오는 값 — 동기 흐름에서는 0 으로 둠 (후속 PR 에서 채움).
+        var player = new Player(sessionId)
+        {
+            AccountId = 0,
+            Pid       = msg.Pid,
+            State     = EPlayerState.LoggedIn,
+        };
+
+        if (!PlayerArchive.Instance.TryRegister(player))
+        {
+            Log.Warning("CALoginReq register failed SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
+            return;
+        }
+
+        // 동기 단순 흐름 — Data 서버 RPC 없이 즉시 ACK. 후속 PR 에서 비동기로 교체.
+        var ack = new ACLoginAck
+        {
+            MessageID    = EMessageID.AcLoginAck,
+            AccountId    = player.AccountId,
+            IsNewAccount = false,
+            Version      = msg.CurrentVersion.ToString(),
+        };
+        SendTo(sessionId, (int)EMessageID.AcLoginAck, ack);
+
+        Log.Information("Login ok SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
     }
 
     private void OnCAGetPlayerReq(long sessionId, CAGetPlayerReq msg, byte flag)

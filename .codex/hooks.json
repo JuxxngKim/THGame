@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File \"C:\\Users\\juyeo\\OneDrive\\Desktop\\Project\\THGame\\.claude\\hooks\\notify.ps1\" -Message \"작업 완료\""
+          }
+        ]
+      }
+    ]
+  }
+}
