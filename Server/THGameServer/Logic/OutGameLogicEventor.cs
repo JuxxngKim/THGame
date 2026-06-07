@@ -25,6 +25,9 @@ public sealed class OutGameLogicEventor : LogicEventor
     // 세션 단위 Player 보관자 — 이 eventor 가 소유. tick 스레드에서만 접근.
     private readonly PlayerArchive _archive = new();
 
+    // worker phase 에서 패킷이 없는 Player 에 넘길 공유 빈 리스트 (Execute 가 수정하지 않으므로 안전).
+    private static readonly List<PacketMessage> EmptyPackets = new();
+
     public OutGameLogicEventor()
     {
         long now = TimeManager.Instance.UnixMillis();
@@ -43,8 +46,7 @@ public sealed class OutGameLogicEventor : LogicEventor
         RegisterHandler<CALoginReq>((int)EMessageID.CaLoginReq,
             OnCALoginReq, ELogicEvent.Prepare);
 
-        RegisterHandler<CAGetPlayerReq>((int)EMessageID.CaGetPlayerReq,
-            OnCAGetPlayerReq, ELogicEvent.Arrange);
+        // Player 단위 패킷(CAGetPlayerReq 등)은 Player.Execute 안에서 처리 — 등록은 Player static 테이블.
     }
 
     public override void Event(long tickMs)
@@ -72,6 +74,23 @@ public sealed class OutGameLogicEventor : LogicEventor
             _nextPlayerCountSyncTime = tickMs + PlayerCountSyncMs;
             UpdatePlayerCount();
         }
+    }
+
+    // worker phase — Prepare 와 Arrange 사이. 접속한 Player 전체를 순회하며 한 워커 스레드가
+    // 한 Player(=세션)의 한 tick(입력 패킷 + tick 로직)을 끝까지 담당하고, 끝나면 다음 Player 로
+    // 넘어가는 동적 분산 처리. 패킷이 없는 Player 도 tick 로직을 위해 매 tick Execute 된다.
+    // Parallel.ForEach 가 동기 반환할 때까지 블로킹되므로 모든 Player 처리가 끝나기 전에는
+    // Arrange 가 호출되지 않는다 (barrier 보장).
+    public override void Work(long tickMs, Dictionary<long, List<PacketMessage>> sessionPackets)
+    {
+        if (_archive.Count == 0) return;
+
+        Parallel.ForEach(_archive.Players, player =>
+        {
+            // 그 tick 에 도착한 패킷 (없으면 공유 빈 리스트 — tick 로직만 수행).
+            var packets = sessionPackets.TryGetValue(player.SessionId, out var list) ? list : EmptyPackets;
+            player.Execute(tickMs, packets);
+        });
     }
 
     // ====================== 메시지 핸들러 ======================
@@ -130,11 +149,6 @@ public sealed class OutGameLogicEventor : LogicEventor
         SendTo(sessionId, (int)EMessageID.AcLoginAck, ack);
 
         Log.Information("Login ok SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
-    }
-
-    private void OnCAGetPlayerReq(long sessionId, CAGetPlayerReq msg, byte flag)
-    {
-        // TODO: PlayerArchive 조회 + AcGetPlayerAck 응답
     }
 
     // ====================== 주기 작업 ======================

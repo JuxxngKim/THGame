@@ -1,0 +1,156 @@
+﻿# 서버 Logic / Tick 아키텍처
+
+게임 서버(`Server/THGameServer/`)의 tick 루프와 패킷 처리 구조를 설명한다.
+새 세션에서 서버 로직을 다룰 때 이 문서를 먼저 읽으면 전체 흐름을 빠르게 파악할 수 있다.
+
+관련 코드: `Server/THGameServer/Logic/`, `Server/THGameServer/Game/`
+
+---
+
+## 1. 전체 흐름 (한 tick)
+
+`OutGameService`(`Logic/OutGameService.cs`)가 `LogicMain` 단일 스레드에서 고정 주기 tick 루프를 돈다.
+tick 간격은 `OutGameService.TickIntervalMs = 300` (0.3초).
+
+한 tick 의 처리 순서는 다음 4단계다 (`MainLoop`):
+
+```
+Event  → Prepare → Work → Arrange
+```
+
+```
+long tickMs = TimeManager.Instance.UnixMillis();
+
+_eventor.Event(tickMs);                       // 1) 주기 작업
+
+var raw      = PacketQueue.Instance.Swap();   //    IO 스레드가 쌓아둔 패킷을 일괄 swap
+var grouped  = GroupBySession(raw);           //    sessionId → List<PacketMessage> 로 그룹핑
+
+_eventor.Prepare(grouped);                    // 2) Prepare phase
+_eventor.Work(tickMs, grouped);               // 3) Work phase (worker, 병렬)
+_eventor.Arrange(grouped);                    // 4) Arrange phase
+```
+
+- **Event**: 시간 기반 주기 작업(서버 정보 동기화, alive heartbeat 등). 패킷과 무관.
+- **Prepare**: 세션/로그인 도메인 선처리. 예) `CALoginReq` 로 Player 를 `PlayerArchive` 에 등록,
+  `NetDisconnect` 로 Player 제거.
+- **Work**: **Player 단위 병렬 처리(worker phase)**. 아래 3장 참조.
+- **Arrange**: 후처리. 모든 Player 의 Work 가 끝난 뒤 단일 tick 스레드에서 실행.
+
+패킷 큐는 더블 버퍼(`PacketQueue`, `Logic/PacketQueue.cs`)다 — IO 스레드는 write 버퍼에 enqueue,
+tick 스레드는 매 tick `Swap()` 으로 O(1) 교환 후 read 버퍼를 처리. List 재사용으로 GC 압박 0.
+
+---
+
+## 2. Eventor 구조와 phase
+
+`LogicEventor`(`Logic/LogicEventor.cs`)는 추상 베이스로, subclass(`OutGameLogicEventor`)가
+패킷 핸들러를 등록하고 phase hook 을 구현한다.
+
+phase 플래그(`Logic/ELogicEvent.cs`):
+
+```
+[Flags] enum ELogicEvent : byte { None=0, Prepare=1<<0, Arrange=1<<1, Work=1<<2 }
+```
+
+`LogicEventor` 의 핸들러는 **sessionId 단위**다 — 시그니처 `Action<long sessionId, T msg, byte flag>`.
+`RegisterHandler<T>(packetId, handler, phases)` 로 등록하며, `phases` 에 명시한 phase 에서만 dispatch 된다.
+같은 패킷을 Prepare/Arrange 양쪽에 등록하면 phase 마다 분기 처리할 수 있다(예: `NetDisconnect`).
+
+`OutGameLogicEventor`(`Logic/OutGameLogicEventor.cs`)에 등록된 OutGame 핸들러:
+
+| 패킷 | phase | 처리 |
+|------|-------|------|
+| `NetDisconnect` | Prepare \| Arrange | Prepare: archive 제거 / Arrange: 게임 상태 cleanup(TODO) |
+| `NetAliveReq` | Arrange | `NetAliveAck` 응답 |
+| `CALoginReq` | Prepare | Player 생성 + archive 등록 + `ACLoginAck` |
+
+> Player 단위 게임 패킷(`CAGetPlayerReq` 등)은 이 테이블이 아니라 **Player 의 핸들러 테이블**에서
+> 처리한다(아래 3장). 즉 핸들러 시스템이 둘이다:
+> - sessionId 단위 / Prepare·Arrange phase → `LogicEventor._handlers` (OutGame 도메인)
+> - Player 단위 / Work phase → `Player.Handlers` (게임 도메인)
+
+---
+
+## 3. Work phase — Player 단위 병렬 처리
+
+`OutGameLogicEventor.Work(tickMs, grouped)` 가 worker phase 를 오케스트레이션한다.
+
+```
+public override void Work(long tickMs, Dictionary<long, List<PacketMessage>> sessionPackets)
+{
+    if (_archive.Count == 0) return;
+    Parallel.ForEach(_archive.Players, player =>
+    {
+        var packets = sessionPackets.TryGetValue(player.SessionId, out var list) ? list : EmptyPackets;
+        player.Execute(tickMs, packets);
+    });
+}
+```
+
+핵심 규칙:
+
+- **순회 대상은 `_archive` 의 전체 Player** (`grouped` 가 아님). tick 단위 로직은 패킷이 없어도 돌아야
+  하므로, 패킷이 없는 Player 도 매 tick `Execute` 된다. 패킷은 `SessionId` 로 매칭하고, 없으면 공유
+  빈 리스트(`EmptyPackets`)를 넘긴다.
+- **`Parallel.ForEach` = "한 워커 스레드가 한 Player 를 끝까지 담당, 끝나면 다음 Player"** 의 동적
+  파티셔닝. 한 Player 의 패킷은 한 스레드가 순차 처리하므로 그 Player 상태에 race 가 없다.
+- **barrier**: `Parallel.ForEach` 는 동기 블로킹이라, 모든 Player 의 `Execute` 가 끝나기 전에는
+  반환하지 않는다. 따라서 다음 단계인 `Arrange` 는 전 Player 처리 완료 후에야 호출된다.
+- **disconnect 처리**: Prepare 에서 제거된 Player 는 archive 에 없으므로 Work 순회에서 자동 제외된다.
+
+### Player.Execute (`Game/Player.cs`)
+
+`Player` 가 패킷 핸들러 테이블과 처리 본문을 모두 소유한다(per-entity tick update 패턴).
+
+- **핸들러 테이블은 static 공유** (`private static readonly Dictionary<int, Action<Player, ReadOnlyMemory<byte>>> Handlers`).
+  static 생성자에서 `Register<T>(packetId, (p, m) => p.OnXxx(m))` 로 1회 등록 → 모든 Player 가 공유.
+  `Register<T>` 는 `MessageParser<T>` 로 ParseFrom 을 1회 수행하는 dispatch 델리게이트를 만들어 보관.
+- **`Execute(long tickMs, List<PacketMessage> packets)`** — worker phase 진입점:
+  1. `packets` 를 **도착 순서대로** 순회하며 핸들러 dispatch (순서 보존). 미등록 패킷은 skip,
+     핸들러 예외는 패킷마다 try/catch 로 격리.
+  2. tick 단위 Player 로직(버프 만료 / 타이머 등) 수행 — 현재 골격(TODO).
+- **응답 송신**은 `Player.Send(packetId, msg)` 헬퍼 — 자기 세션으로만 송신.
+
+게임 패킷 핸들러 추가 방법:
+1. `Player` static 생성자에 `Register<새패킷>((int)EMessageID.새패킷, (p, m) => p.On새패킷(m));` 추가
+2. `Player` 인스턴스 메서드 `private void On새패킷(새패킷 msg) { ... }` 구현
+3. 응답이 필요하면 `Send((int)EMessageID.응답, ack);`
+
+---
+
+## 4. 동시성 규약 (반드시 지킬 것)
+
+worker phase 핸들러(`Player.On*` 및 tick 로직)는 **worker 스레드**에서 병렬 실행된다:
+
+- **자기 자신(this Player)과 자기 세션(`Send`) 외의 전역 / 타 Player 상태를 변경하지 말 것.**
+  교차 변경(타 Player, 전역 자료구조)이 필요하면 단일 tick 스레드인 **Arrange phase 로 미룬다.**
+- 읽기 전용 공유 데이터(설정, static 핸들러 테이블 등) 접근은 안전.
+
+이게 성립하는 근거:
+
+- `PlayerArchive`(`Logic/PlayerArchive.cs`)는 lock 없는 `Dictionary` 지만, 등록/제거는 Prepare(단일
+  tick 스레드)에서만 일어난다. Work 동안에는 `Players` 열거/읽기만 하고 archive 를 변경하지 않으므로
+  안전하다.
+- `Player.Handlers` 는 static 생성자에서만 채우고 이후 읽기 전용 → 병렬 읽기 안전.
+- `NetworkManager._sessions` 는 `ConcurrentDictionary`; `Session.Send` 는 Interlocked /
+  ConcurrentQueue / CAS 로 스레드 안전. 게다가 한 세션은 한 워커만 담당하므로 동일 세션 동시 Send 도
+  발생하지 않는다.
+- 네트워크 계층 불변식은 `CLAUDE.md` §5.6 참조. worker 는 logic 스레드 풀에서 동작하며 IO 스레드를
+  블로킹하지 않는다.
+
+---
+
+## 5. 파일 맵
+
+| 파일 | 역할 |
+|------|------|
+| `Logic/OutGameService.cs` | tick 메인 루프(`MainLoop`), phase 호출, 패킷 그룹핑 |
+| `Logic/LogicEventor.cs` | Eventor 추상 베이스. sessionId 단위 핸들러 등록 + Prepare/Work/Arrange hook |
+| `Logic/OutGameLogicEventor.cs` | OutGame 도메인 Eventor. OutGame 핸들러 + `Work` override(병렬 분산) |
+| `Logic/ELogicEvent.cs` | phase 플래그 enum (Prepare/Arrange/Work) |
+| `Logic/PacketQueue.cs` | IO↔tick 더블 버퍼 패킷 큐 |
+| `Logic/PacketMessage.cs` | 패킷 struct (sessionId, packetId, payload) |
+| `Logic/PlayerArchive.cs` | 세션 단위 Player 보관자. `Players` 로 전체 순회 |
+| `Game/Player.cs` | Player 엔티티 + static 핸들러 테이블 + `Execute`(per-entity tick) |
+| `Game/EPlayerState.cs` (`DefineEnum.cs`) | Player 라이프사이클 상태 enum |

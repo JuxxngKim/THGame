@@ -22,6 +22,10 @@ This applies to all explanations, comments, commit messages, code reviews, and a
 - `Common/Tool/ProtocolGenerator/generated/` — protobuf 생성 코드 (THServerCommon이 링크 컴파일)
 - `Client/` — UE5 클라이언트
 
+**서버 Logic/Tick 아키텍처**: tick 루프(Event→Prepare→Work→Arrange), Player 단위 worker phase 병렬 처리,
+패킷 핸들러 등록 구조는 [`docs/server-logic-architecture.md`](docs/server-logic-architecture.md) 참조.
+서버 로직(`Server/THGameServer/Logic`·`Game`)을 다룰 때 먼저 읽을 것.
+
 ---
 
 ## 2. General Precautions

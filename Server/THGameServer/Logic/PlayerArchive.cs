@@ -11,6 +11,9 @@ public sealed class PlayerArchive
 
     public int Count => _bySession.Count;
 
+    // worker phase 전체 순회용. Work 동안 archive 는 불변(등록/제거는 Prepare 에서만)이므로 열거 안전.
+    public Dictionary<long, Player>.ValueCollection Players => _bySession.Values;
+
     public bool TryRegister(Player player)
     {
         if (_bySession.ContainsKey(player.SessionId))

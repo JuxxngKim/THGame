@@ -50,6 +50,12 @@ public abstract class LogicEventor
         Dispatch(sessionPackets, ELogicEvent.Prepare);
     }
 
+    // worker phase 진입점 — Prepare 와 Arrange 사이에서 호출.
+    // 기본은 no-op. Player 단위 병렬 처리가 필요한 subclass(OutGameLogicEventor)가 override.
+    public virtual void Work(long tickMs, Dictionary<long, List<PacketMessage>> sessionPackets)
+    {
+    }
+
     public virtual void Arrange(Dictionary<long, List<PacketMessage>> sessionPackets)
     {
         Dispatch(sessionPackets, ELogicEvent.Arrange);

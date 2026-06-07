@@ -6,8 +6,8 @@ using TH.Common.Time;
 
 namespace TH.Server.Logic;
 
-// C++ OutGameService 미러. tick 당 Event → Prepare → Arrange 의 phase 처리.
-// Player abstraction 도입 시 Arrange 전에 worker phase(Player 단위 병렬 처리) 가 추가될 예정.
+// C++ OutGameService 미러. tick 당 Event → Prepare → Work → Arrange 의 phase 처리.
+// Work 는 Player 단위 병렬 처리(worker phase) — Prepare 와 Arrange 사이에서 전체 Player 를 분산 처리.
 public sealed class OutGameService : Singleton<OutGameService>
 {
     public const int TickIntervalMs = 300;
@@ -58,6 +58,7 @@ public sealed class OutGameService : Singleton<OutGameService>
                 var grouped = GroupBySession(raw);
 
                 _eventor.Prepare(grouped);
+                _eventor.Work(tickMs, grouped);
                 _eventor.Arrange(grouped);
 
                 raw.Clear();
