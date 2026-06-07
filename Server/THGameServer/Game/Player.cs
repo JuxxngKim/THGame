@@ -1,6 +1,7 @@
-﻿using TH.Common.Time;
+﻿using TH.Common;
+using TH.Common.Time;
 
-namespace TH.Common.Game;
+namespace TH.Server.Game;
 
 // 세션-스코프 Player 엔티티. tick 메인 스레드에서만 접근되므로 동기화 멤버 없음.
 public sealed class Player

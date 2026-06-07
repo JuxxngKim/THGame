@@ -1,8 +1,9 @@
 ﻿using Google.Protobuf;
 using Serilog;
 using Th;
-using TH.Common.Game;
+using TH.Common;
 using TH.Common.Network;
+using TH.Server.Game;
 using TH.Common.Time;
 
 namespace TH.Server.Logic;
@@ -20,6 +21,9 @@ public sealed class OutGameLogicEventor : LogicEventor
     private long _lastBiCurrentUserSyncTime;
     private long _nextPlayerCountSyncTime;
     private long _nextServerAliveSyncTime;
+
+    // 세션 단위 Player 보관자 — 이 eventor 가 소유. tick 스레드에서만 접근.
+    private readonly PlayerArchive _archive = new();
 
     public OutGameLogicEventor()
     {
@@ -76,7 +80,7 @@ public sealed class OutGameLogicEventor : LogicEventor
     {
         if (IsPrepareEvent(flag))
         {
-            if (PlayerArchive.Instance.Remove(sessionId))
+            if (_archive.Remove(sessionId))
                 Log.Debug("PlayerArchive removed SessionId={Id}", sessionId);
         }
         else if (IsArrangeEvent(flag))
@@ -95,7 +99,7 @@ public sealed class OutGameLogicEventor : LogicEventor
     private void OnCALoginReq(long sessionId, CALoginReq msg, byte flag)
     {
         // 멱등성: 동일 세션에서 중복 CALoginReq 차단.
-        if (PlayerArchive.Instance.Find(sessionId) is not null)
+        if (_archive.Find(sessionId) is not null)
         {
             Log.Warning("CALoginReq duplicated SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
             return;
@@ -109,7 +113,7 @@ public sealed class OutGameLogicEventor : LogicEventor
             State     = EPlayerState.LoggedIn,
         };
 
-        if (!PlayerArchive.Instance.TryRegister(player))
+        if (!_archive.TryRegister(player))
         {
             Log.Warning("CALoginReq register failed SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
             return;

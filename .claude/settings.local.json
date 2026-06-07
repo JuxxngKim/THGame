@@ -21,7 +21,22 @@
       "Bash(Get-ChildItem *)",
       "PowerShell($files = @\\(\"Server\\\\THGameServer\\\\Logic\\\\PacketMessage.cs\",\"Server\\\\THGameServer\\\\Logic\\\\PacketQueue.cs\",\"Server\\\\THGameServer\\\\Logic\\\\PacketDispatcher.cs\",\"Server\\\\THGameServer\\\\Logic\\\\LogicEventor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\LogicService.cs\",\"Server\\\\THGameServer\\\\Handlers\\\\AliveHandler.cs\"\\); foreach \\($f in $files\\) { $b = [System.IO.File]::ReadAllBytes\\($f\\); if \\(-not \\($b.Length -ge 3 -and $b[0] -eq 0xEF -and $b[1] -eq 0xBB -and $b[2] -eq 0xBF\\)\\) { $bom = [byte[]]\\(0xEF,0xBB,0xBF\\); $out = New-Object byte[] \\($bom.Length + $b.Length\\); [Array]::Copy\\($bom, 0, $out, 0, $bom.Length\\); [Array]::Copy\\($b, 0, $out, $bom.Length, $b.Length\\); [System.IO.File]::WriteAllBytes\\($f, $out\\); \"BOM 추가: $f\" } else { \"이미 BOM: $f\" } })",
       "PowerShell($b = [System.IO.File]::ReadAllBytes\\(\"Server\\\\THGameServer\\\\Logic\\\\LogicService.cs\"\\); \"{0:X2} {1:X2} {2:X2}\" -f $b[0],$b[1],$b[2])",
-      "PowerShell($files = @\\(\"Server\\\\THGameServer\\\\Logic\\\\ELogicEvent.cs\",\"Server\\\\THGameServer\\\\Logic\\\\LogicEventor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\OutGameLogicEventor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\PacketDistributor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\PlayerExecutor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\OutGameService.cs\",\"Server\\\\THGameServer\\\\GameServerApp.cs\"\\); $utf8Bom = New-Object System.Text.UTF8Encoding\\($true\\); foreach \\($f in $files\\) { $text = [System.IO.File]::ReadAllText\\($f\\); [System.IO.File]::WriteAllText\\($f, $text, $utf8Bom\\) }; foreach \\($f in $files\\) { $b = [System.IO.File]::ReadAllBytes\\($f\\); \"{0,-60} {1:X2} {2:X2} {3:X2}\" -f $f,$b[0],$b[1],$b[2] })"
+      "PowerShell($files = @\\(\"Server\\\\THGameServer\\\\Logic\\\\ELogicEvent.cs\",\"Server\\\\THGameServer\\\\Logic\\\\LogicEventor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\OutGameLogicEventor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\PacketDistributor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\PlayerExecutor.cs\",\"Server\\\\THGameServer\\\\Logic\\\\OutGameService.cs\",\"Server\\\\THGameServer\\\\GameServerApp.cs\"\\); $utf8Bom = New-Object System.Text.UTF8Encoding\\($true\\); foreach \\($f in $files\\) { $text = [System.IO.File]::ReadAllText\\($f\\); [System.IO.File]::WriteAllText\\($f, $text, $utf8Bom\\) }; foreach \\($f in $files\\) { $b = [System.IO.File]::ReadAllBytes\\($f\\); \"{0,-60} {1:X2} {2:X2} {3:X2}\" -f $f,$b[0],$b[1],$b[2] })",
+      "WebFetch(domain:github.com)",
+      "PowerShell($c = Get-Command cargo -ErrorAction SilentlyContinue; if \\($c\\) { \"cargo: $\\($c.Source\\)\"; cargo --version } else { \"cargo: NOT FOUND\" })",
+      "PowerShell($r = Invoke-RestMethod -Uri \"https://api.github.com/repos/rtk-ai/rtk/releases/latest\" -Headers @{ \"User-Agent\" = \"ps\" }; \"tag: $\\($r.tag_name\\)\"; $r.assets | Select-Object name, @{n='size_MB';e={[math]::Round\\($_.size/1MB,2\\)}}, browser_download_url | Format-List)",
+      "PowerShell($p = \"C:\\\\Users\\\\juyeo\\\\OneDrive\\\\Desktop\\\\Project\\\\THGame\\\\Server\\\\THServerCommon\\\\DefineEnum.cs\"; $content = Get-Content $p -Raw; $utf8Bom = New-Object System.Text.UTF8Encoding $true; [System.IO.File]::WriteAllText\\($p, $content, $utf8Bom\\); $bytes = [System.IO.File]::ReadAllBytes\\($p\\); \"BOM: {0:X2} {1:X2} {2:X2}\" -f $bytes[0],$bytes[1],$bytes[2])",
+      "PowerShell($p = \"C:\\\\Users\\\\juyeo\\\\OneDrive\\\\Desktop\\\\Project\\\\THGame\\\\Server\\\\THServerCommon\\\\DefineEnum.cs\"; $bytes = [System.IO.File]::ReadAllBytes\\($p\\); if \\($bytes[0] -ne 0xEF -or $bytes[1] -ne 0xBB -or $bytes[2] -ne 0xBF\\) { $bom = [byte[]]\\(0xEF,0xBB,0xBF\\); $out = New-Object byte[] \\($bom.Length + $bytes.Length\\); [Array]::Copy\\($bom,0,$out,0,3\\); [Array]::Copy\\($bytes,0,$out,3,$bytes.Length\\); [System.IO.File]::WriteAllBytes\\($p,$out\\); \"BOM added\" } else { \"BOM already present\" })",
+      "Skill(update-config)",
+      "Edit",
+      "Write",
+      "Bash(rm *)",
+      "Bash(Remove-Item *)",
+      "Bash(del *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(del *)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('.claude/settings.local.json','utf8'\\)\\); console.log\\('JSON OK'\\)\")",
+      "Bash(python -c \"import json; json.load\\(open\\('.claude/settings.local.json'\\)\\); print\\('JSON OK'\\)\")"
     ]
   }
 }

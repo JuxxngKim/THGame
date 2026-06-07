@@ -1,15 +1,13 @@
 ﻿using Serilog;
-using TH.Common;
-using TH.Common.Game;
+using TH.Server.Game;
 
 namespace TH.Server.Logic;
 
 // 세션 단위 Player 보관자. tick 메인 스레드(Prepare/Arrange)에서만 호출되므로 lock 없음.
-public sealed class PlayerArchive : Singleton<PlayerArchive>
+// OutGameLogicEventor 가 소유(composition)하는 도메인 자료구조 — 전역 상태 아님.
+public sealed class PlayerArchive
 {
     private readonly Dictionary<long, Player> _bySession = new();
-
-    private PlayerArchive() { }
 
     public int Count => _bySession.Count;
 
