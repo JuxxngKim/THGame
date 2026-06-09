@@ -36,7 +36,13 @@
       "PowerShell(Remove-Item *)",
       "PowerShell(del *)",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('.claude/settings.local.json','utf8'\\)\\); console.log\\('JSON OK'\\)\")",
-      "Bash(python -c \"import json; json.load\\(open\\('.claude/settings.local.json'\\)\\); print\\('JSON OK'\\)\")"
+      "Bash(python -c \"import json; json.load\\(open\\('.claude/settings.local.json'\\)\\); print\\('JSON OK'\\)\")",
+      "PowerShell(& \"C:\\\\Users\\\\juyeo\\\\Downloads\\\\rtk-x86_64-pc-windows-msvc\\\\rtk.exe\" --help)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "PowerShell(gh api *)",
+      "PowerShell(& \"C:\\\\Users\\\\juyeo\\\\.local\\\\bin\\\\rtk.exe\" init -g --dry-run -vv)",
+      "PowerShell(rtk init *)",
+      "PowerShell(rtk *)"
     ]
   }
 }

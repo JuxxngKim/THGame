@@ -39,6 +39,9 @@ public sealed class OutGameService : Singleton<OutGameService>
 
     private void MainLoop()
     {
+        // 다음 tick 예정 시각의 초기 anchor. 이후 매 tick 절대 시각 기반(+=)으로 진전시킨다.
+        _nextUpdateTimeMs = TimeManager.Instance.UnixMillis();
+
         while (!_stopping)
         {
             try
@@ -49,6 +52,15 @@ public sealed class OutGameService : Singleton<OutGameService>
                     Thread.Sleep(1);
                     continue;
                 }
+
+                // 다음 예정 시각을 phase 처리 "전에" 절대 시각 기반으로 진전시킨다.
+                // - drift 방지: anchor 를 "깨어난 실제 시각"이 아니라 직전 예정 시각에 누적(Sleep 분해능 누적 제거).
+                // - catch-up: 한참 밀렸으면 burst 로 몰지 않고 놓친 tick 을 건너뛴다.
+                // - 핫루프 방지: phase 에서 예외가 나도 예정 시각이 이미 진전돼 다음 루프가 즉시 재처리하지 않는다.
+                do
+                {
+                    _nextUpdateTimeMs += TickIntervalMs;
+                } while (_nextUpdateTimeMs <= tickMs);
 
                 long tickStart = Stopwatch.GetTimestamp();
 
@@ -62,8 +74,6 @@ public sealed class OutGameService : Singleton<OutGameService>
                 _eventor.Arrange(grouped);
 
                 raw.Clear();
-
-                _nextUpdateTimeMs = tickMs + TickIntervalMs;
 
                 var elapsed = Stopwatch.GetElapsedTime(tickStart);
                 if (elapsed.TotalMilliseconds > TickIntervalMs)
