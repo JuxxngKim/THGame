@@ -63,17 +63,7 @@ public sealed class OutGameService : Singleton<OutGameService>
                 } while (_nextUpdateTimeMs <= tickMs);
 
                 long tickStart = Stopwatch.GetTimestamp();
-
-                _eventor.Event(tickMs);
-
-                var raw = PacketQueue.Instance.Swap();
-                var grouped = GroupBySession(raw);
-
-                _eventor.Prepare(grouped);
-                _eventor.Work(tickMs, grouped);
-                _eventor.Arrange(grouped);
-
-                raw.Clear();
+                ProcessTick(tickMs);
 
                 var elapsed = Stopwatch.GetElapsedTime(tickStart);
                 if (elapsed.TotalMilliseconds > TickIntervalMs)
@@ -86,6 +76,21 @@ public sealed class OutGameService : Singleton<OutGameService>
                 Log.Error(ex, "OutGameService MainLoop exception");
             }
         }
+    }
+
+    // 한 tick 본체 — Event → Prepare → Work → Arrange. 타이밍/예외 격리는 MainLoop 책임.
+    private void ProcessTick(long tickMs)
+    {
+        _eventor.Event(tickMs);
+
+        var raw = PacketQueue.Instance.Swap();
+        var grouped = GroupBySession(raw);
+
+        _eventor.Prepare(grouped);
+        _eventor.Work(tickMs, grouped);
+        _eventor.Arrange(grouped);
+
+        raw.Clear();
     }
 
     private static Dictionary<long, List<PacketMessage>> GroupBySession(List<PacketMessage> raw)

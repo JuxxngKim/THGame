@@ -3,6 +3,7 @@ using Th;
 using TH.Common.Config;
 using TH.Common.Network;
 using TH.Common.Time;
+using TH.Server.Data;
 using TH.Server.Logging;
 using TH.Server.Logic;
 
@@ -30,6 +31,9 @@ public sealed class GameServerApp
 
             // OutGameService 초기화 시점에 OutGameLogicEventor 가 생성되며 핸들러가 모두 등록된다.
             OutGameService.Instance.Init();
+
+            // Data(DB) 계층 — AD* 요청을 받아 DA* 로 응답. worker(샤드) 스레드 기동.
+            DBService.Instance.Init();
 
             var section  = $"Game.{ConfigManager.Instance.Id}";
             var bindAddr = ConfigManager.Instance.GetRequired(section, "BindAddr");
@@ -98,6 +102,7 @@ public sealed class GameServerApp
 
         NetworkManager.Instance.Shutdown();
         OutGameService.Instance.Shutdown();
+        DBService.Instance.Shutdown();
         ConfigManager.Instance.Shutdown();
         Log.CloseAndFlush();
     }
