@@ -3,7 +3,6 @@ using Serilog;
 using Th;
 using TH.Common;
 using TH.Common.Network;
-using TH.Server.Data;
 using TH.Server.Game;
 using TH.Common.Time;
 
@@ -109,12 +108,12 @@ public sealed class OutGameLogicEventor : LogicEventor
             return;
         }
 
-        // AccountId 는 Data 서버에서 받아오는 값 — 동기 흐름에서는 0 으로 둠 (후속 PR 에서 채움).
+        // AccountId 는 Data 계층의 DALoginAck 로 채워진다 — 인증 대기 상태로 등록.
         var player = new Player(sessionId)
         {
             AccountId = 0,
             Pid       = msg.Pid,
-            State     = EPlayerState.LoggedIn,
+            State     = EPlayerState.AuthPending,
         };
 
         if (!_workExecutor.TryRegister(player))
@@ -123,32 +122,7 @@ public sealed class OutGameLogicEventor : LogicEventor
             return;
         }
 
-        // (검증용) Data 계층으로 ADLoginReq 송신 — 응답 DALoginAck 는 PacketQueue 로 복귀한다.
-        // 로그인 흐름의 비동기 전환(아래 동기 ACK 제거 → DA 핸들러 수신 후 응답)은 후속 PR.
-        var adReq = new ADLoginReq
-        {
-            MessageID    = EMessageID.AdLoginReq,
-            PID          = msg.Pid,
-            LogKey       = 0,
-            UpdateDate   = new MDateTime(),
-            IsReconnect  = msg.IsReconnect,
-            ServerID     = 0,
-            LanguageID   = msg.LanguageID,
-            PlatformType = msg.PlatformType,
-        };
-        DBService.Instance.Send(sessionId, (int)EMessageID.AdLoginReq, adReq);
-
-        // 동기 단순 흐름 — Data 서버 RPC 없이 즉시 ACK. 후속 PR 에서 비동기로 교체.
-        var ack = new ACLoginAck
-        {
-            MessageID    = EMessageID.AcLoginAck,
-            AccountId    = player.AccountId,
-            IsNewAccount = false,
-            Version      = msg.CurrentVersion.ToString(),
-        };
-        SendTo(sessionId, (int)EMessageID.AcLoginAck, ack);
-
-        Log.Information("Login ok SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
+        Log.Information("CALoginReq accepted SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
     }
 
     // ====================== 주기 작업 ======================

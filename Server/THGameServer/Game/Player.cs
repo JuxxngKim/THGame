@@ -4,6 +4,7 @@ using Th;
 using TH.Common;
 using TH.Common.Network;
 using TH.Common.Time;
+using TH.Server.Data;
 using TH.Server.Logic;
 
 namespace TH.Server.Game;
@@ -19,6 +20,9 @@ public sealed class Player
     public byte LoadingFlags { get; set; }
     public long LastPacketUnixMs { get; set; }
     public long CreatedUnixMs { get; }
+
+    // 로그인 컨텍스트 — CALoginReq 의 클라이언트 버전. DALoginAck 수신 시 ACLoginAck 구성에 사용.
+    private int _loginVersion;
 
     public Player(long sessionId)
     {
@@ -36,6 +40,8 @@ public sealed class Player
 
     static Player()
     {
+        Register<CALoginReq>((int)EMessageID.CaLoginReq, (p, m) => p.OnCALoginReq(m));
+        Register<DALoginAck>((int)EMessageID.DaLoginAck, (p, m) => p.OnDALoginAck(m));
         Register<CAGetPlayerReq>((int)EMessageID.CaGetPlayerReq, (p, m) => p.OnCAGetPlayerReq(m));
     }
 
@@ -101,6 +107,51 @@ public sealed class Player
     }
 
     // ====================== 메시지 핸들러 ======================
+
+    // CALoginReq — Player 는 Eventor(Prepare)에서 이미 생성/등록된 상태로, 이 핸들러는 Work phase 에서 호출된다.
+    // Data 계층으로 ADLoginReq 를 송신하고, 응답 DALoginAck 는 PacketQueue 로 복귀해 다음 tick 의 OnDALoginAck 가 처리한다.
+    private void OnCALoginReq(CALoginReq msg)
+    {
+        _loginVersion = msg.CurrentVersion;
+
+        var adReq = new ADLoginReq
+        {
+            MessageID    = EMessageID.AdLoginReq,
+            PID          = msg.Pid,
+            LogKey       = 0,
+            UpdateDate   = new MDateTime(),
+            IsReconnect  = msg.IsReconnect,
+            ServerID     = 0,
+            LanguageID   = msg.LanguageID,
+            PlatformType = msg.PlatformType,
+        };
+        DBService.Instance.Send(SessionId, (int)EMessageID.AdLoginReq, adReq);
+    }
+
+    // Data 계층의 로그인 인증 결과. 인증 정보를 반영하고 클라이언트에 ACLoginAck 로 응답한다.
+    private void OnDALoginAck(DALoginAck msg)
+    {
+        AccountId = msg.AccountId;
+        State     = EPlayerState.LoggedIn;
+
+        var ack = new ACLoginAck
+        {
+            MessageID               = EMessageID.AcLoginAck,
+            AccountId               = msg.AccountId,
+            AccountName             = msg.PlayerName,
+            ConntectedIP            = string.Empty,
+            ConnectedPort           = 0,
+            IsReconnect             = msg.IsReconnect,
+            IsNewAccount            = msg.IsNewAccount,
+            FreeNicknameChangeCount = msg.FreeNicknameChangeCount,
+            Version                 = _loginVersion.ToString(),
+            ServerID                = 0,
+            ChannelID               = msg.ChannelID,
+        };
+        Send((int)EMessageID.AcLoginAck, ack);
+
+        Log.Information("Login ok SessionId={Id} Pid={Pid} AccountId={Aid}", SessionId, Pid, AccountId);
+    }
 
     private void OnCAGetPlayerReq(CAGetPlayerReq msg)
     {
