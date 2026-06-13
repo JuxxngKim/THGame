@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf;
 using Serilog;
+using TH.Common;
 using TH.Common.Network;
 
 namespace TH.Server.Logic;
@@ -70,11 +71,12 @@ public abstract class LogicEventor
         {
             foreach (var pkt in packets)
             {
+                // Eventor 테이블에 없는 패킷은 이 도메인(sessionId 단위) 소관이 아니다 — Player 단위
+                // 핸들러(Work phase)에서 처리되거나 그 외엔 무시. 모든 패킷이 Prepare/Arrange 양 phase 를
+                // 거치므로 여기서 "dropped" 로 로깅하면 Player 도메인 패킷마다 노이즈가 2배로 쌓인다.
+                // 미등록 player 패킷 로깅은 Player.Execute 가 담당.
                 if (!_handlers.TryGetValue(pkt.PacketId, out var entry))
-                {
-                    Log.Debug("Unregistered packet dropped SessionId={Id} PacketId={Pid}", sessionId, pkt.PacketId);
                     continue;
-                }
                 if ((entry.Phases & phase) == 0) continue;
 
                 try
