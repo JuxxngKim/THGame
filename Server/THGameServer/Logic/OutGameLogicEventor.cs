@@ -40,6 +40,9 @@ public sealed class OutGameLogicEventor : LogicEventor
         RegisterHandler<NetAliveReq>((int)EMessageID.NetAliveReq,
             OnAliveReq, ELogicEvent.Arrange);
 
+        // CALoginReq 는 한 tick 안에서 두 phase 에 걸쳐 처리된다:
+        //  Prepare(여기 OnCALoginReq) — Player 를 인증 대기(AuthPending) 상태로 생성·등록만 한다.
+        //  Work        — 같은 tick 에서 Player.OnCALoginReq 가 ADLoginReq 를 Data 계층으로 송신한다.
         RegisterHandler<CALoginReq>((int)EMessageID.CaLoginReq,
             OnCALoginReq, ELogicEvent.Prepare);
 
@@ -99,6 +102,8 @@ public sealed class OutGameLogicEventor : LogicEventor
         SendTo(sessionId, (int)EMessageID.NetAliveAck, new NetAliveAck());
     }
 
+    // CALoginReq 의 Prepare phase 담당부 — 여기선 Player 등록까지만 하고,
+    // 실제 로그인 요청(ADLoginReq) 송신은 같은 tick 의 Work phase 에서 Player.OnCALoginReq 가 수행한다.
     private void OnCALoginReq(long sessionId, CALoginReq msg, byte flag)
     {
         // 멱등성: 동일 세션에서 중복 CALoginReq 차단.

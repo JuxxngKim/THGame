@@ -25,64 +25,58 @@ namespace Th {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg9zcHJvdG9jb2wucHJvdG8SAnRoGgplbnVtLnByb3RvGg5wcm90b2NvbC5w",
-            "cm90byJnCgtOdWxsTWVzc2FnZRIvCglNZXNzYWdlSUQYYyABKA4yDi50aC5F",
-            "TWVzc2FnZUlEOgxOVUxMX01FU1NBR0USJwoFRXJyb3IYXyABKA4yDS50aC5F",
-            "RXJyb3JNc2c6CUVfVU5LTk9XTiJtChFJbnRlcm5hbEV2ZW50VGljaxI2CglN",
-            "ZXNzYWdlSUQYYyABKA4yDi50aC5FTWVzc2FnZUlEOhNJTlRFUk5BTF9FVkVO",
-            "VF9USUNLEhEKCUV2ZW50VHlwZRgBIAEoBRINCgVWYWx1ZRgCIAEoAyKBAgoK",
-            "QURMb2dpblJlcRIvCglNZXNzYWdlSUQYYyABKA4yDi50aC5FTWVzc2FnZUlE",
-            "OgxBRF9MT0dJTl9SRVESCwoDUElEGAEgAigJEg4KBkxvZ0tleRgCIAIoAxIh",
-            "CgpVcGRhdGVEYXRlGAMgAigLMg0udGguTURhdGVUaW1lEhMKC0lzUmVjb25u",
-            "ZWN0GAQgAigIEhAKCFNlcnZlcklEGAUgAigFEhIKCkxhbmd1YWdlSUQYBiAC",
-            "KAUSEgoKQXBwVmVyc2lvbhgHIAEoCRInCgxQbGF0Zm9ybVR5cGUYCSACKA4y",
-            "ES50aC5FUGxhdGZvcm1UeXBlEgoKAklQGAogASgJIvwCCgpEQUxvZ2luQWNr",
-            "Ei8KCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6DERBX0xPR0lO",
-            "X0FDSxILCgNQSUQYASACKAkSEQoJQWNjb3VudElkGAIgAigDEhAKCEdhbWVE",
-            "YklkGAMgAigFEhIKClBsYXllck5hbWUYBCACKAkSEwoLSXNSZWNvbm5lY3QY",
-            "BSACKAgSEQoJQ2hhbm5lbElEGAYgAigFEh8KF0ZyZWVOaWNrbmFtZUNoYW5n",
-            "ZUNvdW50GAcgAigFEhQKDElzTmV3QWNjb3VudBgIIAIoCBIhCgpVcGRhdGVU",
-            "aW1lGAkgAigLMg0udGguTURhdGVUaW1lEhIKCkxhbmd1YWdlSUQYCiACKAUS",
-            "FQoNVG90YWxQbGF5VGltZRgLIAIoBRIVCg1BdXRoZW50aWNhdGVkGAwgAigI",
-            "EicKDFBsYXRmb3JtVHlwZRgNIAIoDjIRLnRoLkVQbGF0Zm9ybVR5cGUSCgoC",
-            "SVAYDiABKAkifgoKREFMb2dpbk5haxIvCglNZXNzYWdlSUQYYyABKA4yDi50",
-            "aC5FTWVzc2FnZUlEOgxEQV9MT0dJTl9OQUsSHAoFRXJyb3IYASACKA4yDS50",
-            "aC5FRXJyb3JNc2cSCwoDUElEGAIgAigJEhQKDElzRm9yY2VMb2dpbhgDIAIo",
-            "CCKpAgoPQURQbGF5ZXJJbmZvUmVxEjUKCU1lc3NhZ2VJRBhjIAEoDjIOLnRo",
-            "LkVNZXNzYWdlSUQ6EkFEX1BMQVlFUl9JTkZPX1JFURILCgNQSUQYASACKAkS",
-            "IQoKVXBkYXRlVGltZRgCIAIoCzINLnRoLk1EYXRlVGltZRITCgtEZWZhdWx0",
-            "RGF0YRgDIAIoCRIgChhEZWZhdWx0UHJvZmlsZVBvcnRyYWl0SUQYByABKAUS",
-            "HQoVRGVmYXVsdFByb2ZpbGVGcmFtZUlEGAggASgFEhcKD05ld1BsYXllclBl",
-            "cmlvZBgJIAEoBRIaChJSZXR1cm5QbGF5ZXJQZXJpb2QYCiABKAUSJAocQWJz",
-            "ZW5jZVBlcmlvZEZvclJldHVyblBsYXllchgLIAEoBSLFAgoPREFQbGF5ZXJJ",
-            "bmZvQWNrEjUKCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6EkRB",
-            "X1BMQVlFUl9JTkZPX0FDSxIcCgVFcnJvchhfIAIoDjINLnRoLkVFcnJvck1z",
-            "ZxILCgNFeHAYASABKAUSFwoPTGV2ZWxSZXdhcmRTdGVwGAIgASgFEhIKClBs",
-            "YXllclR5cGUYAyABKAUSKgoTUGxheWVyVHlwZUNoZWNrRGF0ZRgEIAEoCzIN",
-            "LnRoLk1EYXRlVGltZRIgChFXaXRoZHJhd2FsREJDbGVhchgFIAEoCDoFZmFs",
-            "c2USFwoPQXBwUmV2aWV3U3RhdHVzGAYgASgFEhgKDVB1cmNoYXNlUG9pbnQY",
-            "ByABKAM6ATASIgoLTGV2ZWxVcERhdGUYCCABKAsyDS50aC5NRGF0ZVRpbWUi",
-            "SAoPQURQbGF5ZXJIZXJvUmVxEjUKCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVN",
-            "ZXNzYWdlSUQ6EkFEX1BMQVlFUl9IRVJPX1JFUSKAAQoPREFQbGF5ZXJIZXJv",
-            "QWNrEjUKCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6EkRBX1BM",
-            "QVlFUl9IRVJPX0FDSxIcCgVFcnJvchhfIAIoDjINLnRoLkVFcnJvck1zZxIY",
-            "CgVIZXJvcxgBIAMoCzIJLnRoLk1IZXJvIlMKFEFEUGxheWVyRXF1aXBJdGVt",
-            "UmVxEjsKCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6GEFEX1BM",
-            "QVlFUl9FUVVJUF9JVEVNX1JFUSKVAQoUREFQbGF5ZXJFcXVpcEl0ZW1BY2sS",
-            "OwoJTWVzc2FnZUlEGGMgASgOMg4udGguRU1lc3NhZ2VJRDoYREFfUExBWUVS",
-            "X0VRVUlQX0lURU1fQUNLEhwKBUVycm9yGF8gAigOMg0udGguRUVycm9yTXNn",
-            "EiIKCkVxdWlwSXRlbXMYASADKAsyDi50aC5NRXF1aXBJdGVtIssBChVBREVu",
-            "ZG9mR2FtZVNlc3Npb25SZXESPQoJTWVzc2FnZUlEGGMgASgOMg4udGguRU1l",
-            "c3NhZ2VJRDoaQURfRU5EX09GX0dBTUVfU0VTU0lPTl9SRVESJQoOTGFzdFVw",
-            "ZGF0ZVRpbWUYASACKAsyDS50aC5NRGF0ZVRpbWUSDgoGTG9nS2V5GAIgAigD",
-            "EhEKCUNoYW5uZWxJRBgDIAIoBRIPCgdHdWlsZElEGAQgAigFEhgKEElzU2Vx",
-            "TWFpbnRlbmFuY2UYBSACKAgidAoVREFFbmRvZkdhbWVTZXNzaW9uQWNrEj0K",
-            "CU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6GkRBX0VORF9PRl9H",
-            "QU1FX1NFU1NJT05fQUNLEhwKBUVycm9yGF8gAigOMg0udGguRUVycm9yTXNn"));
+            "cm90byKBAgoKQURMb2dpblJlcRIvCglNZXNzYWdlSUQYYyABKA4yDi50aC5F",
+            "TWVzc2FnZUlEOgxBRF9MT0dJTl9SRVESCwoDUElEGAEgAigJEg4KBkxvZ0tl",
+            "eRgCIAIoAxIhCgpVcGRhdGVEYXRlGAMgAigLMg0udGguTURhdGVUaW1lEhMK",
+            "C0lzUmVjb25uZWN0GAQgAigIEhAKCFNlcnZlcklEGAUgAigFEhIKCkxhbmd1",
+            "YWdlSUQYBiACKAUSEgoKQXBwVmVyc2lvbhgHIAEoCRInCgxQbGF0Zm9ybVR5",
+            "cGUYCSACKA4yES50aC5FUGxhdGZvcm1UeXBlEgoKAklQGAogASgJIvwCCgpE",
+            "QUxvZ2luQWNrEi8KCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6",
+            "DERBX0xPR0lOX0FDSxILCgNQSUQYASACKAkSEQoJQWNjb3VudElkGAIgAigD",
+            "EhAKCEdhbWVEYklkGAMgAigFEhIKClBsYXllck5hbWUYBCACKAkSEwoLSXNS",
+            "ZWNvbm5lY3QYBSACKAgSEQoJQ2hhbm5lbElEGAYgAigFEh8KF0ZyZWVOaWNr",
+            "bmFtZUNoYW5nZUNvdW50GAcgAigFEhQKDElzTmV3QWNjb3VudBgIIAIoCBIh",
+            "CgpVcGRhdGVUaW1lGAkgAigLMg0udGguTURhdGVUaW1lEhIKCkxhbmd1YWdl",
+            "SUQYCiACKAUSFQoNVG90YWxQbGF5VGltZRgLIAIoBRIVCg1BdXRoZW50aWNh",
+            "dGVkGAwgAigIEicKDFBsYXRmb3JtVHlwZRgNIAIoDjIRLnRoLkVQbGF0Zm9y",
+            "bVR5cGUSCgoCSVAYDiABKAkifgoKREFMb2dpbk5haxIvCglNZXNzYWdlSUQY",
+            "YyABKA4yDi50aC5FTWVzc2FnZUlEOgxEQV9MT0dJTl9OQUsSHAoFRXJyb3IY",
+            "ASACKA4yDS50aC5FRXJyb3JNc2cSCwoDUElEGAIgAigJEhQKDElzRm9yY2VM",
+            "b2dpbhgDIAIoCCKpAgoPQURQbGF5ZXJJbmZvUmVxEjUKCU1lc3NhZ2VJRBhj",
+            "IAEoDjIOLnRoLkVNZXNzYWdlSUQ6EkFEX1BMQVlFUl9JTkZPX1JFURILCgNQ",
+            "SUQYASACKAkSIQoKVXBkYXRlVGltZRgCIAIoCzINLnRoLk1EYXRlVGltZRIT",
+            "CgtEZWZhdWx0RGF0YRgDIAIoCRIgChhEZWZhdWx0UHJvZmlsZVBvcnRyYWl0",
+            "SUQYByABKAUSHQoVRGVmYXVsdFByb2ZpbGVGcmFtZUlEGAggASgFEhcKD05l",
+            "d1BsYXllclBlcmlvZBgJIAEoBRIaChJSZXR1cm5QbGF5ZXJQZXJpb2QYCiAB",
+            "KAUSJAocQWJzZW5jZVBlcmlvZEZvclJldHVyblBsYXllchgLIAEoBSLFAgoP",
+            "REFQbGF5ZXJJbmZvQWNrEjUKCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNz",
+            "YWdlSUQ6EkRBX1BMQVlFUl9JTkZPX0FDSxIcCgVFcnJvchhfIAIoDjINLnRo",
+            "LkVFcnJvck1zZxILCgNFeHAYASABKAUSFwoPTGV2ZWxSZXdhcmRTdGVwGAIg",
+            "ASgFEhIKClBsYXllclR5cGUYAyABKAUSKgoTUGxheWVyVHlwZUNoZWNrRGF0",
+            "ZRgEIAEoCzINLnRoLk1EYXRlVGltZRIgChFXaXRoZHJhd2FsREJDbGVhchgF",
+            "IAEoCDoFZmFsc2USFwoPQXBwUmV2aWV3U3RhdHVzGAYgASgFEhgKDVB1cmNo",
+            "YXNlUG9pbnQYByABKAM6ATASIgoLTGV2ZWxVcERhdGUYCCABKAsyDS50aC5N",
+            "RGF0ZVRpbWUiSAoPQURQbGF5ZXJIZXJvUmVxEjUKCU1lc3NhZ2VJRBhjIAEo",
+            "DjIOLnRoLkVNZXNzYWdlSUQ6EkFEX1BMQVlFUl9IRVJPX1JFUSKAAQoPREFQ",
+            "bGF5ZXJIZXJvQWNrEjUKCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdl",
+            "SUQ6EkRBX1BMQVlFUl9IRVJPX0FDSxIcCgVFcnJvchhfIAIoDjINLnRoLkVF",
+            "cnJvck1zZxIYCgVIZXJvcxgBIAMoCzIJLnRoLk1IZXJvIlMKFEFEUGxheWVy",
+            "RXF1aXBJdGVtUmVxEjsKCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdl",
+            "SUQ6GEFEX1BMQVlFUl9FUVVJUF9JVEVNX1JFUSKVAQoUREFQbGF5ZXJFcXVp",
+            "cEl0ZW1BY2sSOwoJTWVzc2FnZUlEGGMgASgOMg4udGguRU1lc3NhZ2VJRDoY",
+            "REFfUExBWUVSX0VRVUlQX0lURU1fQUNLEhwKBUVycm9yGF8gAigOMg0udGgu",
+            "RUVycm9yTXNnEiIKCkVxdWlwSXRlbXMYASADKAsyDi50aC5NRXF1aXBJdGVt",
+            "IssBChVBREVuZG9mR2FtZVNlc3Npb25SZXESPQoJTWVzc2FnZUlEGGMgASgO",
+            "Mg4udGguRU1lc3NhZ2VJRDoaQURfRU5EX09GX0dBTUVfU0VTU0lPTl9SRVES",
+            "JQoOTGFzdFVwZGF0ZVRpbWUYASACKAsyDS50aC5NRGF0ZVRpbWUSDgoGTG9n",
+            "S2V5GAIgAigDEhEKCUNoYW5uZWxJRBgDIAIoBRIPCgdHdWlsZElEGAQgAigF",
+            "EhgKEElzU2VxTWFpbnRlbmFuY2UYBSACKAgidAoVREFFbmRvZkdhbWVTZXNz",
+            "aW9uQWNrEj0KCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6GkRB",
+            "X0VORF9PRl9HQU1FX1NFU1NJT05fQUNLEhwKBUVycm9yGF8gAigOMg0udGgu",
+            "RUVycm9yTXNn"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Th.EnumReflection.Descriptor, global::Th.ProtocolReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.NullMessage), global::Th.NullMessage.Parser, new[]{ "MessageID", "Error" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.InternalEventTick), global::Th.InternalEventTick.Parser, new[]{ "MessageID", "EventType", "Value" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ADLoginReq), global::Th.ADLoginReq.Parser, new[]{ "MessageID", "PID", "LogKey", "UpdateDate", "IsReconnect", "ServerID", "LanguageID", "AppVersion", "PlatformType", "IP" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.DALoginAck), global::Th.DALoginAck.Parser, new[]{ "MessageID", "PID", "AccountId", "GameDbId", "PlayerName", "IsReconnect", "ChannelID", "FreeNicknameChangeCount", "IsNewAccount", "UpdateTime", "LanguageID", "TotalPlayTime", "Authenticated", "PlatformType", "IP" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.DALoginNak), global::Th.DALoginNak.Parser, new[]{ "MessageID", "Error", "PID", "IsForceLogin" }, null, null, null, null),
@@ -100,527 +94,6 @@ namespace Th {
 
   }
   #region Messages
-  public sealed partial class NullMessage : pb::IMessage<NullMessage>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<NullMessage> _parser = new pb::MessageParser<NullMessage>(() => new NullMessage());
-    private pb::UnknownFieldSet _unknownFields;
-    private int _hasBits0;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<NullMessage> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[0]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public NullMessage() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public NullMessage(NullMessage other) : this() {
-      _hasBits0 = other._hasBits0;
-      messageID_ = other.messageID_;
-      error_ = other.error_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public NullMessage Clone() {
-      return new NullMessage(this);
-    }
-
-    /// <summary>Field number for the "MessageID" field.</summary>
-    public const int MessageIDFieldNumber = 99;
-    private readonly static global::Th.EMessageID MessageIDDefaultValue = global::Th.EMessageID.NullMessage;
-
-    private global::Th.EMessageID messageID_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Th.EMessageID MessageID {
-      get { if ((_hasBits0 & 2) != 0) { return messageID_; } else { return MessageIDDefaultValue; } }
-      set {
-        _hasBits0 |= 2;
-        messageID_ = value;
-      }
-    }
-    /// <summary>Gets whether the "MessageID" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasMessageID {
-      get { return (_hasBits0 & 2) != 0; }
-    }
-    /// <summary>Clears the value of the "MessageID" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearMessageID() {
-      _hasBits0 &= ~2;
-    }
-
-    /// <summary>Field number for the "Error" field.</summary>
-    public const int ErrorFieldNumber = 95;
-    private readonly static global::Th.EErrorMsg ErrorDefaultValue = global::Th.EErrorMsg.EUnknown;
-
-    private global::Th.EErrorMsg error_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Th.EErrorMsg Error {
-      get { if ((_hasBits0 & 1) != 0) { return error_; } else { return ErrorDefaultValue; } }
-      set {
-        _hasBits0 |= 1;
-        error_ = value;
-      }
-    }
-    /// <summary>Gets whether the "Error" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasError {
-      get { return (_hasBits0 & 1) != 0; }
-    }
-    /// <summary>Clears the value of the "Error" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearError() {
-      _hasBits0 &= ~1;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as NullMessage);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(NullMessage other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (MessageID != other.MessageID) return false;
-      if (Error != other.Error) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (HasMessageID) hash ^= MessageID.GetHashCode();
-      if (HasError) hash ^= Error.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (HasError) {
-        output.WriteRawTag(248, 5);
-        output.WriteEnum((int) Error);
-      }
-      if (HasMessageID) {
-        output.WriteRawTag(152, 6);
-        output.WriteEnum((int) MessageID);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasError) {
-        output.WriteRawTag(248, 5);
-        output.WriteEnum((int) Error);
-      }
-      if (HasMessageID) {
-        output.WriteRawTag(152, 6);
-        output.WriteEnum((int) MessageID);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      if (HasMessageID) {
-        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) MessageID);
-      }
-      if (HasError) {
-        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) Error);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(NullMessage other) {
-      if (other == null) {
-        return;
-      }
-      if (other.HasMessageID) {
-        MessageID = other.MessageID;
-      }
-      if (other.HasError) {
-        Error = other.Error;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 760: {
-            Error = (global::Th.EErrorMsg) input.ReadEnum();
-            break;
-          }
-          case 792: {
-            MessageID = (global::Th.EMessageID) input.ReadEnum();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 760: {
-            Error = (global::Th.EErrorMsg) input.ReadEnum();
-            break;
-          }
-          case 792: {
-            MessageID = (global::Th.EMessageID) input.ReadEnum();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  public sealed partial class InternalEventTick : pb::IMessage<InternalEventTick>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<InternalEventTick> _parser = new pb::MessageParser<InternalEventTick>(() => new InternalEventTick());
-    private pb::UnknownFieldSet _unknownFields;
-    private int _hasBits0;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<InternalEventTick> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[1]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public InternalEventTick() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public InternalEventTick(InternalEventTick other) : this() {
-      _hasBits0 = other._hasBits0;
-      messageID_ = other.messageID_;
-      eventType_ = other.eventType_;
-      value_ = other.value_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public InternalEventTick Clone() {
-      return new InternalEventTick(this);
-    }
-
-    /// <summary>Field number for the "MessageID" field.</summary>
-    public const int MessageIDFieldNumber = 99;
-    private readonly static global::Th.EMessageID MessageIDDefaultValue = global::Th.EMessageID.InternalEventTick;
-
-    private global::Th.EMessageID messageID_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Th.EMessageID MessageID {
-      get { if ((_hasBits0 & 4) != 0) { return messageID_; } else { return MessageIDDefaultValue; } }
-      set {
-        _hasBits0 |= 4;
-        messageID_ = value;
-      }
-    }
-    /// <summary>Gets whether the "MessageID" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasMessageID {
-      get { return (_hasBits0 & 4) != 0; }
-    }
-    /// <summary>Clears the value of the "MessageID" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearMessageID() {
-      _hasBits0 &= ~4;
-    }
-
-    /// <summary>Field number for the "EventType" field.</summary>
-    public const int EventTypeFieldNumber = 1;
-    private readonly static int EventTypeDefaultValue = 0;
-
-    private int eventType_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int EventType {
-      get { if ((_hasBits0 & 1) != 0) { return eventType_; } else { return EventTypeDefaultValue; } }
-      set {
-        _hasBits0 |= 1;
-        eventType_ = value;
-      }
-    }
-    /// <summary>Gets whether the "EventType" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasEventType {
-      get { return (_hasBits0 & 1) != 0; }
-    }
-    /// <summary>Clears the value of the "EventType" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearEventType() {
-      _hasBits0 &= ~1;
-    }
-
-    /// <summary>Field number for the "Value" field.</summary>
-    public const int ValueFieldNumber = 2;
-    private readonly static long ValueDefaultValue = 0L;
-
-    private long value_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long Value {
-      get { if ((_hasBits0 & 2) != 0) { return value_; } else { return ValueDefaultValue; } }
-      set {
-        _hasBits0 |= 2;
-        value_ = value;
-      }
-    }
-    /// <summary>Gets whether the "Value" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasValue {
-      get { return (_hasBits0 & 2) != 0; }
-    }
-    /// <summary>Clears the value of the "Value" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearValue() {
-      _hasBits0 &= ~2;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as InternalEventTick);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(InternalEventTick other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (MessageID != other.MessageID) return false;
-      if (EventType != other.EventType) return false;
-      if (Value != other.Value) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (HasMessageID) hash ^= MessageID.GetHashCode();
-      if (HasEventType) hash ^= EventType.GetHashCode();
-      if (HasValue) hash ^= Value.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (HasEventType) {
-        output.WriteRawTag(8);
-        output.WriteInt32(EventType);
-      }
-      if (HasValue) {
-        output.WriteRawTag(16);
-        output.WriteInt64(Value);
-      }
-      if (HasMessageID) {
-        output.WriteRawTag(152, 6);
-        output.WriteEnum((int) MessageID);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasEventType) {
-        output.WriteRawTag(8);
-        output.WriteInt32(EventType);
-      }
-      if (HasValue) {
-        output.WriteRawTag(16);
-        output.WriteInt64(Value);
-      }
-      if (HasMessageID) {
-        output.WriteRawTag(152, 6);
-        output.WriteEnum((int) MessageID);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      if (HasMessageID) {
-        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) MessageID);
-      }
-      if (HasEventType) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(EventType);
-      }
-      if (HasValue) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Value);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(InternalEventTick other) {
-      if (other == null) {
-        return;
-      }
-      if (other.HasMessageID) {
-        MessageID = other.MessageID;
-      }
-      if (other.HasEventType) {
-        EventType = other.EventType;
-      }
-      if (other.HasValue) {
-        Value = other.Value;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            EventType = input.ReadInt32();
-            break;
-          }
-          case 16: {
-            Value = input.ReadInt64();
-            break;
-          }
-          case 792: {
-            MessageID = (global::Th.EMessageID) input.ReadEnum();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            EventType = input.ReadInt32();
-            break;
-          }
-          case 16: {
-            Value = input.ReadInt64();
-            break;
-          }
-          case 792: {
-            MessageID = (global::Th.EMessageID) input.ReadEnum();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
   public sealed partial class ADLoginReq : pb::IMessage<ADLoginReq>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -634,7 +107,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1255,7 +728,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[3]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2121,7 +1594,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[4]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2454,7 +1927,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[5]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3027,7 +2500,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[6]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3647,7 +3120,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[7]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3834,7 +3307,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[8]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4095,7 +3568,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4282,7 +3755,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4543,7 +4016,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4971,7 +4444,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

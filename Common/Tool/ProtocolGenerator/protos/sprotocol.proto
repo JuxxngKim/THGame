@@ -4,20 +4,6 @@ package th;
 import "enum.proto";
 import "protocol.proto";
 
-message NullMessage
-{
-	optional EMessageID			MessageID			= 99	[default = NULL_MESSAGE];
-	optional EErrorMsg			Error				= 95	[default = E_UNKNOWN];
-}
-
-message InternalEventTick
-{
-	optional EMessageID			MessageID			= 99	[default = INTERNAL_EVENT_TICK];
-	
-	optional int32				EventType			= 1;
-	optional int64				Value				= 2;
-}
-
 message ADLoginReq
 {
 	optional EMessageID			MessageID			= 99	[default = AD_LOGIN_REQ];

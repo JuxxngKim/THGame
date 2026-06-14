@@ -80,8 +80,6 @@ message GCAuthLoginNak
 	optional EMessageID			MessageID			= 99	[default = GC_AUTH_LOGIN_NAK];
 
 	required EErrorMsg			Error				= 1;
-	//repeated MLoginBlockMessage	Messages			= 2;
-	//optional MMaintenanceServerInfo	MaintenanceServerInfo = 3;
 }
 
 ///clent <-> adventure ///////////////////////////////////////////////////////////////////////////
@@ -144,17 +142,6 @@ message MSimplePlayer
 	required int64 AccountUID = 1;
 	required string PlayerName = 2;
 	required int64 PlayerLevel = 3;
-}
-
-message MChatMessage
-{
-	//required MSimplePlayer	ChatPlayer				= 1;
-	//optional string			Message					= 2;
-	//optional int64			TargetAccountUID		= 3;
-	//required int64			SendTimeMS				= 4;
-	
-	//optional MChatLink		ChatLink		= 7;
-	//optional MSimplePlayer	MentionedPlayer	= 8;
 }
 
 message MDateTime

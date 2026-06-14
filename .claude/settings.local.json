@@ -42,7 +42,13 @@
       "PowerShell(gh api *)",
       "PowerShell(& \"C:\\\\Users\\\\juyeo\\\\.local\\\\bin\\\\rtk.exe\" init -g --dry-run -vv)",
       "PowerShell(rtk init *)",
-      "PowerShell(rtk *)"
+      "PowerShell(rtk *)",
+      "Bash(rtk git *)",
+      "Bash(rtk dotnet *)",
+      "Bash(rtk find *)",
+      "Bash(rtk ls *)",
+      "Bash(rtk grep *)",
+      "PowerShell(& \"C:\\\\Users\\\\juyeo\\\\OneDrive\\\\Desktop\\\\Project\\\\THGame\\\\Common\\\\Tool\\\\ProtocolGenerator\\\\compile.bat\")"
     ]
   }
 }

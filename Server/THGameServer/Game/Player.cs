@@ -3,7 +3,6 @@ using Serilog;
 using Th;
 using TH.Common;
 using TH.Common.Network;
-using TH.Common.Time;
 using TH.Server.Data;
 using TH.Server.Logic;
 
@@ -17,9 +16,6 @@ public sealed class Player
     public long AccountId { get; set; }
     public string Pid { get; set; } = string.Empty;
     public EPlayerState State { get; set; }
-    public byte LoadingFlags { get; set; }
-    public long LastPacketUnixMs { get; set; }
-    public long CreatedUnixMs { get; }
 
     // 로그인 컨텍스트 — CALoginReq 의 클라이언트 버전. DALoginAck 수신 시 ACLoginAck 구성에 사용.
     private int _loginVersion;
@@ -27,9 +23,6 @@ public sealed class Player
     public Player(long sessionId)
     {
         SessionId = sessionId;
-        long now = TimeManager.Instance.UnixMillis();
-        CreatedUnixMs = now;
-        LastPacketUnixMs = now;
         State = EPlayerState.Connecting;
     }
 

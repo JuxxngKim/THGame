@@ -73,20 +73,19 @@ namespace Th {
             "TGV2ZWxSZXdhcmRTdGVwGAMgAigFEhIKClBsYXllclR5cGUYBCACKAUSJgoP",
             "TGFzdExldmVsVXBEYXRlGAUgASgLMg0udGguTURhdGVUaW1lIkwKDU1TaW1w",
             "bGVQbGF5ZXISEgoKQWNjb3VudFVJRBgBIAIoAxISCgpQbGF5ZXJOYW1lGAIg",
-            "AigJEhMKC1BsYXllckxldmVsGAMgAigDIg4KDE1DaGF0TWVzc2FnZSKjAQoJ",
-            "TURhdGVUaW1lEg8KBFllYXIYASABKAU6ATASEAoFTW9udGgYAiABKAU6ATAS",
-            "DgoDRGF5GAMgASgFOgEwEg8KBEhvdXIYBCABKAU6ATASEQoGTWludXRlGAUg",
-            "ASgFOgEwEhEKBlNlY29uZBgGIAEoBToBMBIWCgtNaWxsaVNlY29uZBgHIAEo",
-            "BToBMBIUCglEYXlPZldlZWsYCCABKAU6ATAi0AIKBU1IZXJvEg8KB0hlcm9V",
-            "SUQYASACKAMSDwoHSGVyb1RpZBgCIAEoBRINCgJMdhgDIAEoBToBMRIOCgNF",
-            "eHAYBCABKAU6ATASGQoOUmVpbmZvcmNlTGV2ZWwYBiABKAU6ATASGQoOVHJh",
-            "bnNjZW5kQ291bnQYByABKAU6ATASGwoTUmVpbmZvcmNlZFNraWxsVHlwZRgI",
-            "IAMoBRIRCgZTdGF0dXMYCSABKAU6ATESFQoKTG9ja1N0YXR1cxgKIAEoBToB",
-            "MBIZCg5Cb29rbWFya1N0YXR1cxgLIAEoBToBMBIbChBSZXdhcmRSZXN1bHRU",
-            "eXBlGA0gASgFOgEwEh0KDldlYXBvblNsb3RPcGVuGA4gASgIOgVmYWxzZRIc",
-            "Cg1Bcm1vclNsb3RPcGVuGA8gASgIOgVmYWxzZRIUCglDb3N0dW1lSUQYECAB",
-            "KAU6ATAiNAoKTUVxdWlwSXRlbRISCgdJdGVtVUlEGAEgASgDOgEwEhIKB0l0",
-            "ZW1USUQYAiABKAU6ATA="));
+            "AigJEhMKC1BsYXllckxldmVsGAMgAigDIqMBCglNRGF0ZVRpbWUSDwoEWWVh",
+            "chgBIAEoBToBMBIQCgVNb250aBgCIAEoBToBMBIOCgNEYXkYAyABKAU6ATAS",
+            "DwoESG91chgEIAEoBToBMBIRCgZNaW51dGUYBSABKAU6ATASEQoGU2Vjb25k",
+            "GAYgASgFOgEwEhYKC01pbGxpU2Vjb25kGAcgASgFOgEwEhQKCURheU9mV2Vl",
+            "axgIIAEoBToBMCLQAgoFTUhlcm8SDwoHSGVyb1VJRBgBIAIoAxIPCgdIZXJv",
+            "VGlkGAIgASgFEg0KAkx2GAMgASgFOgExEg4KA0V4cBgEIAEoBToBMBIZCg5S",
+            "ZWluZm9yY2VMZXZlbBgGIAEoBToBMBIZCg5UcmFuc2NlbmRDb3VudBgHIAEo",
+            "BToBMBIbChNSZWluZm9yY2VkU2tpbGxUeXBlGAggAygFEhEKBlN0YXR1cxgJ",
+            "IAEoBToBMRIVCgpMb2NrU3RhdHVzGAogASgFOgEwEhkKDkJvb2ttYXJrU3Rh",
+            "dHVzGAsgASgFOgEwEhsKEFJld2FyZFJlc3VsdFR5cGUYDSABKAU6ATASHQoO",
+            "V2VhcG9uU2xvdE9wZW4YDiABKAg6BWZhbHNlEhwKDUFybW9yU2xvdE9wZW4Y",
+            "DyABKAg6BWZhbHNlEhQKCUNvc3R1bWVJRBgQIAEoBToBMCI0CgpNRXF1aXBJ",
+            "dGVtEhIKB0l0ZW1VSUQYASABKAM6ATASEgoHSXRlbVRJRBgCIAEoBToBMA=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Th.EnumReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -105,7 +104,6 @@ namespace Th {
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ACGetPlayerAck), global::Th.ACGetPlayerAck.Parser, new[]{ "MessageID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ACGetPlayerInfoNoti), global::Th.ACGetPlayerInfoNoti.Parser, new[]{ "MessageID", "AccountLevel", "AccountExp", "LevelRewardStep", "PlayerType", "LastLevelUpDate" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.MSimplePlayer), global::Th.MSimplePlayer.Parser, new[]{ "AccountUID", "PlayerName", "PlayerLevel" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.MChatMessage), global::Th.MChatMessage.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.MDateTime), global::Th.MDateTime.Parser, new[]{ "Year", "Month", "Day", "Hour", "Minute", "Second", "MilliSecond", "DayOfWeek" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.MHero), global::Th.MHero.Parser, new[]{ "HeroUID", "HeroTid", "Lv", "Exp", "ReinforceLevel", "TranscendCount", "ReinforcedSkillType", "Status", "LockStatus", "BookmarkStatus", "RewardResultType", "WeaponSlotOpen", "ArmorSlotOpen", "CostumeID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.MEquipItem), global::Th.MEquipItem.Parser, new[]{ "ItemUID", "ItemTID" }, null, null, null, null)
@@ -2801,10 +2799,6 @@ namespace Th {
     private readonly static global::Th.EErrorMsg ErrorDefaultValue = global::Th.EErrorMsg.ESuccess;
 
     private global::Th.EErrorMsg error_;
-    /// <summary>
-    ///repeated MLoginBlockMessage	Messages			= 2;
-    ///optional MMaintenanceServerInfo	MaintenanceServerInfo = 3;
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Th.EErrorMsg Error {
       get { if ((_hasBits0 & 1) != 0) { return error_; } else { return ErrorDefaultValue; } }
@@ -5409,148 +5403,6 @@ namespace Th {
 
   }
 
-  /// <summary>
-  ///required MSimplePlayer	ChatPlayer				= 1;
-  ///optional string			Message					= 2;
-  ///optional int64			TargetAccountUID		= 3;
-  ///required int64			SendTimeMS				= 4;
-  /// </summary>
-  public sealed partial class MChatMessage : pb::IMessage<MChatMessage>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<MChatMessage> _parser = new pb::MessageParser<MChatMessage>(() => new MChatMessage());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<MChatMessage> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[15]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MChatMessage() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MChatMessage(MChatMessage other) : this() {
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MChatMessage Clone() {
-      return new MChatMessage(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as MChatMessage);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(MChatMessage other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(MChatMessage other) {
-      if (other == null) {
-        return;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-        }
-      }
-    }
-    #endif
-
-  }
-
   public sealed partial class MDateTime : pb::IMessage<MDateTime>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -5564,7 +5416,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[16]; }
+      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6094,7 +5946,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[17]; }
+      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6896,7 +6748,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[18]; }
+      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
