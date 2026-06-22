@@ -22,9 +22,12 @@ This applies to all explanations, comments, commit messages, code reviews, and a
 - `Common/Tool/ProtocolGenerator/generated/` — protobuf 생성 코드 (THServerCommon이 링크 컴파일)
 - `Client/` — UE5 클라이언트
 
-**서버 Logic/Tick 아키텍처**: tick 루프(Event→Prepare→Work→Arrange), Player 단위 worker phase 병렬 처리,
-패킷 핸들러 등록 구조는 [`docs/server-logic-architecture.md`](docs/server-logic-architecture.md) 참조.
-서버 로직(`Server/THGameServer/Logic`·`Game`)을 다룰 때 먼저 읽을 것.
+**서버 Tick 아키텍처**: 독립된 두 tick 서비스가 있다 —
+**OutGame**(`OutGame/`, 300ms, Event→Prepare→Work→Arrange, Player 단위 worker phase 병렬)와
+**InGame**(`InGame/`, 100ms, 룸 단위 병렬 — "맵=룸" 필드 시뮬). 두 서비스는 동형이며 더블버퍼
+PacketQueue·phase 모델을 공유한다. tick 루프, 패킷 핸들러 등록, 룸/Interest/스케줄러 교체 경계는
+[`docs/server-logic-architecture.md`](docs/server-logic-architecture.md) 참조.
+서버 로직(`Server/THGameServer/OutGame`·`InGame`·`Game`)을 다룰 때 먼저 읽을 것.
 
 ---
 
