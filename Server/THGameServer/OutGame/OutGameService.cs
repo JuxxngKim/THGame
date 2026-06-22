@@ -13,6 +13,7 @@ public sealed class OutGameService : Singleton<OutGameService>
     public const int TickIntervalMs = 300;
 
     private readonly OutGameLogicEventor _eventor = new();
+    private readonly PacketQueue _packetQueue = new();
 
     private Thread? _mainThread;
     private volatile bool _stopping;
@@ -21,6 +22,11 @@ public sealed class OutGameService : Singleton<OutGameService>
     private OutGameService() { }
 
     public OutGameLogicEventor Eventor => _eventor;
+
+    // 외부(IO 스레드 / Data 계층)에서 tick 입력 큐로 패킷을 적재하는 유일한 진입점.
+    // 내부 큐 구현(PacketQueue)을 캡슐화한다. Enqueue 는 lock 보호되어 멀티스레드 안전.
+    public void EnqueuePacket(long sessionId, int packetId, byte[] payload)
+        => _packetQueue.Enqueue(sessionId, packetId, payload);
 
     public void Init()
     {
@@ -83,7 +89,7 @@ public sealed class OutGameService : Singleton<OutGameService>
     {
         _eventor.Event(tickMs);
 
-        var raw = PacketQueue.Instance.Swap();
+        var raw = _packetQueue.Swap();
         var grouped = GroupBySession(raw);
 
         _eventor.Prepare(grouped);

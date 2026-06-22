@@ -53,7 +53,7 @@ public sealed class GameServerApp
                 session.OnPacketReceived = (s, packetId, payload) =>
                 {
                     // payload는 ReadOnlySpan<byte> 슬라이스 — 즉시 ToArray로 복사 (Span 캡처 금지).
-                    PacketQueue.Instance.Enqueue(s.SessionId, packetId, payload.ToArray());
+                    OutGameService.Instance.EnqueuePacket(s.SessionId, packetId, payload.ToArray());
                 };
             };
 
@@ -61,7 +61,7 @@ public sealed class GameServerApp
             // → tick 스레드의 Eventor.Prepare / Arrange phase 가 일관된 흐름으로 정리.
             NetworkManager.Instance.OnSessionDisconnected += session =>
             {
-                PacketQueue.Instance.Enqueue(
+                OutGameService.Instance.EnqueuePacket(
                     session.SessionId, (int)EMessageID.NetDisconnect, Array.Empty<byte>());
             };
 

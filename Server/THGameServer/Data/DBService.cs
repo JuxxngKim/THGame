@@ -130,7 +130,7 @@ public sealed class DBService : Singleton<DBService>
         };
 
         // DA 응답을 PacketQueue 로 되돌린다 → 다음 tick 에 기존 dispatch 가 수신측 핸들러로 전달.
-        PacketQueue.Instance.Enqueue(sessionId, (int)EMessageID.DaLoginAck, ack.ToByteArray());
+        OutGameService.Instance.EnqueuePacket(sessionId, (int)EMessageID.DaLoginAck, ack.ToByteArray());
 
         Log.Debug("DBService AD_LOGIN_REQ handled SessionId={Id} PID={Pid}", sessionId, msg.PID);
     }
