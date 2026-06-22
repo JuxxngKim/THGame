@@ -36,6 +36,10 @@ public sealed class Player
         Register<CALoginReq>((int)EMessageID.CaLoginReq, (p, m) => p.OnCALoginReq(m));
         Register<DALoginAck>((int)EMessageID.DaLoginAck, (p, m) => p.OnDALoginAck(m));
         Register<CAGetPlayerReq>((int)EMessageID.CaGetPlayerReq, (p, m) => p.OnCAGetPlayerReq(m));
+
+        // TODO(proto): 필드 진입 요청 패킷 추가 시 여기서 배선.
+        //   Register<CAEnterReq>((int)EMessageID.CaEnterReq, (p, m) => p.OnCAEnterReq(m));
+        //   핸들러 본문에서 EnterField(roomID) 를 호출하면 InGame 진입이 트리거된다.
     }
 
     // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관.
@@ -149,5 +153,16 @@ public sealed class Player
     private void OnCAGetPlayerReq(CAGetPlayerReq msg)
     {
         // TODO: player 데이터 조회 + AcGetPlayerAck 응답 (Send((int)EMessageID.AcGetPlayerAck, ack))
+    }
+
+    // ====================== InGame 진입 (크로스도메인) ======================
+
+    // OutGame Player(메인, 영속)는 그대로 두고 InGame 룸에 필드 캐릭터 진입을 요청한다.
+    // 직접 참조 없이 InGameService 명령 큐로만 전달 — 실제 진입 처리는 InGameService 의 Prepare phase.
+    // (proto 추가 후 CAEnterReq 핸들러에서 호출. 현재는 진입 배선 골격.)
+    public void EnterField(RoomID roomID)
+    {
+        State = EPlayerState.InField;
+        InGameService.Instance.EnqueueEnter(SessionId, roomID);
     }
 }

@@ -32,6 +32,9 @@ public sealed class GameServerApp
             // OutGameService 초기화 시점에 OutGameLogicEventor 가 생성되며 핸들러가 모두 등록된다.
             OutGameService.Instance.Init();
 
+            // InGameService — 룸(필드) 시뮬레이션. OutGameService 와 독립된 자체 100ms tick 스레드.
+            InGameService.Instance.Init();
+
             // Data(DB) 계층 — AD* 요청을 받아 DA* 로 응답. worker(샤드) 스레드 기동.
             DBService.Instance.Init();
 
@@ -53,7 +56,13 @@ public sealed class GameServerApp
                 session.OnPacketReceived = (s, packetId, payload) =>
                 {
                     // payload는 ReadOnlySpan<byte> 슬라이스 — 즉시 ToArray로 복사 (Span 캡처 금지).
-                    OutGameService.Instance.EnqueuePacket(s.SessionId, packetId, payload.ToArray());
+                    var copy = payload.ToArray();
+
+                    // messageId 대역으로 OutGame / InGame 을 분배. InGame 대역(50000~59999)은 룸 시뮬로.
+                    if (InGameMessage.IsInGame(packetId))
+                        InGameService.Instance.EnqueuePacket(s.SessionId, packetId, copy);
+                    else
+                        OutGameService.Instance.EnqueuePacket(s.SessionId, packetId, copy);
                 };
             };
 
@@ -63,6 +72,9 @@ public sealed class GameServerApp
             {
                 OutGameService.Instance.EnqueuePacket(
                     session.SessionId, (int)EMessageID.NetDisconnect, Array.Empty<byte>());
+
+                // 필드에 있던 세션이면 룸에서도 이탈시킨다(어느 룸에도 없으면 Prepare 에서 no-op).
+                InGameService.Instance.EnqueueLeave(session.SessionId);
             };
 
             return true;
@@ -102,6 +114,7 @@ public sealed class GameServerApp
 
         NetworkManager.Instance.Shutdown();
         OutGameService.Instance.Shutdown();
+        InGameService.Instance.Shutdown();
         DBService.Instance.Shutdown();
         ConfigManager.Instance.Shutdown();
         Log.CloseAndFlush();
