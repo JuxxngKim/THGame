@@ -21,9 +21,9 @@ public sealed class PlayerWorkExecutor
     // ====================== Player lifecycle (Prepare phase, 단일 tick 스레드) ======================
 
     public int Count => _archive.Count;
-    public Player? Find(long sessionId) => _archive.Find(sessionId);
+    public Player? Find(long sessionID) => _archive.Find(sessionID);
     public bool TryRegister(Player player) => _archive.TryRegister(player);
-    public bool Remove(long sessionId) => _archive.Remove(sessionId);
+    public bool Remove(long sessionID) => _archive.Remove(sessionID);
 
     // ====================== worker phase ======================
 
@@ -39,7 +39,7 @@ public sealed class PlayerWorkExecutor
         Parallel.ForEach(_archive.Players, player =>
         {
             // 그 tick 에 도착한 패킷 (없으면 공유 빈 리스트 — tick 로직만 수행).
-            var packets = sessionPackets.TryGetValue(player.SessionId, out var list) ? list : EmptyPackets;
+            var packets = sessionPackets.TryGetValue(player.SessionID, out var list) ? list : EmptyPackets;
             player.Execute(tickMs, packets);
         });
     }

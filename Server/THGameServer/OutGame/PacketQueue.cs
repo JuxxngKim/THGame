@@ -13,9 +13,9 @@ public sealed class PacketQueue
     private List<PacketMessage> _writeBuffer = new(InitialCapacity);
     private List<PacketMessage> _readBuffer = new(InitialCapacity);
 
-    public void Enqueue(long sessionId, int packetId, byte[] payload)
+    public void Enqueue(long sessionID, int packetID, byte[] payload)
     {
-        var msg = new PacketMessage(sessionId, packetId, payload);
+        var msg = new PacketMessage(sessionID, packetID, payload);
         lock (_lock)
         {
             _writeBuffer.Add(msg);

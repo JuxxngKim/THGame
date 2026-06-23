@@ -32,8 +32,8 @@ namespace Th {
             "YWdlSUQYBiACKAUSEgoKQXBwVmVyc2lvbhgHIAEoCRInCgxQbGF0Zm9ybVR5",
             "cGUYCSACKA4yES50aC5FUGxhdGZvcm1UeXBlEgoKAklQGAogASgJIvwCCgpE",
             "QUxvZ2luQWNrEi8KCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6",
-            "DERBX0xPR0lOX0FDSxILCgNQSUQYASACKAkSEQoJQWNjb3VudElkGAIgAigD",
-            "EhAKCEdhbWVEYklkGAMgAigFEhIKClBsYXllck5hbWUYBCACKAkSEwoLSXNS",
+            "DERBX0xPR0lOX0FDSxILCgNQSUQYASACKAkSEQoJQWNjb3VudElEGAIgAigD",
+            "EhAKCEdhbWVEYklEGAMgAigFEhIKClBsYXllck5hbWUYBCACKAkSEwoLSXNS",
             "ZWNvbm5lY3QYBSACKAgSEQoJQ2hhbm5lbElEGAYgAigFEh8KF0ZyZWVOaWNr",
             "bmFtZUNoYW5nZUNvdW50GAcgAigFEhQKDElzTmV3QWNjb3VudBgIIAIoCBIh",
             "CgpVcGRhdGVUaW1lGAkgAigLMg0udGguTURhdGVUaW1lEhIKCkxhbmd1YWdl",
@@ -78,7 +78,7 @@ namespace Th {
           new pbr::FileDescriptor[] { global::Th.EnumReflection.Descriptor, global::Th.ProtocolReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ADLoginReq), global::Th.ADLoginReq.Parser, new[]{ "MessageID", "PID", "LogKey", "UpdateDate", "IsReconnect", "ServerID", "LanguageID", "AppVersion", "PlatformType", "IP" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.DALoginAck), global::Th.DALoginAck.Parser, new[]{ "MessageID", "PID", "AccountId", "GameDbId", "PlayerName", "IsReconnect", "ChannelID", "FreeNicknameChangeCount", "IsNewAccount", "UpdateTime", "LanguageID", "TotalPlayTime", "Authenticated", "PlatformType", "IP" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.DALoginAck), global::Th.DALoginAck.Parser, new[]{ "MessageID", "PID", "AccountID", "GameDbID", "PlayerName", "IsReconnect", "ChannelID", "FreeNicknameChangeCount", "IsNewAccount", "UpdateTime", "LanguageID", "TotalPlayTime", "Authenticated", "PlatformType", "IP" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.DALoginNak), global::Th.DALoginNak.Parser, new[]{ "MessageID", "Error", "PID", "IsForceLogin" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ADPlayerInfoReq), global::Th.ADPlayerInfoReq.Parser, new[]{ "MessageID", "PID", "UpdateTime", "DefaultData", "DefaultProfilePortraitID", "DefaultProfileFrameID", "NewPlayerPeriod", "ReturnPlayerPeriod", "AbsencePeriodForReturnPlayer" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.DAPlayerInfoAck), global::Th.DAPlayerInfoAck.Parser, new[]{ "MessageID", "Error", "Exp", "LevelRewardStep", "PlayerType", "PlayerTypeCheckDate", "WithdrawalDBClear", "AppReviewStatus", "PurchasePoint", "LevelUpDate" }, null, null, null, null),
@@ -748,8 +748,8 @@ namespace Th {
       _hasBits0 = other._hasBits0;
       messageID_ = other.messageID_;
       pID_ = other.pID_;
-      accountId_ = other.accountId_;
-      gameDbId_ = other.gameDbId_;
+      accountID_ = other.accountID_;
+      gameDbID_ = other.gameDbID_;
       playerName_ = other.playerName_;
       isReconnect_ = other.isReconnect_;
       channelID_ = other.channelID_;
@@ -816,51 +816,51 @@ namespace Th {
       pID_ = null;
     }
 
-    /// <summary>Field number for the "AccountId" field.</summary>
-    public const int AccountIdFieldNumber = 2;
-    private readonly static long AccountIdDefaultValue = 0L;
+    /// <summary>Field number for the "AccountID" field.</summary>
+    public const int AccountIDFieldNumber = 2;
+    private readonly static long AccountIDDefaultValue = 0L;
 
-    private long accountId_;
+    private long accountID_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long AccountId {
-      get { if ((_hasBits0 & 1) != 0) { return accountId_; } else { return AccountIdDefaultValue; } }
+    public long AccountID {
+      get { if ((_hasBits0 & 1) != 0) { return accountID_; } else { return AccountIDDefaultValue; } }
       set {
         _hasBits0 |= 1;
-        accountId_ = value;
+        accountID_ = value;
       }
     }
-    /// <summary>Gets whether the "AccountId" field is set</summary>
+    /// <summary>Gets whether the "AccountID" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasAccountId {
+    public bool HasAccountID {
       get { return (_hasBits0 & 1) != 0; }
     }
-    /// <summary>Clears the value of the "AccountId" field</summary>
+    /// <summary>Clears the value of the "AccountID" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearAccountId() {
+    public void ClearAccountID() {
       _hasBits0 &= ~1;
     }
 
-    /// <summary>Field number for the "GameDbId" field.</summary>
-    public const int GameDbIdFieldNumber = 3;
-    private readonly static int GameDbIdDefaultValue = 0;
+    /// <summary>Field number for the "GameDbID" field.</summary>
+    public const int GameDbIDFieldNumber = 3;
+    private readonly static int GameDbIDDefaultValue = 0;
 
-    private int gameDbId_;
+    private int gameDbID_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int GameDbId {
-      get { if ((_hasBits0 & 2) != 0) { return gameDbId_; } else { return GameDbIdDefaultValue; } }
+    public int GameDbID {
+      get { if ((_hasBits0 & 2) != 0) { return gameDbID_; } else { return GameDbIDDefaultValue; } }
       set {
         _hasBits0 |= 2;
-        gameDbId_ = value;
+        gameDbID_ = value;
       }
     }
-    /// <summary>Gets whether the "GameDbId" field is set</summary>
+    /// <summary>Gets whether the "GameDbID" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasGameDbId {
+    public bool HasGameDbID {
       get { return (_hasBits0 & 2) != 0; }
     }
-    /// <summary>Clears the value of the "GameDbId" field</summary>
+    /// <summary>Clears the value of the "GameDbID" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearGameDbId() {
+    public void ClearGameDbID() {
       _hasBits0 &= ~2;
     }
 
@@ -1128,8 +1128,8 @@ namespace Th {
       }
       if (MessageID != other.MessageID) return false;
       if (PID != other.PID) return false;
-      if (AccountId != other.AccountId) return false;
-      if (GameDbId != other.GameDbId) return false;
+      if (AccountID != other.AccountID) return false;
+      if (GameDbID != other.GameDbID) return false;
       if (PlayerName != other.PlayerName) return false;
       if (IsReconnect != other.IsReconnect) return false;
       if (ChannelID != other.ChannelID) return false;
@@ -1149,8 +1149,8 @@ namespace Th {
       int hash = 1;
       if (HasMessageID) hash ^= MessageID.GetHashCode();
       if (HasPID) hash ^= PID.GetHashCode();
-      if (HasAccountId) hash ^= AccountId.GetHashCode();
-      if (HasGameDbId) hash ^= GameDbId.GetHashCode();
+      if (HasAccountID) hash ^= AccountID.GetHashCode();
+      if (HasGameDbID) hash ^= GameDbID.GetHashCode();
       if (HasPlayerName) hash ^= PlayerName.GetHashCode();
       if (HasIsReconnect) hash ^= IsReconnect.GetHashCode();
       if (HasChannelID) hash ^= ChannelID.GetHashCode();
@@ -1182,13 +1182,13 @@ namespace Th {
         output.WriteRawTag(10);
         output.WriteString(PID);
       }
-      if (HasAccountId) {
+      if (HasAccountID) {
         output.WriteRawTag(16);
-        output.WriteInt64(AccountId);
+        output.WriteInt64(AccountID);
       }
-      if (HasGameDbId) {
+      if (HasGameDbID) {
         output.WriteRawTag(24);
-        output.WriteInt32(GameDbId);
+        output.WriteInt32(GameDbID);
       }
       if (HasPlayerName) {
         output.WriteRawTag(34);
@@ -1251,13 +1251,13 @@ namespace Th {
         output.WriteRawTag(10);
         output.WriteString(PID);
       }
-      if (HasAccountId) {
+      if (HasAccountID) {
         output.WriteRawTag(16);
-        output.WriteInt64(AccountId);
+        output.WriteInt64(AccountID);
       }
-      if (HasGameDbId) {
+      if (HasGameDbID) {
         output.WriteRawTag(24);
-        output.WriteInt32(GameDbId);
+        output.WriteInt32(GameDbID);
       }
       if (HasPlayerName) {
         output.WriteRawTag(34);
@@ -1322,11 +1322,11 @@ namespace Th {
       if (HasPID) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(PID);
       }
-      if (HasAccountId) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AccountId);
+      if (HasAccountID) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AccountID);
       }
-      if (HasGameDbId) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GameDbId);
+      if (HasGameDbID) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GameDbID);
       }
       if (HasPlayerName) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(PlayerName);
@@ -1378,11 +1378,11 @@ namespace Th {
       if (other.HasPID) {
         PID = other.PID;
       }
-      if (other.HasAccountId) {
-        AccountId = other.AccountId;
+      if (other.HasAccountID) {
+        AccountID = other.AccountID;
       }
-      if (other.HasGameDbId) {
-        GameDbId = other.GameDbId;
+      if (other.HasGameDbID) {
+        GameDbID = other.GameDbID;
       }
       if (other.HasPlayerName) {
         PlayerName = other.PlayerName;
@@ -1439,11 +1439,11 @@ namespace Th {
             break;
           }
           case 16: {
-            AccountId = input.ReadInt64();
+            AccountID = input.ReadInt64();
             break;
           }
           case 24: {
-            GameDbId = input.ReadInt32();
+            GameDbID = input.ReadInt32();
             break;
           }
           case 34: {
@@ -1516,11 +1516,11 @@ namespace Th {
             break;
           }
           case 16: {
-            AccountId = input.ReadInt64();
+            AccountID = input.ReadInt64();
             break;
           }
           case 24: {
-            GameDbId = input.ReadInt32();
+            GameDbID = input.ReadInt32();
             break;
           }
           case 34: {

@@ -24,9 +24,9 @@ public sealed class GameRoom
 
     private readonly IInterestManagement _interest;
 
-    public GameRoom(RoomID id, IInterestManagement interest)
+    public GameRoom(RoomID roomID, IInterestManagement interest)
     {
-        ID = id;
+        ID = roomID;
         _interest = interest;
     }
 
@@ -59,7 +59,7 @@ public sealed class GameRoom
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Room job exception RoomID={Rid} Job={Job}", ID, job.GetType().Name);
+                Log.Error(ex, "Room job exception RoomID={RID} Job={Job}", ID, job.GetType().Name);
             }
         }
     }
@@ -77,7 +77,7 @@ public sealed class GameRoom
     {
         if (_bySession.ContainsKey(sessionID))
         {
-            Log.Warning("Room enter skipped — already in room RoomID={Rid} SessionId={Sid}", ID, sessionID);
+            Log.Warning("Room enter skipped — already in room RoomID={RID} SessionID={SID}", ID, sessionID);
             return;
         }
 
@@ -86,7 +86,7 @@ public sealed class GameRoom
         _characters.Add(character);
 
         _interest.OnEnter(this, character);
-        Log.Debug("Character entered RoomID={Rid} SessionId={Sid}", ID, sessionID);
+        Log.Debug("Character entered RoomID={RID} SessionID={SID}", ID, sessionID);
     }
 
     // 이탈 — Character 제거 후 Interest.OnLeave 훅 호출.
@@ -97,7 +97,7 @@ public sealed class GameRoom
 
         _characters.Remove(character);
         _interest.OnLeave(this, character);
-        Log.Debug("Character left RoomID={Rid} SessionId={Sid}", ID, sessionID);
+        Log.Debug("Character left RoomID={RID} SessionID={SID}", ID, sessionID);
     }
 
     // 이동(server-authoritative) — 검증 통과 시 position 갱신 + Interest.OnMove 훅 호출.
@@ -115,7 +115,7 @@ public sealed class GameRoom
     }
 
     // 네트워크발 InGame 패킷 처리 진입점 — PacketRoomJob 이 호출. proto 무수정 단계라 현재는 골격.
-    // 실제 패킷 추가 시 packetId 별 분기 → MoveCharacter 등 권위 처리 후 Broadcast 로 전파.
+    // 실제 패킷 추가 시 packetID 별 분기 → MoveCharacter 등 권위 처리 후 Broadcast 로 전파.
     public void HandlePacket(in PacketMessage packet)
     {
         _ = packet;
@@ -123,13 +123,13 @@ public sealed class GameRoom
 
     // 룸 이벤트 전파 — 반드시 Interest.GetReceivers 한 곳만 경유한다(AOI 교체 이음매).
     // source 가 일으킨 이벤트를 수신 대상에게만 송신. 현재 BroadcastInterest 는 전원 반환.
-    public void Broadcast(Character source, int packetId, byte[] payload)
+    public void Broadcast(Character source, int packetID, byte[] payload)
     {
         var receivers = _interest.GetReceivers(this, source);
         for (int i = 0; i < receivers.Count; i++)
         {
             var session = NetworkManager.Instance.FindSession(receivers[i].SessionID);
-            session?.Send(packetId, payload);
+            session?.Send(packetID, payload);
         }
     }
 }

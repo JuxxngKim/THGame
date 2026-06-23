@@ -6,23 +6,23 @@ public static class PacketHeader
 {
     public const int HeaderSize = 8;
 
-    public static void Write(Span<byte> dst, int length, int packetId)
+    public static void Write(Span<byte> dst, int length, int packetID)
     {
         BinaryPrimitives.WriteInt32LittleEndian(dst, length);
-        BinaryPrimitives.WriteInt32LittleEndian(dst[4..], packetId);
+        BinaryPrimitives.WriteInt32LittleEndian(dst[4..], packetID);
     }
 
-    public static bool TryRead(ReadOnlySpan<byte> src, out int length, out int packetId)
+    public static bool TryRead(ReadOnlySpan<byte> src, out int length, out int packetID)
     {
         if (src.Length < HeaderSize)
         {
             length = 0;
-            packetId = 0;
+            packetID = 0;
             return false;
         }
 
         length = BinaryPrimitives.ReadInt32LittleEndian(src);
-        packetId = BinaryPrimitives.ReadInt32LittleEndian(src[4..]);
+        packetID = BinaryPrimitives.ReadInt32LittleEndian(src[4..]);
         return true;
     }
 }

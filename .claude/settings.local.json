@@ -48,7 +48,8 @@
       "Bash(rtk find *)",
       "Bash(rtk ls *)",
       "Bash(rtk grep *)",
-      "PowerShell(& \"C:\\\\Users\\\\juyeo\\\\OneDrive\\\\Desktop\\\\Project\\\\THGame\\\\Common\\\\Tool\\\\ProtocolGenerator\\\\compile.bat\")"
+      "PowerShell(& \"C:\\\\Users\\\\juyeo\\\\OneDrive\\\\Desktop\\\\Project\\\\THGame\\\\Common\\\\Tool\\\\ProtocolGenerator\\\\compile.bat\")",
+      "Bash(rtk proxy *)"
     ]
   }
 }

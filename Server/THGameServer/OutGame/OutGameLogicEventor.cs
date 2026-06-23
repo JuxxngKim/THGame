@@ -82,52 +82,52 @@ public sealed class OutGameLogicEventor : LogicEventor
 
     // ====================== 메시지 핸들러 ======================
 
-    private void OnNetDisconnect(long sessionId, NetDisconnect msg, byte flag)
+    private void OnNetDisconnect(long sessionID, NetDisconnect msg, byte flag)
     {
         if (IsPrepareEvent(flag))
         {
-            if (_workExecutor.Remove(sessionId))
-                Log.Debug("PlayerArchive removed SessionId={Id}", sessionId);
+            if (_workExecutor.Remove(sessionID))
+                Log.Debug("PlayerArchive removed SessionID={ID}", sessionID);
         }
         else if (IsArrangeEvent(flag))
         {
             // TODO: InField 단계 정리 (게임 상태 cleanup)
-            Log.Debug("Session {Id} disconnect (Arrange)", sessionId);
+            Log.Debug("Session {ID} disconnect (Arrange)", sessionID);
         }
     }
 
-    private void OnAliveReq(long sessionId, NetAliveReq msg, byte flag)
+    private void OnAliveReq(long sessionID, NetAliveReq msg, byte flag)
     {
         _ = msg; // 현재 payload 사용 없음
-        SendTo(sessionId, (int)EMessageID.NetAliveAck, new NetAliveAck());
+        SendTo(sessionID, (int)EMessageID.NetAliveAck, new NetAliveAck());
     }
 
     // CALoginReq 의 Prepare phase 담당부 — 여기선 Player 등록까지만 하고,
     // 실제 로그인 요청(ADLoginReq) 송신은 같은 tick 의 Work phase 에서 Player.OnCALoginReq 가 수행한다.
-    private void OnCALoginReq(long sessionId, CALoginReq msg, byte flag)
+    private void OnCALoginReq(long sessionID, CALoginReq msg, byte flag)
     {
         // 멱등성: 동일 세션에서 중복 CALoginReq 차단.
-        if (_workExecutor.Find(sessionId) is not null)
+        if (_workExecutor.Find(sessionID) is not null)
         {
-            Log.Warning("CALoginReq duplicated SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
+            Log.Warning("CALoginReq duplicated SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
         }
 
-        // AccountId 는 Data 계층의 DALoginAck 로 채워진다 — 인증 대기 상태로 등록.
-        var player = new Player(sessionId)
+        // AccountID 는 Data 계층의 DALoginAck 로 채워진다 — 인증 대기 상태로 등록.
+        var player = new Player(sessionID)
         {
-            AccountId = 0,
-            Pid       = msg.Pid,
+            AccountID = 0,
+            PID       = msg.PID,
             State     = EPlayerState.AuthPending,
         };
 
         if (!_workExecutor.TryRegister(player))
         {
-            Log.Warning("CALoginReq register failed SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
+            Log.Warning("CALoginReq register failed SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
         }
 
-        Log.Information("CALoginReq accepted SessionId={Id} Pid={Pid}", sessionId, msg.Pid);
+        Log.Information("CALoginReq accepted SessionID={ID} PID={PID}", sessionID, msg.PID);
     }
 
     // ====================== 주기 작업 ======================

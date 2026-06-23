@@ -24,8 +24,8 @@ message DALoginAck
 	optional EMessageID			MessageID				= 99	[default = DA_LOGIN_ACK];
 	
 	required string				PID						= 1;
-	required int64				AccountId				= 2;
-	required int32				GameDbId				= 3;
+	required int64				AccountID				= 2;
+	required int32				GameDbID				= 3;
 	required string				PlayerName				= 4;
 	required bool				IsReconnect				= 5;
 	required int32				ChannelID				= 6;

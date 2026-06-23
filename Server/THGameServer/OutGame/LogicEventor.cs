@@ -21,12 +21,12 @@ public abstract class LogicEventor
 
     // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관.
     // 같은 패킷이 Prepare/Arrange 양쪽 phase 에 흘러갈 경우 phase 마다 1회씩 파싱 (단순화).
-    protected void RegisterHandler<T>(int packetId, Action<long, T, byte> handler, ELogicEvent phases)
+    protected void RegisterHandler<T>(int packetID, Action<long, T, byte> handler, ELogicEvent phases)
         where T : class, IMessage<T>, new()
     {
         var parser = new MessageParser<T>(() => new T());
 
-        _handlers[packetId] = new HandlerEntry(phases, (sessionId, payload, flag) =>
+        _handlers[packetID] = new HandlerEntry(phases, (sessionID, payload, flag) =>
         {
             T msg;
             try
@@ -35,11 +35,11 @@ public abstract class LogicEventor
             }
             catch (InvalidProtocolBufferException ex)
             {
-                Log.Warning(ex, "Packet parse failed SessionId={Id} PacketId={Pid}", sessionId, packetId);
+                Log.Warning(ex, "Packet parse failed SessionID={ID} PacketID={PID}", sessionID, packetID);
                 return;
             }
 
-            handler(sessionId, msg, flag);
+            handler(sessionID, msg, flag);
         });
     }
 
@@ -67,35 +67,35 @@ public abstract class LogicEventor
         if (_handlers.Count == 0) return;
 
         byte flag = (byte)phase;
-        foreach (var (sessionId, packets) in sessionPackets)
+        foreach (var (sessionID, packets) in sessionPackets)
         {
             foreach (var pkt in packets)
             {
-                // Eventor 테이블에 없는 패킷은 이 도메인(sessionId 단위) 소관이 아니다 — Player 단위
+                // Eventor 테이블에 없는 패킷은 이 도메인(sessionID 단위) 소관이 아니다 — Player 단위
                 // 핸들러(Work phase)에서 처리되거나 그 외엔 무시. 모든 패킷이 Prepare/Arrange 양 phase 를
                 // 거치므로 여기서 "dropped" 로 로깅하면 Player 도메인 패킷마다 노이즈가 2배로 쌓인다.
                 // 미등록 player 패킷 로깅은 Player.Execute 가 담당.
-                if (!_handlers.TryGetValue(pkt.PacketId, out var entry))
+                if (!_handlers.TryGetValue(pkt.PacketID, out var entry))
                     continue;
                 if ((entry.Phases & phase) == 0) continue;
 
                 try
                 {
-                    entry.Invoke(sessionId, pkt.Payload, flag);
+                    entry.Invoke(sessionID, pkt.Payload, flag);
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Eventor handler exception SessionId={Id} PacketId={Pid} Phase={Phase}",
-                        sessionId, pkt.PacketId, phase);
+                    Log.Error(ex, "Eventor handler exception SessionID={ID} PacketID={PID} Phase={Phase}",
+                        sessionID, pkt.PacketID, phase);
                 }
             }
         }
     }
 
     // 응답 송신 헬퍼. C++ OutGameLogicEventor::SendTo 동등.
-    protected static void SendTo(long sessionId, int packetId, IMessage msg)
+    protected static void SendTo(long sessionID, int packetID, IMessage msg)
     {
-        var session = NetworkManager.Instance.FindSession(sessionId);
-        session?.Send(packetId, msg.ToByteArray());
+        var session = NetworkManager.Instance.FindSession(sessionID);
+        session?.Send(packetID, msg.ToByteArray());
     }
 }

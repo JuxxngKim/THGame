@@ -25,8 +25,8 @@ public sealed class OutGameService : Singleton<OutGameService>
 
     // 외부(IO 스레드 / Data 계층)에서 tick 입력 큐로 패킷을 적재하는 유일한 진입점.
     // 내부 큐 구현(PacketQueue)을 캡슐화한다. Enqueue 는 lock 보호되어 멀티스레드 안전.
-    public void EnqueuePacket(long sessionId, int packetId, byte[] payload)
-        => _packetQueue.Enqueue(sessionId, packetId, payload);
+    public void EnqueuePacket(long sessionID, int packetID, byte[] payload)
+        => _packetQueue.Enqueue(sessionID, packetID, payload);
 
     public void Init()
     {
@@ -105,12 +105,12 @@ public sealed class OutGameService : Singleton<OutGameService>
         foreach (var p in raw)
         {
             // 끊긴 세션 패킷은 드롭. 단 NetDisconnect 합성 패킷은 세션 제거 후 들어오므로 항상 통과.
-            if (p.PacketId != (int)Th.EMessageID.NetDisconnect &&
-                !NetworkManager.Instance.IsSessionAlive(p.SessionId))
+            if (p.PacketID != (int)Th.EMessageID.NetDisconnect &&
+                !NetworkManager.Instance.IsSessionAlive(p.SessionID))
                 continue;
 
-            if (!grouped.TryGetValue(p.SessionId, out var list))
-                grouped[p.SessionId] = list = new List<PacketMessage>();
+            if (!grouped.TryGetValue(p.SessionID, out var list))
+                grouped[p.SessionID] = list = new List<PacketMessage>();
             list.Add(p);
         }
         return grouped;

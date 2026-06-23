@@ -49,7 +49,7 @@ message ACCommonNak
 	optional EMessageID			MessageID			= 99	[default = AC_COMMON_NAK];
 
 	required EErrorMsg			Error				= 1;
-	required int32				SuccessfulMsgId		= 2;
+	required int32				SuccessfulMsgID		= 2;
 }
 
 ///clent <-> GateWay ///////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ message CGAuthLoginReq
 	optional EMessageID			MessageID			= 99	[default = CG_AUTH_LOGIN_REQ];
 	
 	required string				AuthToken			= 1;
-	required string				Pid					= 2;
+	required string				PID					= 2;
 	required EPlatformType		PlatformType		= 4;
 	optional int32				NaverWorksCertCode	= 5;
 	optional string				Version				= 6;
@@ -88,7 +88,7 @@ message CALoginReq
 	optional EMessageID			MessageID				= 99	[default = CA_LOGIN_REQ];
 
 	required int32				CurrentVersion			= 1;
-	required string				Pid						= 2;
+	required string				PID						= 2;
 	optional int32				LanguageID				= 3		[default = 1];
 	optional bool				IsReconnect				= 4;
 	required string				AuthToken				= 5;
@@ -103,7 +103,7 @@ message ACLoginAck
 {
 	optional EMessageID			MessageID				= 99	[default = AC_LOGIN_ACK];
 
-	required int64				AccountId				= 1;
+	required int64				AccountID				= 1;
 	required string				AccountName				= 2;
 	required string				ConntectedIP			= 3;
 	required int32				ConnectedPort			= 4;
@@ -159,7 +159,7 @@ message MDateTime
 message MHero
 {
 	required int64				HeroUID				= 1;
-	optional int32				HeroTid				= 2;
+	optional int32				HeroTID				= 2;
 	optional int32				Lv					= 3		[default = 1];
 	optional int32				Exp					= 4		[default = 0];
 	optional int32				ReinforceLevel		= 6		[default = 0];

@@ -3,14 +3,14 @@
 // List<PacketMessage>에 struct로 저장 — 박싱 없음, 복사 비용 무시 가능.
 public readonly struct PacketMessage
 {
-    public long SessionId { get; }
-    public int PacketId { get; }
+    public long SessionID { get; }
+    public int PacketID { get; }
     public byte[] Payload { get; }
 
-    public PacketMessage(long sessionId, int packetId, byte[] payload)
+    public PacketMessage(long sessionID, int packetID, byte[] payload)
     {
-        SessionId = sessionId;
-        PacketId = packetId;
+        SessionID = sessionID;
+        PacketID = packetID;
         Payload = payload;
     }
 }

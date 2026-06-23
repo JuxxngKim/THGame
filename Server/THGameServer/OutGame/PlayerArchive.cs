@@ -16,17 +16,17 @@ public sealed class PlayerArchive
 
     public bool TryRegister(Player player)
     {
-        if (_bySession.ContainsKey(player.SessionId))
+        if (_bySession.ContainsKey(player.SessionID))
         {
-            Log.Warning("PlayerArchive register skipped — already exists SessionId={Id}", player.SessionId);
+            Log.Warning("PlayerArchive register skipped — already exists SessionID={ID}", player.SessionID);
             return false;
         }
-        _bySession.Add(player.SessionId, player);
+        _bySession.Add(player.SessionID, player);
         return true;
     }
 
-    public bool Remove(long sessionId) => _bySession.Remove(sessionId);
+    public bool Remove(long sessionID) => _bySession.Remove(sessionID);
 
-    public Player? Find(long sessionId)
-        => _bySession.TryGetValue(sessionId, out var p) ? p : null;
+    public Player? Find(long sessionID)
+        => _bySession.TryGetValue(sessionID, out var p) ? p : null;
 }

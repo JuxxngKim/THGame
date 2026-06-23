@@ -26,8 +26,8 @@ public sealed class GameServerApp
 
             LoggerSetup.Init(TimeManager.Instance);
 
-            Log.Information("GameServer started (Env={Env}, Id={Id})",
-                ConfigManager.Instance.Env, ConfigManager.Instance.Id);
+            Log.Information("GameServer started (Env={Env}, ID={ID})",
+                ConfigManager.Instance.Env, ConfigManager.Instance.ID);
 
             // OutGameService 초기화 시점에 OutGameLogicEventor 가 생성되며 핸들러가 모두 등록된다.
             OutGameService.Instance.Init();
@@ -38,7 +38,7 @@ public sealed class GameServerApp
             // Data(DB) 계층 — AD* 요청을 받아 DA* 로 응답. worker(샤드) 스레드 기동.
             DBService.Instance.Init();
 
-            var section  = $"Game.{ConfigManager.Instance.Id}";
+            var section  = $"Game.{ConfigManager.Instance.ID}";
             var bindAddr = ConfigManager.Instance.GetRequired(section, "BindAddr");
             if (!NetworkHelper.TryParseEndPoint(bindAddr, out var endPoint) || endPoint is null)
             {
@@ -53,16 +53,16 @@ public sealed class GameServerApp
             // OnPacketReceived 설정 시점에는 아직 수신이 시작되지 않았다 (race 없음).
             NetworkManager.Instance.OnSessionConnected += session =>
             {
-                session.OnPacketReceived = (s, packetId, payload) =>
+                session.OnPacketReceived = (s, packetID, payload) =>
                 {
                     // payload는 ReadOnlySpan<byte> 슬라이스 — 즉시 ToArray로 복사 (Span 캡처 금지).
                     var copy = payload.ToArray();
 
-                    // messageId 대역으로 OutGame / InGame 을 분배. InGame 대역(50000~59999)은 룸 시뮬로.
-                    if (InGameMessage.IsInGame(packetId))
-                        InGameService.Instance.EnqueuePacket(s.SessionId, packetId, copy);
+                    // messageID 대역으로 OutGame / InGame 을 분배. InGame 대역(50000~59999)은 룸 시뮬로.
+                    if (InGameMessage.IsInGame(packetID))
+                        InGameService.Instance.EnqueuePacket(s.SessionID, packetID, copy);
                     else
-                        OutGameService.Instance.EnqueuePacket(s.SessionId, packetId, copy);
+                        OutGameService.Instance.EnqueuePacket(s.SessionID, packetID, copy);
                 };
             };
 
@@ -71,10 +71,10 @@ public sealed class GameServerApp
             NetworkManager.Instance.OnSessionDisconnected += session =>
             {
                 OutGameService.Instance.EnqueuePacket(
-                    session.SessionId, (int)EMessageID.NetDisconnect, Array.Empty<byte>());
+                    session.SessionID, (int)EMessageID.NetDisconnect, Array.Empty<byte>());
 
                 // 필드에 있던 세션이면 룸에서도 이탈시킨다(어느 룸에도 없으면 Prepare 에서 no-op).
-                InGameService.Instance.EnqueueLeave(session.SessionId);
+                InGameService.Instance.EnqueueLeave(session.SessionID);
             };
 
             return true;

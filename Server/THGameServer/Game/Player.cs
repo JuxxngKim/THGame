@@ -12,23 +12,23 @@ namespace TH.Server.Game;
 // 패킷 핸들러 테이블은 static 공유(전 Player 공통), 처리 본문은 인스턴스 메서드.
 public sealed class Player
 {
-    public long SessionId { get; }
-    public long AccountId { get; set; }
-    public string Pid { get; set; } = string.Empty;
+    public long SessionID { get; }
+    public long AccountID { get; set; }
+    public string PID { get; set; } = string.Empty;
     public EPlayerState State { get; set; }
 
     // 로그인 컨텍스트 — CALoginReq 의 클라이언트 버전. DALoginAck 수신 시 ACLoginAck 구성에 사용.
     private int _loginVersion;
 
-    public Player(long sessionId)
+    public Player(long sessionID)
     {
-        SessionId = sessionId;
+        SessionID = sessionID;
         State = EPlayerState.Connecting;
     }
 
     // ====================== 패킷 핸들러 테이블 (static 공유) ======================
 
-    // packetId → (player, payload) dispatch 델리게이트. static 생성자에서만 채우고 이후 읽기 전용.
+    // packetID → (player, payload) dispatch 델리게이트. static 생성자에서만 채우고 이후 읽기 전용.
     private static readonly Dictionary<int, Action<Player, ReadOnlyMemory<byte>>> Handlers = new();
 
     static Player()
@@ -43,12 +43,12 @@ public sealed class Player
     }
 
     // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관.
-    private static void Register<T>(int packetId, Action<Player, T> handler)
+    private static void Register<T>(int packetID, Action<Player, T> handler)
         where T : class, IMessage<T>, new()
     {
         var parser = new MessageParser<T>(() => new T());
 
-        Handlers[packetId] = (player, payload) =>
+        Handlers[packetID] = (player, payload) =>
         {
             T msg;
             try
@@ -57,7 +57,7 @@ public sealed class Player
             }
             catch (InvalidProtocolBufferException ex)
             {
-                Log.Warning(ex, "Player packet parse failed SessionId={Id} PacketId={Pid}", player.SessionId, packetId);
+                Log.Warning(ex, "Player packet parse failed SessionID={ID} PacketID={PID}", player.SessionID, packetID);
                 return;
             }
 
@@ -76,9 +76,9 @@ public sealed class Player
         // 1) 입력 패킷 처리 (도착 순서 보존). 한 패킷의 실패가 다음 패킷을 막지 않도록 패킷마다 try/catch.
         foreach (var pkt in packets)
         {
-            if (!Handlers.TryGetValue(pkt.PacketId, out var invoke))
+            if (!Handlers.TryGetValue(pkt.PacketID, out var invoke))
             {
-                Log.Debug("Unregistered player packet dropped SessionId={Id} PacketId={Pid}", SessionId, pkt.PacketId);
+                Log.Debug("Unregistered player packet dropped SessionID={ID} PacketID={PID}", SessionID, pkt.PacketID);
                 continue;
             }
 
@@ -88,7 +88,7 @@ public sealed class Player
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Player handler exception SessionId={Id} PacketId={Pid}", SessionId, pkt.PacketId);
+                Log.Error(ex, "Player handler exception SessionID={ID} PacketID={PID}", SessionID, pkt.PacketID);
             }
         }
 
@@ -97,10 +97,10 @@ public sealed class Player
     }
 
     // 자기 세션으로의 응답 송신 헬퍼. Session.Send 는 스레드 안전 — worker 에서 호출해도 안전.
-    private void Send(int packetId, IMessage msg)
+    private void Send(int packetID, IMessage msg)
     {
-        var session = NetworkManager.Instance.FindSession(SessionId);
-        session?.Send(packetId, msg.ToByteArray());
+        var session = NetworkManager.Instance.FindSession(SessionID);
+        session?.Send(packetID, msg.ToByteArray());
     }
 
     // ====================== 메시지 핸들러 ======================
@@ -114,7 +114,7 @@ public sealed class Player
         var adReq = new ADLoginReq
         {
             MessageID    = EMessageID.AdLoginReq,
-            PID          = msg.Pid,
+            PID          = msg.PID,
             LogKey       = 0,
             UpdateDate   = new MDateTime(),
             IsReconnect  = msg.IsReconnect,
@@ -122,19 +122,19 @@ public sealed class Player
             LanguageID   = msg.LanguageID,
             PlatformType = msg.PlatformType,
         };
-        DBService.Instance.Send(SessionId, (int)EMessageID.AdLoginReq, adReq);
+        DBService.Instance.Send(SessionID, (int)EMessageID.AdLoginReq, adReq);
     }
 
     // Data 계층의 로그인 인증 결과. 인증 정보를 반영하고 클라이언트에 ACLoginAck 로 응답한다.
     private void OnDALoginAck(DALoginAck msg)
     {
-        AccountId = msg.AccountId;
+        AccountID = msg.AccountID;
         State     = EPlayerState.LoggedIn;
 
         var ack = new ACLoginAck
         {
             MessageID               = EMessageID.AcLoginAck,
-            AccountId               = msg.AccountId,
+            AccountID               = msg.AccountID,
             AccountName             = msg.PlayerName,
             ConntectedIP            = string.Empty,
             ConnectedPort           = 0,
@@ -147,7 +147,7 @@ public sealed class Player
         };
         Send((int)EMessageID.AcLoginAck, ack);
 
-        Log.Information("Login ok SessionId={Id} Pid={Pid} AccountId={Aid}", SessionId, Pid, AccountId);
+        Log.Information("Login ok SessionID={ID} PID={PID} AccountID={AID}", SessionID, PID, AccountID);
     }
 
     private void OnCAGetPlayerReq(CAGetPlayerReq msg)
@@ -163,6 +163,6 @@ public sealed class Player
     public void EnterField(RoomID roomID)
     {
         State = EPlayerState.InField;
-        InGameService.Instance.EnqueueEnter(SessionId, roomID);
+        InGameService.Instance.EnqueueEnter(SessionID, roomID);
     }
 }

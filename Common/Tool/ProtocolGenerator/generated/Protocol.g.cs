@@ -40,9 +40,9 @@ namespace Th {
             "Z0RhdGUYBCACKAsyDS50aC5NRGF0ZVRpbWUidgoLQUNDb21tb25OYWsSMAoJ",
             "TWVzc2FnZUlEGGMgASgOMg4udGguRU1lc3NhZ2VJRDoNQUNfQ09NTU9OX05B",
             "SxIcCgVFcnJvchgBIAIoDjINLnRoLkVFcnJvck1zZxIXCg9TdWNjZXNzZnVs",
-            "TXNnSWQYAiACKAUihgIKDkNHQXV0aExvZ2luUmVxEjQKCU1lc3NhZ2VJRBhj",
+            "TXNnSUQYAiACKAUihgIKDkNHQXV0aExvZ2luUmVxEjQKCU1lc3NhZ2VJRBhj",
             "IAEoDjIOLnRoLkVNZXNzYWdlSUQ6EUNHX0FVVEhfTE9HSU5fUkVREhEKCUF1",
-            "dGhUb2tlbhgBIAIoCRILCgNQaWQYAiACKAkSJwoMUGxhdGZvcm1UeXBlGAQg",
+            "dGhUb2tlbhgBIAIoCRILCgNQSUQYAiACKAkSJwoMUGxhdGZvcm1UeXBlGAQg",
             "AigOMhEudGguRVBsYXRmb3JtVHlwZRIaChJOYXZlcldvcmtzQ2VydENvZGUY",
             "BSABKAUSDwoHVmVyc2lvbhgGIAEoCRIXCg1Kb2luZWRDb3VudHJ5GAcgASgJ",
             "OgASFAoKRExDVmVyc2lvbhgIIAEoCToAEhkKD0dhbWVEYXRhVmVyc2lvbhgJ",
@@ -53,13 +53,13 @@ namespace Th {
             "QVVUSF9MT0dJTl9OQUsSHAoFRXJyb3IYASACKA4yDS50aC5FRXJyb3JNc2ci",
             "rAIKCkNBTG9naW5SZXESLwoJTWVzc2FnZUlEGGMgASgOMg4udGguRU1lc3Nh",
             "Z2VJRDoMQ0FfTE9HSU5fUkVREhYKDkN1cnJlbnRWZXJzaW9uGAEgAigFEgsK",
-            "A1BpZBgCIAIoCRIVCgpMYW5ndWFnZUlEGAMgASgFOgExEhMKC0lzUmVjb25u",
+            "A1BJRBgCIAIoCRIVCgpMYW5ndWFnZUlEGAMgASgFOgExEhMKC0lzUmVjb25u",
             "ZWN0GAQgASgIEhEKCUF1dGhUb2tlbhgFIAIoCRInCgxQbGF0Zm9ybVR5cGUY",
             "ByACKA4yES50aC5FUGxhdGZvcm1UeXBlEhIKCkFwcFZlcnNpb24YCCABKAkS",
             "CgoCSVAYCSABKAkSJwoYU2VxdWVuY2VNYWludGVuYW5jZUxvZ2luGAogASgI",
             "OgVmYWxzZRIXCg1Kb2luZWRDb3VudHJ5GAsgASgJOgAilAIKCkFDTG9naW5B",
             "Y2sSLwoJTWVzc2FnZUlEGGMgASgOMg4udGguRU1lc3NhZ2VJRDoMQUNfTE9H",
-            "SU5fQUNLEhEKCUFjY291bnRJZBgBIAIoAxITCgtBY2NvdW50TmFtZRgCIAIo",
+            "SU5fQUNLEhEKCUFjY291bnRJRBgBIAIoAxITCgtBY2NvdW50TmFtZRgCIAIo",
             "CRIUCgxDb25udGVjdGVkSVAYAyACKAkSFQoNQ29ubmVjdGVkUG9ydBgEIAIo",
             "BRITCgtJc1JlY29ubmVjdBgFIAIoCBIUCgxJc05ld0FjY291bnQYBiACKAgS",
             "HwoXRnJlZU5pY2tuYW1lQ2hhbmdlQ291bnQYByACKAUSDwoHVmVyc2lvbhgI",
@@ -78,7 +78,7 @@ namespace Th {
             "DwoESG91chgEIAEoBToBMBIRCgZNaW51dGUYBSABKAU6ATASEQoGU2Vjb25k",
             "GAYgASgFOgEwEhYKC01pbGxpU2Vjb25kGAcgASgFOgEwEhQKCURheU9mV2Vl",
             "axgIIAEoBToBMCLQAgoFTUhlcm8SDwoHSGVyb1VJRBgBIAIoAxIPCgdIZXJv",
-            "VGlkGAIgASgFEg0KAkx2GAMgASgFOgExEg4KA0V4cBgEIAEoBToBMBIZCg5S",
+            "VElEGAIgASgFEg0KAkx2GAMgASgFOgExEg4KA0V4cBgEIAEoBToBMBIZCg5S",
             "ZWluZm9yY2VMZXZlbBgGIAEoBToBMBIZCg5UcmFuc2NlbmRDb3VudBgHIAEo",
             "BToBMBIbChNSZWluZm9yY2VkU2tpbGxUeXBlGAggAygFEhEKBlN0YXR1cxgJ",
             "IAEoBToBMRIVCgpMb2NrU3RhdHVzGAogASgFOgEwEhkKDkJvb2ttYXJrU3Rh",
@@ -94,18 +94,18 @@ namespace Th {
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.NetAliveReq), global::Th.NetAliveReq.Parser, new[]{ "MessageID", "RequestMS" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.NetAliveAck), global::Th.NetAliveAck.Parser, new[]{ "MessageID", "RequestMS", "ResponseMS" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.WriteServerLog), global::Th.WriteServerLog.Parser, new[]{ "MessageID", "LogString", "LogLevel", "TargetType", "LogDate" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.ACCommonNak), global::Th.ACCommonNak.Parser, new[]{ "MessageID", "Error", "SuccessfulMsgId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.CGAuthLoginReq), global::Th.CGAuthLoginReq.Parser, new[]{ "MessageID", "AuthToken", "Pid", "PlatformType", "NaverWorksCertCode", "Version", "JoinedCountry", "DLCVersion", "GameDataVersion" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.ACCommonNak), global::Th.ACCommonNak.Parser, new[]{ "MessageID", "Error", "SuccessfulMsgID" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.CGAuthLoginReq), global::Th.CGAuthLoginReq.Parser, new[]{ "MessageID", "AuthToken", "PID", "PlatformType", "NaverWorksCertCode", "Version", "JoinedCountry", "DLCVersion", "GameDataVersion" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.GCAuthLoginAck), global::Th.GCAuthLoginAck.Parser, new[]{ "MessageID", "ConnectedIP", "ConnectedPort" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.GCAuthLoginNak), global::Th.GCAuthLoginNak.Parser, new[]{ "MessageID", "Error" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.CALoginReq), global::Th.CALoginReq.Parser, new[]{ "MessageID", "CurrentVersion", "Pid", "LanguageID", "IsReconnect", "AuthToken", "PlatformType", "AppVersion", "IP", "SequenceMaintenanceLogin", "JoinedCountry" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.ACLoginAck), global::Th.ACLoginAck.Parser, new[]{ "MessageID", "AccountId", "AccountName", "ConntectedIP", "ConnectedPort", "IsReconnect", "IsNewAccount", "FreeNicknameChangeCount", "Version", "ServerID", "ChannelID" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.CALoginReq), global::Th.CALoginReq.Parser, new[]{ "MessageID", "CurrentVersion", "PID", "LanguageID", "IsReconnect", "AuthToken", "PlatformType", "AppVersion", "IP", "SequenceMaintenanceLogin", "JoinedCountry" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.ACLoginAck), global::Th.ACLoginAck.Parser, new[]{ "MessageID", "AccountID", "AccountName", "ConntectedIP", "ConnectedPort", "IsReconnect", "IsNewAccount", "FreeNicknameChangeCount", "Version", "ServerID", "ChannelID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.CAGetPlayerReq), global::Th.CAGetPlayerReq.Parser, new[]{ "MessageID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ACGetPlayerAck), global::Th.ACGetPlayerAck.Parser, new[]{ "MessageID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ACGetPlayerInfoNoti), global::Th.ACGetPlayerInfoNoti.Parser, new[]{ "MessageID", "AccountLevel", "AccountExp", "LevelRewardStep", "PlayerType", "LastLevelUpDate" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.MSimplePlayer), global::Th.MSimplePlayer.Parser, new[]{ "AccountUID", "PlayerName", "PlayerLevel" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.MDateTime), global::Th.MDateTime.Parser, new[]{ "Year", "Month", "Day", "Hour", "Minute", "Second", "MilliSecond", "DayOfWeek" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.MHero), global::Th.MHero.Parser, new[]{ "HeroUID", "HeroTid", "Lv", "Exp", "ReinforceLevel", "TranscendCount", "ReinforcedSkillType", "Status", "LockStatus", "BookmarkStatus", "RewardResultType", "WeaponSlotOpen", "ArmorSlotOpen", "CostumeID" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.MHero), global::Th.MHero.Parser, new[]{ "HeroUID", "HeroTID", "Lv", "Exp", "ReinforceLevel", "TranscendCount", "ReinforcedSkillType", "Status", "LockStatus", "BookmarkStatus", "RewardResultType", "WeaponSlotOpen", "ArmorSlotOpen", "CostumeID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.MEquipItem), global::Th.MEquipItem.Parser, new[]{ "ItemUID", "ItemTID" }, null, null, null, null)
           }));
     }
@@ -1617,7 +1617,7 @@ namespace Th {
       _hasBits0 = other._hasBits0;
       messageID_ = other.messageID_;
       error_ = other.error_;
-      successfulMsgId_ = other.successfulMsgId_;
+      successfulMsgID_ = other.successfulMsgID_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1674,27 +1674,27 @@ namespace Th {
       _hasBits0 &= ~1;
     }
 
-    /// <summary>Field number for the "SuccessfulMsgId" field.</summary>
-    public const int SuccessfulMsgIdFieldNumber = 2;
-    private readonly static int SuccessfulMsgIdDefaultValue = 0;
+    /// <summary>Field number for the "SuccessfulMsgID" field.</summary>
+    public const int SuccessfulMsgIDFieldNumber = 2;
+    private readonly static int SuccessfulMsgIDDefaultValue = 0;
 
-    private int successfulMsgId_;
+    private int successfulMsgID_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int SuccessfulMsgId {
-      get { if ((_hasBits0 & 2) != 0) { return successfulMsgId_; } else { return SuccessfulMsgIdDefaultValue; } }
+    public int SuccessfulMsgID {
+      get { if ((_hasBits0 & 2) != 0) { return successfulMsgID_; } else { return SuccessfulMsgIDDefaultValue; } }
       set {
         _hasBits0 |= 2;
-        successfulMsgId_ = value;
+        successfulMsgID_ = value;
       }
     }
-    /// <summary>Gets whether the "SuccessfulMsgId" field is set</summary>
+    /// <summary>Gets whether the "SuccessfulMsgID" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasSuccessfulMsgId {
+    public bool HasSuccessfulMsgID {
       get { return (_hasBits0 & 2) != 0; }
     }
-    /// <summary>Clears the value of the "SuccessfulMsgId" field</summary>
+    /// <summary>Clears the value of the "SuccessfulMsgID" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearSuccessfulMsgId() {
+    public void ClearSuccessfulMsgID() {
       _hasBits0 &= ~2;
     }
 
@@ -1713,7 +1713,7 @@ namespace Th {
       }
       if (MessageID != other.MessageID) return false;
       if (Error != other.Error) return false;
-      if (SuccessfulMsgId != other.SuccessfulMsgId) return false;
+      if (SuccessfulMsgID != other.SuccessfulMsgID) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1722,7 +1722,7 @@ namespace Th {
       int hash = 1;
       if (HasMessageID) hash ^= MessageID.GetHashCode();
       if (HasError) hash ^= Error.GetHashCode();
-      if (HasSuccessfulMsgId) hash ^= SuccessfulMsgId.GetHashCode();
+      if (HasSuccessfulMsgID) hash ^= SuccessfulMsgID.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1743,9 +1743,9 @@ namespace Th {
         output.WriteRawTag(8);
         output.WriteEnum((int) Error);
       }
-      if (HasSuccessfulMsgId) {
+      if (HasSuccessfulMsgID) {
         output.WriteRawTag(16);
-        output.WriteInt32(SuccessfulMsgId);
+        output.WriteInt32(SuccessfulMsgID);
       }
       if (HasMessageID) {
         output.WriteRawTag(152, 6);
@@ -1764,9 +1764,9 @@ namespace Th {
         output.WriteRawTag(8);
         output.WriteEnum((int) Error);
       }
-      if (HasSuccessfulMsgId) {
+      if (HasSuccessfulMsgID) {
         output.WriteRawTag(16);
-        output.WriteInt32(SuccessfulMsgId);
+        output.WriteInt32(SuccessfulMsgID);
       }
       if (HasMessageID) {
         output.WriteRawTag(152, 6);
@@ -1787,8 +1787,8 @@ namespace Th {
       if (HasError) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Error);
       }
-      if (HasSuccessfulMsgId) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SuccessfulMsgId);
+      if (HasSuccessfulMsgID) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SuccessfulMsgID);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1807,8 +1807,8 @@ namespace Th {
       if (other.HasError) {
         Error = other.Error;
       }
-      if (other.HasSuccessfulMsgId) {
-        SuccessfulMsgId = other.SuccessfulMsgId;
+      if (other.HasSuccessfulMsgID) {
+        SuccessfulMsgID = other.SuccessfulMsgID;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1829,7 +1829,7 @@ namespace Th {
             break;
           }
           case 16: {
-            SuccessfulMsgId = input.ReadInt32();
+            SuccessfulMsgID = input.ReadInt32();
             break;
           }
           case 792: {
@@ -1855,7 +1855,7 @@ namespace Th {
             break;
           }
           case 16: {
-            SuccessfulMsgId = input.ReadInt32();
+            SuccessfulMsgID = input.ReadInt32();
             break;
           }
           case 792: {
@@ -1905,7 +1905,7 @@ namespace Th {
       _hasBits0 = other._hasBits0;
       messageID_ = other.messageID_;
       authToken_ = other.authToken_;
-      pid_ = other.pid_;
+      pID_ = other.pID_;
       platformType_ = other.platformType_;
       naverWorksCertCode_ = other.naverWorksCertCode_;
       version_ = other.version_;
@@ -1967,27 +1967,27 @@ namespace Th {
       authToken_ = null;
     }
 
-    /// <summary>Field number for the "Pid" field.</summary>
-    public const int PidFieldNumber = 2;
-    private readonly static string PidDefaultValue = "";
+    /// <summary>Field number for the "PID" field.</summary>
+    public const int PIDFieldNumber = 2;
+    private readonly static string PIDDefaultValue = "";
 
-    private string pid_;
+    private string pID_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string Pid {
-      get { return pid_ ?? PidDefaultValue; }
+    public string PID {
+      get { return pID_ ?? PIDDefaultValue; }
       set {
-        pid_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        pID_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
-    /// <summary>Gets whether the "Pid" field is set</summary>
+    /// <summary>Gets whether the "PID" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasPid {
-      get { return pid_ != null; }
+    public bool HasPID {
+      get { return pID_ != null; }
     }
-    /// <summary>Clears the value of the "Pid" field</summary>
+    /// <summary>Clears the value of the "PID" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearPid() {
-      pid_ = null;
+    public void ClearPID() {
+      pID_ = null;
     }
 
     /// <summary>Field number for the "PlatformType" field.</summary>
@@ -2145,7 +2145,7 @@ namespace Th {
       }
       if (MessageID != other.MessageID) return false;
       if (AuthToken != other.AuthToken) return false;
-      if (Pid != other.Pid) return false;
+      if (PID != other.PID) return false;
       if (PlatformType != other.PlatformType) return false;
       if (NaverWorksCertCode != other.NaverWorksCertCode) return false;
       if (Version != other.Version) return false;
@@ -2160,7 +2160,7 @@ namespace Th {
       int hash = 1;
       if (HasMessageID) hash ^= MessageID.GetHashCode();
       if (HasAuthToken) hash ^= AuthToken.GetHashCode();
-      if (HasPid) hash ^= Pid.GetHashCode();
+      if (HasPID) hash ^= PID.GetHashCode();
       if (HasPlatformType) hash ^= PlatformType.GetHashCode();
       if (HasNaverWorksCertCode) hash ^= NaverWorksCertCode.GetHashCode();
       if (HasVersion) hash ^= Version.GetHashCode();
@@ -2187,9 +2187,9 @@ namespace Th {
         output.WriteRawTag(10);
         output.WriteString(AuthToken);
       }
-      if (HasPid) {
+      if (HasPID) {
         output.WriteRawTag(18);
-        output.WriteString(Pid);
+        output.WriteString(PID);
       }
       if (HasPlatformType) {
         output.WriteRawTag(32);
@@ -2232,9 +2232,9 @@ namespace Th {
         output.WriteRawTag(10);
         output.WriteString(AuthToken);
       }
-      if (HasPid) {
+      if (HasPID) {
         output.WriteRawTag(18);
-        output.WriteString(Pid);
+        output.WriteString(PID);
       }
       if (HasPlatformType) {
         output.WriteRawTag(32);
@@ -2279,8 +2279,8 @@ namespace Th {
       if (HasAuthToken) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(AuthToken);
       }
-      if (HasPid) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Pid);
+      if (HasPID) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PID);
       }
       if (HasPlatformType) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) PlatformType);
@@ -2317,8 +2317,8 @@ namespace Th {
       if (other.HasAuthToken) {
         AuthToken = other.AuthToken;
       }
-      if (other.HasPid) {
-        Pid = other.Pid;
+      if (other.HasPID) {
+        PID = other.PID;
       }
       if (other.HasPlatformType) {
         PlatformType = other.PlatformType;
@@ -2357,7 +2357,7 @@ namespace Th {
             break;
           }
           case 18: {
-            Pid = input.ReadString();
+            PID = input.ReadString();
             break;
           }
           case 32: {
@@ -2407,7 +2407,7 @@ namespace Th {
             break;
           }
           case 18: {
-            Pid = input.ReadString();
+            PID = input.ReadString();
             break;
           }
           case 32: {
@@ -3001,7 +3001,7 @@ namespace Th {
       _hasBits0 = other._hasBits0;
       messageID_ = other.messageID_;
       currentVersion_ = other.currentVersion_;
-      pid_ = other.pid_;
+      pID_ = other.pID_;
       languageID_ = other.languageID_;
       isReconnect_ = other.isReconnect_;
       authToken_ = other.authToken_;
@@ -3066,27 +3066,27 @@ namespace Th {
       _hasBits0 &= ~1;
     }
 
-    /// <summary>Field number for the "Pid" field.</summary>
-    public const int PidFieldNumber = 2;
-    private readonly static string PidDefaultValue = "";
+    /// <summary>Field number for the "PID" field.</summary>
+    public const int PIDFieldNumber = 2;
+    private readonly static string PIDDefaultValue = "";
 
-    private string pid_;
+    private string pID_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string Pid {
-      get { return pid_ ?? PidDefaultValue; }
+    public string PID {
+      get { return pID_ ?? PIDDefaultValue; }
       set {
-        pid_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        pID_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
-    /// <summary>Gets whether the "Pid" field is set</summary>
+    /// <summary>Gets whether the "PID" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasPid {
-      get { return pid_ != null; }
+    public bool HasPID {
+      get { return pID_ != null; }
     }
-    /// <summary>Clears the value of the "Pid" field</summary>
+    /// <summary>Clears the value of the "PID" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearPid() {
-      pid_ = null;
+    public void ClearPID() {
+      pID_ = null;
     }
 
     /// <summary>Field number for the "LanguageID" field.</summary>
@@ -3292,7 +3292,7 @@ namespace Th {
       }
       if (MessageID != other.MessageID) return false;
       if (CurrentVersion != other.CurrentVersion) return false;
-      if (Pid != other.Pid) return false;
+      if (PID != other.PID) return false;
       if (LanguageID != other.LanguageID) return false;
       if (IsReconnect != other.IsReconnect) return false;
       if (AuthToken != other.AuthToken) return false;
@@ -3309,7 +3309,7 @@ namespace Th {
       int hash = 1;
       if (HasMessageID) hash ^= MessageID.GetHashCode();
       if (HasCurrentVersion) hash ^= CurrentVersion.GetHashCode();
-      if (HasPid) hash ^= Pid.GetHashCode();
+      if (HasPID) hash ^= PID.GetHashCode();
       if (HasLanguageID) hash ^= LanguageID.GetHashCode();
       if (HasIsReconnect) hash ^= IsReconnect.GetHashCode();
       if (HasAuthToken) hash ^= AuthToken.GetHashCode();
@@ -3338,9 +3338,9 @@ namespace Th {
         output.WriteRawTag(8);
         output.WriteInt32(CurrentVersion);
       }
-      if (HasPid) {
+      if (HasPID) {
         output.WriteRawTag(18);
-        output.WriteString(Pid);
+        output.WriteString(PID);
       }
       if (HasLanguageID) {
         output.WriteRawTag(24);
@@ -3391,9 +3391,9 @@ namespace Th {
         output.WriteRawTag(8);
         output.WriteInt32(CurrentVersion);
       }
-      if (HasPid) {
+      if (HasPID) {
         output.WriteRawTag(18);
-        output.WriteString(Pid);
+        output.WriteString(PID);
       }
       if (HasLanguageID) {
         output.WriteRawTag(24);
@@ -3446,8 +3446,8 @@ namespace Th {
       if (HasCurrentVersion) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(CurrentVersion);
       }
-      if (HasPid) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Pid);
+      if (HasPID) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PID);
       }
       if (HasLanguageID) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(LanguageID);
@@ -3490,8 +3490,8 @@ namespace Th {
       if (other.HasCurrentVersion) {
         CurrentVersion = other.CurrentVersion;
       }
-      if (other.HasPid) {
-        Pid = other.Pid;
+      if (other.HasPID) {
+        PID = other.PID;
       }
       if (other.HasLanguageID) {
         LanguageID = other.LanguageID;
@@ -3536,7 +3536,7 @@ namespace Th {
             break;
           }
           case 18: {
-            Pid = input.ReadString();
+            PID = input.ReadString();
             break;
           }
           case 24: {
@@ -3594,7 +3594,7 @@ namespace Th {
             break;
           }
           case 18: {
-            Pid = input.ReadString();
+            PID = input.ReadString();
             break;
           }
           case 24: {
@@ -3672,7 +3672,7 @@ namespace Th {
     public ACLoginAck(ACLoginAck other) : this() {
       _hasBits0 = other._hasBits0;
       messageID_ = other.messageID_;
-      accountId_ = other.accountId_;
+      accountID_ = other.accountID_;
       accountName_ = other.accountName_;
       conntectedIP_ = other.conntectedIP_;
       connectedPort_ = other.connectedPort_;
@@ -3714,27 +3714,27 @@ namespace Th {
       _hasBits0 &= ~128;
     }
 
-    /// <summary>Field number for the "AccountId" field.</summary>
-    public const int AccountIdFieldNumber = 1;
-    private readonly static long AccountIdDefaultValue = 0L;
+    /// <summary>Field number for the "AccountID" field.</summary>
+    public const int AccountIDFieldNumber = 1;
+    private readonly static long AccountIDDefaultValue = 0L;
 
-    private long accountId_;
+    private long accountID_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long AccountId {
-      get { if ((_hasBits0 & 1) != 0) { return accountId_; } else { return AccountIdDefaultValue; } }
+    public long AccountID {
+      get { if ((_hasBits0 & 1) != 0) { return accountID_; } else { return AccountIDDefaultValue; } }
       set {
         _hasBits0 |= 1;
-        accountId_ = value;
+        accountID_ = value;
       }
     }
-    /// <summary>Gets whether the "AccountId" field is set</summary>
+    /// <summary>Gets whether the "AccountID" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasAccountId {
+    public bool HasAccountID {
       get { return (_hasBits0 & 1) != 0; }
     }
-    /// <summary>Clears the value of the "AccountId" field</summary>
+    /// <summary>Clears the value of the "AccountID" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearAccountId() {
+    public void ClearAccountID() {
       _hasBits0 &= ~1;
     }
 
@@ -3965,7 +3965,7 @@ namespace Th {
         return true;
       }
       if (MessageID != other.MessageID) return false;
-      if (AccountId != other.AccountId) return false;
+      if (AccountID != other.AccountID) return false;
       if (AccountName != other.AccountName) return false;
       if (ConntectedIP != other.ConntectedIP) return false;
       if (ConnectedPort != other.ConnectedPort) return false;
@@ -3982,7 +3982,7 @@ namespace Th {
     public override int GetHashCode() {
       int hash = 1;
       if (HasMessageID) hash ^= MessageID.GetHashCode();
-      if (HasAccountId) hash ^= AccountId.GetHashCode();
+      if (HasAccountID) hash ^= AccountID.GetHashCode();
       if (HasAccountName) hash ^= AccountName.GetHashCode();
       if (HasConntectedIP) hash ^= ConntectedIP.GetHashCode();
       if (HasConnectedPort) hash ^= ConnectedPort.GetHashCode();
@@ -4008,9 +4008,9 @@ namespace Th {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (HasAccountId) {
+      if (HasAccountID) {
         output.WriteRawTag(8);
-        output.WriteInt64(AccountId);
+        output.WriteInt64(AccountID);
       }
       if (HasAccountName) {
         output.WriteRawTag(18);
@@ -4061,9 +4061,9 @@ namespace Th {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasAccountId) {
+      if (HasAccountID) {
         output.WriteRawTag(8);
-        output.WriteInt64(AccountId);
+        output.WriteInt64(AccountID);
       }
       if (HasAccountName) {
         output.WriteRawTag(18);
@@ -4117,8 +4117,8 @@ namespace Th {
       if (HasMessageID) {
         size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) MessageID);
       }
-      if (HasAccountId) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AccountId);
+      if (HasAccountID) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AccountID);
       }
       if (HasAccountName) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(AccountName);
@@ -4161,8 +4161,8 @@ namespace Th {
       if (other.HasMessageID) {
         MessageID = other.MessageID;
       }
-      if (other.HasAccountId) {
-        AccountId = other.AccountId;
+      if (other.HasAccountID) {
+        AccountID = other.AccountID;
       }
       if (other.HasAccountName) {
         AccountName = other.AccountName;
@@ -4206,7 +4206,7 @@ namespace Th {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            AccountId = input.ReadInt64();
+            AccountID = input.ReadInt64();
             break;
           }
           case 18: {
@@ -4264,7 +4264,7 @@ namespace Th {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            AccountId = input.ReadInt64();
+            AccountID = input.ReadInt64();
             break;
           }
           case 18: {
@@ -5965,7 +5965,7 @@ namespace Th {
     public MHero(MHero other) : this() {
       _hasBits0 = other._hasBits0;
       heroUID_ = other.heroUID_;
-      heroTid_ = other.heroTid_;
+      heroTID_ = other.heroTID_;
       lv_ = other.lv_;
       exp_ = other.exp_;
       reinforceLevel_ = other.reinforceLevel_;
@@ -6010,27 +6010,27 @@ namespace Th {
       _hasBits0 &= ~1;
     }
 
-    /// <summary>Field number for the "HeroTid" field.</summary>
-    public const int HeroTidFieldNumber = 2;
-    private readonly static int HeroTidDefaultValue = 0;
+    /// <summary>Field number for the "HeroTID" field.</summary>
+    public const int HeroTIDFieldNumber = 2;
+    private readonly static int HeroTIDDefaultValue = 0;
 
-    private int heroTid_;
+    private int heroTID_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int HeroTid {
-      get { if ((_hasBits0 & 2) != 0) { return heroTid_; } else { return HeroTidDefaultValue; } }
+    public int HeroTID {
+      get { if ((_hasBits0 & 2) != 0) { return heroTID_; } else { return HeroTIDDefaultValue; } }
       set {
         _hasBits0 |= 2;
-        heroTid_ = value;
+        heroTID_ = value;
       }
     }
-    /// <summary>Gets whether the "HeroTid" field is set</summary>
+    /// <summary>Gets whether the "HeroTID" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool HasHeroTid {
+    public bool HasHeroTID {
       get { return (_hasBits0 & 2) != 0; }
     }
-    /// <summary>Clears the value of the "HeroTid" field</summary>
+    /// <summary>Clears the value of the "HeroTID" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void ClearHeroTid() {
+    public void ClearHeroTID() {
       _hasBits0 &= ~2;
     }
 
@@ -6322,7 +6322,7 @@ namespace Th {
         return true;
       }
       if (HeroUID != other.HeroUID) return false;
-      if (HeroTid != other.HeroTid) return false;
+      if (HeroTID != other.HeroTID) return false;
       if (Lv != other.Lv) return false;
       if (Exp != other.Exp) return false;
       if (ReinforceLevel != other.ReinforceLevel) return false;
@@ -6342,7 +6342,7 @@ namespace Th {
     public override int GetHashCode() {
       int hash = 1;
       if (HasHeroUID) hash ^= HeroUID.GetHashCode();
-      if (HasHeroTid) hash ^= HeroTid.GetHashCode();
+      if (HasHeroTID) hash ^= HeroTID.GetHashCode();
       if (HasLv) hash ^= Lv.GetHashCode();
       if (HasExp) hash ^= Exp.GetHashCode();
       if (HasReinforceLevel) hash ^= ReinforceLevel.GetHashCode();
@@ -6375,9 +6375,9 @@ namespace Th {
         output.WriteRawTag(8);
         output.WriteInt64(HeroUID);
       }
-      if (HasHeroTid) {
+      if (HasHeroTID) {
         output.WriteRawTag(16);
-        output.WriteInt32(HeroTid);
+        output.WriteInt32(HeroTID);
       }
       if (HasLv) {
         output.WriteRawTag(24);
@@ -6437,9 +6437,9 @@ namespace Th {
         output.WriteRawTag(8);
         output.WriteInt64(HeroUID);
       }
-      if (HasHeroTid) {
+      if (HasHeroTID) {
         output.WriteRawTag(16);
-        output.WriteInt32(HeroTid);
+        output.WriteInt32(HeroTID);
       }
       if (HasLv) {
         output.WriteRawTag(24);
@@ -6498,8 +6498,8 @@ namespace Th {
       if (HasHeroUID) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(HeroUID);
       }
-      if (HasHeroTid) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(HeroTid);
+      if (HasHeroTID) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(HeroTID);
       }
       if (HasLv) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Lv);
@@ -6549,8 +6549,8 @@ namespace Th {
       if (other.HasHeroUID) {
         HeroUID = other.HeroUID;
       }
-      if (other.HasHeroTid) {
-        HeroTid = other.HeroTid;
+      if (other.HasHeroTID) {
+        HeroTID = other.HeroTID;
       }
       if (other.HasLv) {
         Lv = other.Lv;
@@ -6605,7 +6605,7 @@ namespace Th {
             break;
           }
           case 16: {
-            HeroTid = input.ReadInt32();
+            HeroTID = input.ReadInt32();
             break;
           }
           case 24: {
@@ -6676,7 +6676,7 @@ namespace Th {
             break;
           }
           case 16: {
-            HeroTid = input.ReadInt32();
+            HeroTID = input.ReadInt32();
             break;
           }
           case 24: {

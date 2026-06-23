@@ -7,7 +7,7 @@ namespace TH.DummyClient;
 
 // 로그인 흐름(CALoginReq → ACLoginAck) E2E 검증용 순수 TCP 더미 클라이언트.
 // 서버에 접속해 CALoginReq 를 보내고 ACLoginAck 응답을 파싱·출력한다.
-// 프레이밍은 서버와 동일한 PacketHeader(8바이트: length LE + packetId LE)를 그대로 재사용한다.
+// 프레이밍은 서버와 동일한 PacketHeader(8바이트: length LE + packetID LE)를 그대로 재사용한다.
 internal static class Program
 {
     private const string DefaultHost = "127.0.0.1";
@@ -41,26 +41,26 @@ internal static class Program
             {
                 MessageID      = EMessageID.CaLoginReq,
                 CurrentVersion = 1,
-                Pid            = "dummy_pid",
+                PID            = "dummy_pid",
                 AuthToken      = "dummy_token",
                 PlatformType   = EPlatformType.None,
                 LanguageID     = 1,
                 IsReconnect    = false,
             };
             SendPacket(stream, (int)EMessageID.CaLoginReq, req);
-            Console.WriteLine($"[dummy] sent CALoginReq (Pid={req.Pid})");
+            Console.WriteLine($"[dummy] sent CALoginReq (PID={req.PID})");
 
             // 2) 응답 수신 — 헤더 1개 + payload 1개.
-            var (packetId, payload) = ReceivePacket(stream);
-            if (packetId != (int)EMessageID.AcLoginAck)
+            var (packetID, payload) = ReceivePacket(stream);
+            if (packetID != (int)EMessageID.AcLoginAck)
             {
-                Console.Error.WriteLine($"[dummy] unexpected packetId={packetId} (expected AcLoginAck={(int)EMessageID.AcLoginAck})");
+                Console.Error.WriteLine($"[dummy] unexpected packetID={packetID} (expected AcLoginAck={(int)EMessageID.AcLoginAck})");
                 return 1;
             }
 
             var ack = ACLoginAck.Parser.ParseFrom(payload);
             Console.WriteLine("[dummy] received ACLoginAck:");
-            Console.WriteLine($"  AccountId               = {ack.AccountId}");
+            Console.WriteLine($"  AccountID               = {ack.AccountID}");
             Console.WriteLine($"  AccountName             = '{ack.AccountName}'");
             Console.WriteLine($"  ConntectedIP            = '{ack.ConntectedIP}'");
             Console.WriteLine($"  ConnectedPort           = {ack.ConnectedPort}");
@@ -80,30 +80,30 @@ internal static class Program
         }
     }
 
-    // payload = protobuf 직렬화 결과. [length LE][packetId LE][payload] 한 덩어리로 송신.
-    private static void SendPacket(NetworkStream stream, int packetId, IMessage msg)
+    // payload = protobuf 직렬화 결과. [length LE][packetID LE][payload] 한 덩어리로 송신.
+    private static void SendPacket(NetworkStream stream, int packetID, IMessage msg)
     {
         byte[] payload = msg.ToByteArray();
         int total = PacketHeader.HeaderSize + payload.Length;
         byte[] buffer = new byte[total];
-        PacketHeader.Write(buffer, total, packetId);
+        PacketHeader.Write(buffer, total, packetID);
         payload.CopyTo(buffer.AsSpan(PacketHeader.HeaderSize));
         stream.Write(buffer, 0, total);
         stream.Flush();
     }
 
     // 8바이트 헤더를 먼저 읽어 총길이를 알아낸 뒤, 나머지 payload 를 모두 채워 반환.
-    private static (int packetId, byte[] payload) ReceivePacket(NetworkStream stream)
+    private static (int packetID, byte[] payload) ReceivePacket(NetworkStream stream)
     {
         byte[] header = ReadExact(stream, PacketHeader.HeaderSize);
-        if (!PacketHeader.TryRead(header, out int length, out int packetId))
+        if (!PacketHeader.TryRead(header, out int length, out int packetID))
             throw new InvalidOperationException("header read failed");
         if (length < PacketHeader.HeaderSize)
             throw new InvalidOperationException($"invalid packet length {length}");
 
         int payloadLength = length - PacketHeader.HeaderSize;
         byte[] payload = payloadLength > 0 ? ReadExact(stream, payloadLength) : Array.Empty<byte>();
-        return (packetId, payload);
+        return (packetID, payload);
     }
 
     // count 바이트를 모두 읽을 때까지 블로킹. 연결 종료(0바이트) 시 예외.

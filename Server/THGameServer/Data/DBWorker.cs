@@ -5,7 +5,7 @@ using TH.Server.Logic;
 namespace TH.Server.Data;
 
 // DBService 의 단일 샤드 worker. 전용 스레드 1개가 자기 mailbox 를 FIFO 로 순차 소비한다.
-// 같은 sessionId 의 요청은 항상 동일 worker 로 라우팅되므로(샤딩), 이 단일 스레드 소비가
+// 같은 sessionID 의 요청은 항상 동일 worker 로 라우팅되므로(샤딩), 이 단일 스레드 소비가
 // "유저별 요청 순서 보장" 을 성립시킨다.
 internal sealed class DBWorker
 {
@@ -42,7 +42,7 @@ internal sealed class DBWorker
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "DBWorker consume exception SessionId={Id} PacketId={Pid}", req.SessionId, req.PacketId);
+                Log.Error(ex, "DBWorker consume exception SessionID={ID} PacketID={PID}", req.SessionID, req.PacketID);
             }
         }
     }

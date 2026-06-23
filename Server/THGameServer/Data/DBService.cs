@@ -7,7 +7,7 @@ using TH.Server.Logic;
 namespace TH.Server.Data;
 
 // AD*(App→Data) 요청을 받아 DA*(Data→App) 로 응답하는 Data(DB) 계층 서비스.
-// 모듈러 샤딩: 고정 N 개 worker, sessionId % N 라우팅 → 같은 유저는 항상 같은 worker(단일 스레드 FIFO)
+// 모듈러 샤딩: 고정 N 개 worker, sessionID % N 라우팅 → 같은 유저는 항상 같은 worker(단일 스레드 FIFO)
 // 가 처리하므로 "유저별 요청 순서" 가 보장된다.
 // 응답(DA)은 PacketQueue 로 되돌려, 다음 tick 의 기존 dispatch 흐름(단일 tick 스레드)에서 안전하게 수신된다.
 //
@@ -21,7 +21,7 @@ public sealed class DBService : Singleton<DBService>
 
     private DBWorker[] _workers = Array.Empty<DBWorker>();
 
-    // packetId → (sessionId, payload) dispatch 델리게이트. 생성자에서만 채우고 이후 읽기 전용.
+    // packetID → (sessionID, payload) dispatch 델리게이트. 생성자에서만 채우고 이후 읽기 전용.
     private readonly Dictionary<int, Action<long, ReadOnlyMemory<byte>>> _handlers = new();
 
     private DBService()
@@ -50,17 +50,17 @@ public sealed class DBService : Singleton<DBService>
     }
 
     // AD 요청 송신 진입점 — Player(worker) / Eventor(tick) 가 호출.
-    // sessionId 로 샤드를 정해 해당 worker mailbox 로 적재 (같은 세션 = 같은 worker = 순서 보장).
-    public void Send(long sessionId, int packetId, IMessage msg)
+    // sessionID 로 샤드를 정해 해당 worker mailbox 로 적재 (같은 세션 = 같은 worker = 순서 보장).
+    public void Send(long sessionID, int packetID, IMessage msg)
     {
         if (_workers.Length == 0)
         {
-            Log.Warning("DBService.Send before Init SessionId={Id} PacketId={Pid}", sessionId, packetId);
+            Log.Warning("DBService.Send before Init SessionID={ID} PacketID={PID}", sessionID, packetID);
             return;
         }
 
-        int shard = (int)((ulong)sessionId % (ulong)_workers.Length);
-        _workers[shard].Post(new PacketMessage(sessionId, packetId, msg.ToByteArray()));
+        int shard = (int)((ulong)sessionID % (ulong)_workers.Length);
+        _workers[shard].Post(new PacketMessage(sessionID, packetID, msg.ToByteArray()));
     }
 
     // ====================== 핸들러 등록 / dispatch ======================
@@ -72,12 +72,12 @@ public sealed class DBService : Singleton<DBService>
     }
 
     // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관. (LogicEventor.RegisterHandler 미러)
-    private void RegisterHandler<T>(int packetId, Action<long, T> handler)
+    private void RegisterHandler<T>(int packetID, Action<long, T> handler)
         where T : class, IMessage<T>, new()
     {
         var parser = new MessageParser<T>(() => new T());
 
-        _handlers[packetId] = (sessionId, payload) =>
+        _handlers[packetID] = (sessionID, payload) =>
         {
             T msg;
             try
@@ -86,37 +86,37 @@ public sealed class DBService : Singleton<DBService>
             }
             catch (InvalidProtocolBufferException ex)
             {
-                Log.Warning(ex, "DB packet parse failed SessionId={Id} PacketId={Pid}", sessionId, packetId);
+                Log.Warning(ex, "DB packet parse failed SessionID={ID} PacketID={PID}", sessionID, packetID);
                 return;
             }
 
-            handler(sessionId, msg);
+            handler(sessionID, msg);
         };
     }
 
     // worker 스레드가 호출 — 자기 mailbox 의 요청 1건을 핸들러로 dispatch. 미등록 패킷은 drop.
     private void Dispatch(PacketMessage req)
     {
-        if (!_handlers.TryGetValue(req.PacketId, out var invoke))
+        if (!_handlers.TryGetValue(req.PacketID, out var invoke))
         {
-            Log.Debug("Unregistered DB packet dropped SessionId={Id} PacketId={Pid}", req.SessionId, req.PacketId);
+            Log.Debug("Unregistered DB packet dropped SessionID={ID} PacketID={PID}", req.SessionID, req.PacketID);
             return;
         }
 
-        invoke(req.SessionId, req.Payload);
+        invoke(req.SessionID, req.Payload);
     }
 
     // ====================== AD 핸들러 ======================
 
     // DBSession(실제 DB) 연동 전 stub — ADLoginReq 를 받아 기본값 DALoginAck 를 만들어 응답.
-    private void OnADLoginReq(long sessionId, ADLoginReq msg)
+    private void OnADLoginReq(long sessionID, ADLoginReq msg)
     {
         var ack = new DALoginAck
         {
             MessageID               = EMessageID.DaLoginAck,
             PID                     = msg.PID,
-            AccountId               = 0,
-            GameDbId                = 0,
+            AccountID               = 0,
+            GameDbID                = 0,
             PlayerName              = string.Empty,
             IsReconnect             = msg.IsReconnect,
             ChannelID               = 0,
@@ -130,8 +130,8 @@ public sealed class DBService : Singleton<DBService>
         };
 
         // DA 응답을 PacketQueue 로 되돌린다 → 다음 tick 에 기존 dispatch 가 수신측 핸들러로 전달.
-        OutGameService.Instance.EnqueuePacket(sessionId, (int)EMessageID.DaLoginAck, ack.ToByteArray());
+        OutGameService.Instance.EnqueuePacket(sessionID, (int)EMessageID.DaLoginAck, ack.ToByteArray());
 
-        Log.Debug("DBService AD_LOGIN_REQ handled SessionId={Id} PID={Pid}", sessionId, msg.PID);
+        Log.Debug("DBService AD_LOGIN_REQ handled SessionID={ID} PID={PID}", sessionID, msg.PID);
     }
 }

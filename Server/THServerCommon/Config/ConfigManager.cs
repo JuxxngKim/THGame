@@ -1,4 +1,4 @@
-using Serilog;
+﻿using Serilog;
 
 namespace TH.Common.Config;
 
@@ -10,7 +10,7 @@ public sealed class ConfigManager : Singleton<ConfigManager>
 
     public string Env { get; private set; } = "";
     public string? Service { get; private set; }
-    public string Id { get; private set; } = "1";
+    public string ID { get; private set; } = "1";
     public IniFile? Profile { get; private set; }
     public IniFile? Config { get; private set; }
 
@@ -26,7 +26,7 @@ public sealed class ConfigManager : Singleton<ConfigManager>
 
             Env     = Profile.GetRequired("Profile", "Env");
             Service = Profile.Get("Profile", "Service") is { Length: > 0 } s ? s : null;
-            Id      = Profile.Get("Profile", "Id") ?? "1";
+            ID      = Profile.Get("Profile", "ID") ?? "1";
 
             var configPath = Path.Combine(configDirectory, $"config.{Env}.ini");
             Config = IniFile.Load(configPath);

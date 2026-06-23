@@ -11,9 +11,9 @@ public sealed class Session
     public const int DefaultRecvBufferSize = 8192;
     public const long MaxPendingSendBytes = 1L * 1024 * 1024;
 
-    private static long _nextId;
+    private static long _nextID;
 
-    public long SessionId { get; }
+    public long SessionID { get; }
 
     private volatile Socket? _socket;
     private readonly SocketAsyncEventArgs _recvSaea;
@@ -29,7 +29,7 @@ public sealed class Session
 
     private int _closed;
 
-    public delegate void PacketHandler(Session session, int packetId, ReadOnlySpan<byte> payload);
+    public delegate void PacketHandler(Session session, int packetID, ReadOnlySpan<byte> payload);
 
     // ⚠️ payload는 내부 수신 버퍼의 슬라이스다. 핸들러는 동기적으로 즉시 디코드해야 하며,
     // span/슬라이스를 캡처/보관해선 안 된다. 다음 수신 사이클에서 덮어쓰여진다.
@@ -38,7 +38,7 @@ public sealed class Session
 
     public Session(Socket socket)
     {
-        SessionId = Interlocked.Increment(ref _nextId);
+        SessionID = Interlocked.Increment(ref _nextID);
         _socket = socket;
 
         _recvBuffer = new byte[DefaultRecvBufferSize];
@@ -69,8 +69,8 @@ public sealed class Session
             int available = _recvBuffer.Length - _recvOffset;
             if (available <= 0)
             {
-                Log.Error("Session {Id} recv buffer full (offset={Off}, size={Size}), forcing close",
-                    SessionId, _recvOffset, _recvBuffer.Length);
+                Log.Error("Session {ID} recv buffer full (offset={Off}, size={Size}), forcing close",
+                    SessionID, _recvOffset, _recvBuffer.Length);
                 Close(notify: true);
                 return;
             }
@@ -89,7 +89,7 @@ public sealed class Session
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Session {Id} ReceiveAsync call failed", SessionId);
+                Log.Error(ex, "Session {ID} ReceiveAsync call failed", SessionID);
                 HandleDisconnect();
                 return;
             }
@@ -125,12 +125,12 @@ public sealed class Session
         {
             var available = new ReadOnlySpan<byte>(_recvBuffer, consumed, _recvOffset - consumed);
 
-            if (!PacketHeader.TryRead(available, out int length, out int packetId))
+            if (!PacketHeader.TryRead(available, out int length, out int packetID))
                 break;
 
             if (length < PacketHeader.HeaderSize || length > MaxPacketSize)
             {
-                Log.Warning("Session {Id} invalid packet length {Length}, forcing close", SessionId, length);
+                Log.Warning("Session {ID} invalid packet length {Length}, forcing close", SessionID, length);
                 Close(notify: true);
                 return false;
             }
@@ -155,11 +155,11 @@ public sealed class Session
             var payload = new ReadOnlySpan<byte>(_recvBuffer, payloadOffset, payloadLength);
             try
             {
-                OnPacketReceived?.Invoke(this, packetId, payload);
+                OnPacketReceived?.Invoke(this, packetID, payload);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Session {Id} OnPacketReceived handler exception (PacketId={PacketId})", SessionId, packetId);
+                Log.Error(ex, "Session {ID} OnPacketReceived handler exception (PacketID={PacketID})", SessionID, packetID);
             }
 
             consumed += length;
@@ -178,7 +178,7 @@ public sealed class Session
 
     // ====================== 송신 ======================
 
-    public void Send(int packetId, ReadOnlySpan<byte> payload)
+    public void Send(int packetID, ReadOnlySpan<byte> payload)
     {
         if (Volatile.Read(ref _closed) == 1) return;
 
@@ -186,7 +186,7 @@ public sealed class Session
 
         if (totalLength > MaxPacketSize)
         {
-            Log.Warning("Session {Id} send packet too large {Size}, forcing close", SessionId, totalLength);
+            Log.Warning("Session {ID} send packet too large {Size}, forcing close", SessionID, totalLength);
             Close(notify: true);
             return;
         }
@@ -196,14 +196,14 @@ public sealed class Session
         if (after > MaxPendingSendBytes)
         {
             Interlocked.Add(ref _pendingSendBytes, -totalLength);
-            Log.Warning("Session {Id} send buffer overflow ({Bytes}B), forcing close", SessionId, after);
+            Log.Warning("Session {ID} send buffer overflow ({Bytes}B), forcing close", SessionID, after);
             Close(notify: true);
             return;
         }
 
         // 2) Rent + Write
         byte[] buffer = ArrayPool<byte>.Shared.Rent(totalLength);
-        PacketHeader.Write(buffer, totalLength, packetId);
+        PacketHeader.Write(buffer, totalLength, packetID);
         payload.CopyTo(buffer.AsSpan(PacketHeader.HeaderSize, payload.Length));
 
         _sendQueue.Enqueue(buffer);
@@ -279,7 +279,7 @@ public sealed class Session
                 ArrayPool<byte>.Shared.Return(buffer);
                 Interlocked.Add(ref _pendingSendBytes, -length);
                 _inflightLength = 0;
-                Log.Error(ex, "Session {Id} SendAsync call failed", SessionId);
+                Log.Error(ex, "Session {ID} SendAsync call failed", SessionID);
                 HandleDisconnect();
                 Interlocked.Exchange(ref _sending, 0);
                 return;

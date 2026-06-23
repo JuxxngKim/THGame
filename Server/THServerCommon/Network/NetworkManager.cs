@@ -50,17 +50,17 @@ public sealed class NetworkManager : Singleton<NetworkManager>
         Log.Information("NetworkManager shutdown");
     }
 
-    public Session? FindSession(long sessionId)
+    public Session? FindSession(long sessionID)
     {
-        _sessions.TryGetValue(sessionId, out var s);
+        _sessions.TryGetValue(sessionID, out var s);
         return s;
     }
 
-    public bool IsSessionAlive(long sessionId) => _sessions.ContainsKey(sessionId);
+    public bool IsSessionAlive(long sessionID) => _sessions.ContainsKey(sessionID);
 
-    public void CloseSession(long sessionId)
+    public void CloseSession(long sessionID)
     {
-        if (_sessions.TryGetValue(sessionId, out var s))
+        if (_sessions.TryGetValue(sessionID, out var s))
             s.Close(notify: true);
         // OnSessionDisconnected는 직접 발화하지 않음.
         // Session.OnDisconnected → OnSessionDisconnectedInternal 경로로 자연 발화.
@@ -68,14 +68,14 @@ public sealed class NetworkManager : Singleton<NetworkManager>
 
     private void OnNewSession(Session session)
     {
-        _sessions.TryAdd(session.SessionId, session);
+        _sessions.TryAdd(session.SessionID, session);
         session.OnDisconnected += OnSessionDisconnectedInternal;
         OnSessionConnected?.Invoke(session);
     }
 
     private void OnSessionDisconnectedInternal(Session session)
     {
-        if (_sessions.TryRemove(session.SessionId, out _))
+        if (_sessions.TryRemove(session.SessionID, out _))
             OnSessionDisconnected?.Invoke(session);
     }
 }

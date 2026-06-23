@@ -47,8 +47,8 @@ public sealed class InGameService : Singleton<InGameService>
     // ====================== 외부 진입점 (멀티스레드 안전) ======================
 
     // 네트워크(IO) 스레드에서 InGame 대역 패킷을 적재. PacketQueue.Enqueue 는 lock 보호.
-    public void EnqueuePacket(long sessionID, int packetId, byte[] payload)
-        => _packetQueue.Enqueue(sessionID, packetId, payload);
+    public void EnqueuePacket(long sessionID, int packetID, byte[] payload)
+        => _packetQueue.Enqueue(sessionID, packetID, payload);
 
     // OutGame Player(Work 스레드) 등에서 진입을 요청. 직접 참조 없이 명령 큐로만 전달.
     public void EnqueueEnter(long sessionID, RoomID roomID)
@@ -158,11 +158,11 @@ public sealed class InGameService : Singleton<InGameService>
     // Prepare (단일 tick 스레드) — SessionRoomMap mutate 와 룸 inbox 적재는 전부 여기서.
     private void Prepare()
     {
-        // (1) 네트워크 패킷 라우팅: sessionId → SessionRoomMap → 해당 룸 inbox 로 PacketRoomJob 적재.
+        // (1) 네트워크 패킷 라우팅: sessionID → SessionRoomMap → 해당 룸 inbox 로 PacketRoomJob 적재.
         var raw = _packetQueue.Swap();
         foreach (var p in raw)
         {
-            if (_sessionRoomMap.TryGet(p.SessionId, out var roomID) && _repo.Find(roomID) is { } room)
+            if (_sessionRoomMap.TryGet(p.SessionID, out var roomID) && _repo.Find(roomID) is { } room)
                 room.JobQueue.Enqueue(new PacketRoomJob(p));
             // 어느 룸에도 없는 세션의 패킷은 드롭(진입 전 도착 / 이탈 후 잔여).
         }
