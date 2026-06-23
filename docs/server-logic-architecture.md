@@ -23,7 +23,7 @@ Event  → Prepare → Work → Arrange
 ```
 
 ```
-long tickMs = TimeManager.Instance.UnixMillis();
+long tickMs = TimeManager.Instance.TickMillis();   // monotonic (시스템 시계 변경 무관)
 
 _eventor.Event(tickMs);                       // 1) 주기 작업
 
@@ -187,14 +187,16 @@ InGame 도 외부(IO 스레드)는 더블버퍼 `PacketQueue` 에 `Enqueue` 만 
 
 ### 6.2. tick 루프 (OutGame 과 의도적으로 다름)
 
-OutGame 은 tick-skip(anchor 만 진전, `ProcessTick` 1회) + `TimeManager.UnixMillis()` 기반이다.
-InGame 은 **게임 시뮬의 결정성/물리 적분 안정성**을 위해 다르게 구현한다:
+두 서비스 모두 시간 소스는 `TimeManager.TickMillis()`(monotonic, `Environment.TickCount64` 기반 —
+시스템 시계 점프/역행에 영향받지 않음)다. 둘 다 매 주기(~300ms / ~100ms)에 `ProcessTick` 을 1회
+돌리되, InGame 은 **지난 tick 이후 실제 경과 시간(가변 dt)**을 `ProcessTick` 에 넘긴다(OutGame 은 dt 미사용):
 
-- **`Stopwatch`(monotonic) + accumulator** — 시스템 시계 점프/역행에 영향받지 않고 drift 방지.
-- **고정 dt 100ms catch-up step 실제 실행** — 밀리면 여러 스텝을 돌되 매 스텝 dt 는 항상 100ms 고정(가변 dt 금지).
-- **`MaxCatchUp = 2`** — 상한 초과 시 밀린 논리 시간을 버린다(frame drop). death spiral 방어막.
-- **sleep+spin 하이브리드** — 다음 100ms 경계 전까진 `Sleep`(양보), 경계 직전엔 `SpinWait`
-  (Windows 타이머 quantum ~15.6ms 오차 흡수, 경계 정확도 확보).
+- **`TimeManager.TickMillis()`(monotonic)** — 시스템 시계 변경 무관.
+- **가변 dt** — 매 tick `dt = now − 직전 tick 시각`. 한 tick 이 밀리면 **다음 한 tick 의 dt 가 그만큼
+  커질 뿐, catch-up 스텝을 따로 돌지 않는다**(`lastTickMs` 를 now 로 리셋 → burst/death spiral 없음).
+  catch-up 상한은 현재 없다(필요해지면 재도입). 시뮬 로직은 dt 비례(rate × dt)로 작성한다.
+- **sleep+spin 하이브리드** — 다음 100ms 경계 전까진 `Sleep`(양보), 경계 직전엔 `SpinWait`.
+  경계 정밀도는 `TickMillis()` 분해능(Windows ~15.6ms)에 묶인다.
 
 ### 6.3. phase 구조 (Prepare → Work)
 
@@ -248,7 +250,7 @@ GameRoom.Tick(dt):
 
 | 파일 | 역할 |
 |------|------|
-| `InGame/InGameService.cs` | `Singleton`. 자체 100ms tick(Stopwatch accumulator, MaxCatchUp=2, sleep+spin), Prepare(라우팅+명령)/Work(스케줄러) |
+| `InGame/InGameService.cs` | `Singleton`. 자체 100ms tick(TickMillis() 가변 dt, sleep+spin), Prepare(라우팅+명령)/Work(스케줄러) |
 | `InGame/InGameMessage.cs` | InGame 패킷 대역(50000~59999) 상수 + `IsInGame` 분류 |
 | `InGame/GameRoom.cs` | 룸 1틱(JobQueue count-snapshot drain + 시뮬), Character 컬렉션, Interest 경유 브로드캐스트/훅 |
 | `InGame/RoomID.cs` | `readonly record struct RoomID(long)` — 타입 안전 룸 ID |

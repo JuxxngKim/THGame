@@ -45,14 +45,14 @@ public sealed class OutGameService : Singleton<OutGameService>
 
     private void MainLoop()
     {
-        // 다음 tick 예정 시각의 초기 anchor. 이후 매 tick 절대 시각 기반(+=)으로 진전시킨다.
-        _nextUpdateTimeMs = TimeManager.Instance.UnixMillis();
+        // 다음 tick 예정 시각의 초기 anchor. 이후 매 tick monotonic 시각 기반(+=)으로 진전시킨다.
+        _nextUpdateTimeMs = TimeManager.Instance.TickMillis();
 
         while (!_stopping)
         {
             try
             {
-                long tickMs = TimeManager.Instance.UnixMillis();
+                long tickMs = TimeManager.Instance.TickMillis();
                 if (tickMs < _nextUpdateTimeMs)
                 {
                     Thread.Sleep(1);
