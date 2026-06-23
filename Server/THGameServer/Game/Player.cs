@@ -120,7 +120,6 @@ public sealed class Player
             IsReconnect  = msg.IsReconnect,
             ServerID     = 0,
             LanguageID   = msg.LanguageID,
-            PlatformType = msg.PlatformType,
         };
         DBService.Instance.Send(SessionID, (int)EMessageID.OdLoginReq, odReq);
     }

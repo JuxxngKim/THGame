@@ -126,7 +126,6 @@ public sealed class DBService : Singleton<DBService>
             LanguageID              = msg.LanguageID,
             TotalPlayTime           = 0,
             Authenticated           = true,
-            PlatformType            = msg.PlatformType,
         };
 
         // DO 응답을 PacketQueue 로 되돌린다 → 다음 tick 에 기존 dispatch 가 수신측 핸들러로 전달.
