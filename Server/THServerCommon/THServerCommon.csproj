@@ -16,6 +16,8 @@
   <ItemGroup>
     <Compile Include="..\..\Common\Tool\ProtocolGenerator\generated\*.g.cs"
              Link="Protocol\%(Filename)%(Extension)" />
+    <None Include="..\..\Common\Tool\ProtocolGenerator\protos\*.proto"
+          Link="Protocol\protos\%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>
