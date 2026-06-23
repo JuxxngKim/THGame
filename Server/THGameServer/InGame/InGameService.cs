@@ -28,7 +28,6 @@ public sealed class InGameService : Singleton<InGameService>
     private readonly IInterestManagement _interest = new BroadcastInterest();
     private readonly SessionRoomMap _sessionRoomMap = new();
     private readonly RoomRepository _repo;
-    private readonly IRoomScheduler _scheduler = new ParallelRoomScheduler();
 
     private Thread? _mainThread;
     private volatile bool _stopping;
@@ -156,6 +155,18 @@ public sealed class InGameService : Singleton<InGameService>
         }
     }
 
-    // Work (병렬) — 룸들을 스케줄러로 실행. 룸끼리 병렬, 한 룸은 한 스레드. SessionRoomMap 은 read-only.
-    private void Work(long dtMs) => _scheduler.Run(dtMs, _repo.Rooms);
+    // Work (병렬) — 룸들을 직접 병렬 실행. 룸끼리 병렬, 한 룸은 한 스레드(룸 single-writer 보장).
+    // Parallel.ForEach 가 동기 반환할 때까지 블로킹 → 모든 룸 Tick 이 끝나야 한 tick 이 종료된다.
+    // SessionRoomMap 은 read-only.
+    //
+    // 한계(인지하고 남김): "한 틱 = 전체 룸의 배리어"라 무거운 단일 룸(대규모 인원/전투)이 그 틱의
+    // tail-latency 를 지배하면(straggler) 나머지 룸이 끝나도 배리어에서 대기한다.
+    private void Work(long dtMs)
+    {
+        var rooms = _repo.Rooms;
+        if (rooms.Count == 0)
+            return;
+
+        Parallel.ForEach(rooms, room => room.Tick(dtMs));
+    }
 }

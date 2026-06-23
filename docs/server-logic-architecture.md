@@ -205,7 +205,7 @@ ProcessTick(dtMs):
   Prepare()        // 단일 tick 스레드
     (1) _packetQueue.Swap() → 각 패킷 sessionId 로 SessionRoomMap 조회 → 해당 GameRoom.JobQueue 에 PacketRoomJob 적재
     (2) _commandQueue drain → IRoomCommand.Apply (enterRoom/leaveRoom/포탈)
-  Work(dtMs)       // 병렬: IRoomScheduler.Run → Parallel.ForEach(rooms, r => r.Tick(dt))
+  Work(dtMs)       // 병렬: Parallel.ForEach(rooms, r => r.Tick(dt))
 ```
 
 - **`SessionRoomMap`(SessionId→RoomID)의 mutate 는 오직 Prepare 에서만.** Work 는 read-only.
@@ -232,9 +232,6 @@ GameRoom.Tick(dt):
 
 ### 6.5. 교체 가능 경계 (확장성)
 
-- **`IRoomScheduler`** — 룸 실행 전략. 현재 `ParallelRoomScheduler`(`Parallel.ForEach`). 한 틱이 전체
-  룸의 배리어라 무거운 단일 룸이 tail-latency 를 지배하는 한계가 있다(straggler). 추후 roomID 로 워커에
-  핀하는 샤드 스케줄러로 **주입 교체** 가능(GameRoom/InGameService 시뮬 코드 무수정).
 - **`IInterestManagement`** — "이벤트를 누구에게 보낼지"만 책임. 현재 `BroadcastInterest`
   (`GetReceivers` = 룸 전원, `OnEnter/OnMove/OnLeave` = no-op). **호출 지점은 GameRoom 에 이미 배선**
   (진입/이동/이탈 시점)되어 있고, 모든 브로드캐스트는 `GetReceivers` 한 곳만 경유한다. 추후
@@ -250,7 +247,7 @@ GameRoom.Tick(dt):
 
 | 파일 | 역할 |
 |------|------|
-| `InGame/InGameService.cs` | `Singleton`. 자체 100ms tick(TickMillis() 가변 dt, sleep+spin), Prepare(라우팅+명령)/Work(스케줄러) |
+| `InGame/InGameService.cs` | `Singleton`. 자체 100ms tick(TickMillis() 가변 dt, sleep+spin), Prepare(라우팅+명령)/Work(룸 병렬 실행) |
 | `InGame/InGameMessage.cs` | InGame 패킷 대역(50000~59999) 상수 + `IsInGame` 분류 |
 | `InGame/GameRoom.cs` | 룸 1틱(JobQueue count-snapshot drain + 시뮬), Character 컬렉션, Interest 경유 브로드캐스트/훅 |
 | `InGame/RoomID.cs` | `readonly record struct RoomID(long)` — 타입 안전 룸 ID |
@@ -260,6 +257,5 @@ GameRoom.Tick(dt):
 | `InGame/IRoomCommand.cs` | 크로스도메인 명령(`EnterCommand`/`LeaveCommand`). Prepare 에서 `Apply` |
 | `InGame/SessionRoomMap.cs` | SessionId→RoomID. Prepare 전용 mutate, Work read-only (무락) |
 | `InGame/RoomRepository.cs` | RoomID→GameRoom. 룸 생성/조회. Interest 주입 보유 |
-| `InGame/IRoomScheduler.cs` · `ParallelRoomScheduler.cs` | 룸 실행 전략(교체 경계) + 병렬 구현 |
 | `InGame/IInterestManagement.cs` · `BroadcastInterest.cs` | 관심 관리(교체 경계) + 전원 브로드캐스트 구현 |
 | `Game/Character.cs` · `Game/Position.cs` | 필드 캐릭터 엔티티 + 좌표 값 타입 |
