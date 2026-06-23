@@ -36,7 +36,7 @@ _eventor.Arrange(grouped);                    // 4) Arrange phase
 ```
 
 - **Event**: 시간 기반 주기 작업(서버 정보 동기화, alive heartbeat 등). 패킷과 무관.
-- **Prepare**: 세션/로그인 도메인 선처리. 예) `CALoginReq` 로 Player 를 `PlayerArchive` 에 등록,
+- **Prepare**: 세션/로그인 도메인 선처리. 예) `COLoginReq` 로 Player 를 `PlayerArchive` 에 등록,
   `NetDisconnect` 로 Player 제거.
 - **Work**: **Player 단위 병렬 처리(worker phase)**. 아래 3장 참조.
 - **Arrange**: 후처리. 모든 Player 의 Work 가 끝난 뒤 단일 tick 스레드에서 실행.
@@ -67,9 +67,9 @@ phase 플래그(`THServerCommon/DefineEnum.cs`):
 |------|-------|------|
 | `NetDisconnect` | Prepare \| Arrange | Prepare: archive 제거 / Arrange: 게임 상태 cleanup(TODO) |
 | `NetAliveReq` | Arrange | `NetAliveAck` 응답 |
-| `CALoginReq` | Prepare | Player 생성 + archive 등록 + `ACLoginAck` |
+| `COLoginReq` | Prepare | Player 생성 + archive 등록 + `OCLoginAck` |
 
-> Player 단위 게임 패킷(`CAGetPlayerReq` 등)은 이 테이블이 아니라 **Player 의 핸들러 테이블**에서
+> Player 단위 게임 패킷(`COGetPlayerReq` 등)은 이 테이블이 아니라 **Player 의 핸들러 테이블**에서
 > 처리한다(아래 3장). 즉 핸들러 시스템이 둘이다:
 > - sessionId 단위 / Prepare·Arrange phase → `LogicEventor._handlers` (OutGame 도메인)
 > - Player 단위 / Work phase → `Player.Handlers` (게임 도메인)

@@ -5,8 +5,8 @@ using TH.Common.Network;
 
 namespace TH.DummyClient;
 
-// 로그인 흐름(CALoginReq → ACLoginAck) E2E 검증용 순수 TCP 더미 클라이언트.
-// 서버에 접속해 CALoginReq 를 보내고 ACLoginAck 응답을 파싱·출력한다.
+// 로그인 흐름(COLoginReq → OCLoginAck) E2E 검증용 순수 TCP 더미 클라이언트.
+// 서버에 접속해 COLoginReq 를 보내고 OCLoginAck 응답을 파싱·출력한다.
 // 프레이밍은 서버와 동일한 PacketHeader(8바이트: length LE + packetID LE)를 그대로 재사용한다.
 internal static class Program
 {
@@ -36,10 +36,10 @@ internal static class Program
             var stream = client.GetStream();
             stream.ReadTimeout = RecvTimeoutMs;
 
-            // 1) CALoginReq 송신 — required 필드 전부 채움 (AuthToken 은 서버가 검증하지 않음).
-            var req = new CALoginReq
+            // 1) COLoginReq 송신 — required 필드 전부 채움 (AuthToken 은 서버가 검증하지 않음).
+            var req = new COLoginReq
             {
-                MessageID      = EMessageID.CaLoginReq,
+                MessageID      = EMessageID.CoLoginReq,
                 CurrentVersion = 1,
                 PID            = "dummy_pid",
                 AuthToken      = "dummy_token",
@@ -47,19 +47,19 @@ internal static class Program
                 LanguageID     = 1,
                 IsReconnect    = false,
             };
-            SendPacket(stream, (int)EMessageID.CaLoginReq, req);
-            Console.WriteLine($"[dummy] sent CALoginReq (PID={req.PID})");
+            SendPacket(stream, (int)EMessageID.CoLoginReq, req);
+            Console.WriteLine($"[dummy] sent COLoginReq (PID={req.PID})");
 
             // 2) 응답 수신 — 헤더 1개 + payload 1개.
             var (packetID, payload) = ReceivePacket(stream);
-            if (packetID != (int)EMessageID.AcLoginAck)
+            if (packetID != (int)EMessageID.OcLoginAck)
             {
-                Console.Error.WriteLine($"[dummy] unexpected packetID={packetID} (expected AcLoginAck={(int)EMessageID.AcLoginAck})");
+                Console.Error.WriteLine($"[dummy] unexpected packetID={packetID} (expected OcLoginAck={(int)EMessageID.OcLoginAck})");
                 return 1;
             }
 
-            var ack = ACLoginAck.Parser.ParseFrom(payload);
-            Console.WriteLine("[dummy] received ACLoginAck:");
+            var ack = OCLoginAck.Parser.ParseFrom(payload);
+            Console.WriteLine("[dummy] received OCLoginAck:");
             Console.WriteLine($"  AccountID               = {ack.AccountID}");
             Console.WriteLine($"  AccountName             = '{ack.AccountName}'");
             Console.WriteLine($"  ConntectedIP            = '{ack.ConntectedIP}'");

@@ -6,10 +6,10 @@ using TH.Server.Logic;
 
 namespace TH.Server.Data;
 
-// AD*(App→Data) 요청을 받아 DA*(Data→App) 로 응답하는 Data(DB) 계층 서비스.
+// OD*(OutGame→Data) 요청을 받아 DO*(Data→OutGame) 로 응답하는 Data(DB) 계층 서비스.
 // 모듈러 샤딩: 고정 N 개 worker, sessionID % N 라우팅 → 같은 유저는 항상 같은 worker(단일 스레드 FIFO)
 // 가 처리하므로 "유저별 요청 순서" 가 보장된다.
-// 응답(DA)은 PacketQueue 로 되돌려, 다음 tick 의 기존 dispatch 흐름(단일 tick 스레드)에서 안전하게 수신된다.
+// 응답(DO)은 PacketQueue 로 되돌려, 다음 tick 의 기존 dispatch 흐름(단일 tick 스레드)에서 안전하게 수신된다.
 //
 // 동시성: Send 는 Player(worker 스레드) / Eventor(tick 스레드) 양쪽에서 호출되나 BlockingCollection 적재라 안전.
 //         worker 스레드는 PacketQueue.Enqueue(lock 보호)만 호출하고 전역 / 타 Player 상태를 직접 변경하지 않는다.
@@ -49,7 +49,7 @@ public sealed class DBService : Singleton<DBService>
         Log.Information("DBService shutdown");
     }
 
-    // AD 요청 송신 진입점 — Player(worker) / Eventor(tick) 가 호출.
+    // OD 요청 송신 진입점 — Player(worker) / Eventor(tick) 가 호출.
     // sessionID 로 샤드를 정해 해당 worker mailbox 로 적재 (같은 세션 = 같은 worker = 순서 보장).
     public void Send(long sessionID, int packetID, IMessage msg)
     {
@@ -67,8 +67,8 @@ public sealed class DBService : Singleton<DBService>
 
     private void RegisterHandlers()
     {
-        RegisterHandler<ADLoginReq>((int)EMessageID.AdLoginReq, OnADLoginReq);
-        // 나머지 AD 핸들러(PlayerInfo / PlayerHero / PlayerEquipItem / EndofGameSession)는 동일 패턴으로 후속 추가.
+        RegisterHandler<ODLoginReq>((int)EMessageID.OdLoginReq, OnODLoginReq);
+        // 나머지 OD 핸들러는 proto 패킷 추가 시 동일 패턴으로 후속 추가.
     }
 
     // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관. (LogicEventor.RegisterHandler 미러)
@@ -106,14 +106,14 @@ public sealed class DBService : Singleton<DBService>
         invoke(req.SessionID, req.Payload);
     }
 
-    // ====================== AD 핸들러 ======================
+    // ====================== OD 핸들러 ======================
 
-    // DBSession(실제 DB) 연동 전 stub — ADLoginReq 를 받아 기본값 DALoginAck 를 만들어 응답.
-    private void OnADLoginReq(long sessionID, ADLoginReq msg)
+    // DBSession(실제 DB) 연동 전 stub — ODLoginReq 를 받아 기본값 DOLoginAck 를 만들어 응답.
+    private void OnODLoginReq(long sessionID, ODLoginReq msg)
     {
-        var ack = new DALoginAck
+        var ack = new DOLoginAck
         {
-            MessageID               = EMessageID.DaLoginAck,
+            MessageID               = EMessageID.DoLoginAck,
             PID                     = msg.PID,
             AccountID               = 0,
             GameDbID                = 0,
@@ -129,9 +129,9 @@ public sealed class DBService : Singleton<DBService>
             PlatformType            = msg.PlatformType,
         };
 
-        // DA 응답을 PacketQueue 로 되돌린다 → 다음 tick 에 기존 dispatch 가 수신측 핸들러로 전달.
-        OutGameService.Instance.EnqueuePacket(sessionID, (int)EMessageID.DaLoginAck, ack.ToByteArray());
+        // DO 응답을 PacketQueue 로 되돌린다 → 다음 tick 에 기존 dispatch 가 수신측 핸들러로 전달.
+        OutGameService.Instance.EnqueuePacket(sessionID, (int)EMessageID.DoLoginAck, ack.ToByteArray());
 
-        Log.Debug("DBService AD_LOGIN_REQ handled SessionID={ID} PID={PID}", sessionID, msg.PID);
+        Log.Debug("DBService OD_LOGIN_REQ handled SessionID={ID} PID={PID}", sessionID, msg.PID);
     }
 }

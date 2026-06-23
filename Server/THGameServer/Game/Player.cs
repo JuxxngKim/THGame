@@ -17,7 +17,7 @@ public sealed class Player
     public string PID { get; set; } = string.Empty;
     public EPlayerState State { get; set; }
 
-    // 로그인 컨텍스트 — CALoginReq 의 클라이언트 버전. DALoginAck 수신 시 ACLoginAck 구성에 사용.
+    // 로그인 컨텍스트 — COLoginReq 의 클라이언트 버전. DOLoginAck 수신 시 OCLoginAck 구성에 사용.
     private int _loginVersion;
 
     public Player(long sessionID)
@@ -33,12 +33,12 @@ public sealed class Player
 
     static Player()
     {
-        Register<CALoginReq>((int)EMessageID.CaLoginReq, (p, m) => p.OnCALoginReq(m));
-        Register<DALoginAck>((int)EMessageID.DaLoginAck, (p, m) => p.OnDALoginAck(m));
-        Register<CAGetPlayerReq>((int)EMessageID.CaGetPlayerReq, (p, m) => p.OnCAGetPlayerReq(m));
+        Register<COLoginReq>((int)EMessageID.CoLoginReq, (p, m) => p.OnCOLoginReq(m));
+        Register<DOLoginAck>((int)EMessageID.DoLoginAck, (p, m) => p.OnDOLoginAck(m));
+        Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, m) => p.OnCOGetPlayerReq(m));
 
         // TODO(proto): 필드 진입 요청 패킷 추가 시 여기서 배선.
-        //   Register<CAEnterReq>((int)EMessageID.CaEnterReq, (p, m) => p.OnCAEnterReq(m));
+        //   Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, m) => p.OnCOEnterReq(m));
         //   핸들러 본문에서 EnterField(roomID) 를 호출하면 InGame 진입이 트리거된다.
     }
 
@@ -105,15 +105,15 @@ public sealed class Player
 
     // ====================== 메시지 핸들러 ======================
 
-    // CALoginReq — Player 는 Eventor(Prepare)에서 이미 생성/등록된 상태로, 이 핸들러는 Work phase 에서 호출된다.
-    // Data 계층으로 ADLoginReq 를 송신하고, 응답 DALoginAck 는 PacketQueue 로 복귀해 다음 tick 의 OnDALoginAck 가 처리한다.
-    private void OnCALoginReq(CALoginReq msg)
+    // COLoginReq — Player 는 Eventor(Prepare)에서 이미 생성/등록된 상태로, 이 핸들러는 Work phase 에서 호출된다.
+    // Data 계층으로 ODLoginReq 를 송신하고, 응답 DOLoginAck 는 PacketQueue 로 복귀해 다음 tick 의 OnDOLoginAck 가 처리한다.
+    private void OnCOLoginReq(COLoginReq msg)
     {
         _loginVersion = msg.CurrentVersion;
 
-        var adReq = new ADLoginReq
+        var odReq = new ODLoginReq
         {
-            MessageID    = EMessageID.AdLoginReq,
+            MessageID    = EMessageID.OdLoginReq,
             PID          = msg.PID,
             LogKey       = 0,
             UpdateDate   = new MDateTime(),
@@ -122,18 +122,18 @@ public sealed class Player
             LanguageID   = msg.LanguageID,
             PlatformType = msg.PlatformType,
         };
-        DBService.Instance.Send(SessionID, (int)EMessageID.AdLoginReq, adReq);
+        DBService.Instance.Send(SessionID, (int)EMessageID.OdLoginReq, odReq);
     }
 
-    // Data 계층의 로그인 인증 결과. 인증 정보를 반영하고 클라이언트에 ACLoginAck 로 응답한다.
-    private void OnDALoginAck(DALoginAck msg)
+    // Data 계층의 로그인 인증 결과. 인증 정보를 반영하고 클라이언트에 OCLoginAck 로 응답한다.
+    private void OnDOLoginAck(DOLoginAck msg)
     {
         AccountID = msg.AccountID;
         State     = EPlayerState.LoggedIn;
 
-        var ack = new ACLoginAck
+        var ack = new OCLoginAck
         {
-            MessageID               = EMessageID.AcLoginAck,
+            MessageID               = EMessageID.OcLoginAck,
             AccountID               = msg.AccountID,
             AccountName             = msg.PlayerName,
             ConntectedIP            = string.Empty,
@@ -145,21 +145,21 @@ public sealed class Player
             ServerID                = 0,
             ChannelID               = msg.ChannelID,
         };
-        Send((int)EMessageID.AcLoginAck, ack);
+        Send((int)EMessageID.OcLoginAck, ack);
 
         Log.Information("Login ok SessionID={ID} PID={PID} AccountID={AID}", SessionID, PID, AccountID);
     }
 
-    private void OnCAGetPlayerReq(CAGetPlayerReq msg)
+    private void OnCOGetPlayerReq(COGetPlayerReq msg)
     {
-        // TODO: player 데이터 조회 + AcGetPlayerAck 응답 (Send((int)EMessageID.AcGetPlayerAck, ack))
+        // TODO: player 데이터 조회 + OcGetPlayerAck 응답 (Send((int)EMessageID.OcGetPlayerAck, ack))
     }
 
     // ====================== InGame 진입 (크로스도메인) ======================
 
     // OutGame Player(메인, 영속)는 그대로 두고 InGame 룸에 필드 캐릭터 진입을 요청한다.
     // 직접 참조 없이 InGameService 명령 큐로만 전달 — 실제 진입 처리는 InGameService 의 Prepare phase.
-    // (proto 추가 후 CAEnterReq 핸들러에서 호출. 현재는 진입 배선 골격.)
+    // (proto 추가 후 COEnterReq 핸들러에서 호출. 현재는 진입 배선 골격.)
     public void EnterField(RoomID roomID)
     {
         State = EPlayerState.InField;

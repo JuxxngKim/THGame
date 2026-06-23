@@ -25,99 +25,18 @@ namespace Th {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CgplbnVtLnByb3RvEgJ0aCorChBFUHJvdG9jb2xWZXJzaW9uEhcKE1JFX1BS",
-            "T1RPQ09MX1ZFUlNJT04QBCqrGgoKRU1lc3NhZ2VJRBIPCgtORVRfQ09OTkVD",
-            "VBBkEhIKDk5FVF9ESVNDT05ORUNUEGUSEQoNTkVUX0FMSVZFX1JFURBmEhEK",
-            "DU5FVF9BTElWRV9BQ0sQZxIUChBXUklURV9TRVJWRVJfTE9HEGgSFwoTSU5U",
-            "RVJOQUxfRVZFTlRfVElDSxBpEhAKDE5VTExfTUVTU0FHRRBqEhwKF0NHX0NM",
-            "SUVOVF9HQVRFV0FZX0JFR0lOEOgHEhYKEUNHX0FVVEhfTE9HSU5fUkVREOkH",
-            "EhYKEUdDX0FVVEhfTE9HSU5fQUNLEOoHEhYKEUdDX0FVVEhfTE9HSU5fTkFL",
-            "EOsHEhoKFUNHX0dFVF9OTVNTX1RPS0VOX1JFURDsBxIaChVHQ19HRVRfTk1T",
-            "U19UT0tFTl9BQ0sQ7QcSHQoYQ0dfQVBQX0NFUlRJRklDQVRJT05fUkVREO4H",
-            "Eh0KGEdDX0FQUF9DRVJUSUZJQ0FUSU9OX0FDSxDvBxIaChVHQ19HRVRfTk1T",
-            "U19UT0tFTl9OQUsQ8AcSHQoYR0NfQVBQX0NFUlRJRklDQVRJT05fTkFLEPEH",
-            "EhYKEUNHX0VOQ1JZUFRJT05fUkVREPIHEhYKEUdDX0VOQ1JZUFRJT05fQUNL",
-            "EPMHEiMKHkNHX0dFVF9XQUlUSU5HX1FVRVVFX09SREVSX1JFURD0BxIjCh5H",
-            "Q19HRVRfV0FJVElOR19RVUVVRV9PUkRFUl9BQ0sQ9QcSGgoVQ0dfQ0xJRU5U",
-            "X0dBVEVXQVlfRU5EEI9OEh4KGUNBX0NMSUVOVF9BRFZFTlRVUkVfQkVHSU4Q",
-            "kE4SEgoNQUNfQ09NTU9OX05BSxCRThIRCgxDQV9MT0dJTl9SRVEQkk4SEQoM",
-            "QUNfTE9HSU5fQUNLEJNOEhYKEUNBX0dFVF9QTEFZRVJfUkVRENdPEhYKEUFD",
-            "X0dFVF9QTEFZRVJfQUNLENhPEhwKF0FDX0dFVF9QTEFZRVJfSU5GT19OT1RJ",
-            "ENlPEhwKF0FDX0dFVF9QTEFZRVJfSEVST19OT1RJENpPEiEKHEFDX0dFVF9Q",
-            "TEFZRVJfRk9STUFUSU9OX05PVEkQ3E8SHAoXQUNfR0VUX1BMQVlFUl9ERUNL",
-            "X05PVEkQ3U8SGgoVQ0FfU0FWRV9IRVJPX0RFQ0tfUkVREN5PEhoKFUFDX1NB",
-            "VkVfSEVST19ERUNLX0FDSxDfTxIbChZDQV9IRVJPX0VRVUlQX0lURU1fUkVR",
-            "EOFPEhsKFkFDX0hFUk9fRVFVSVBfSVRFTV9BQ0sQ4k8SIwoeQUNfR0VUX1BM",
-            "QVlFUl9VU0VSX09QVElPTl9OT1RJEONPEhwKF0NBX1NBVkVfVVNFUl9PUFRJ",
-            "T05fUkVREORPEhwKF0FDX1NBVkVfVVNFUl9PUFRJT05fQUNLEOVPEhgKE0FD",
-            "X0NIQU5HRV9JVEVNX05PVEkQ508SFgoRQ0FfR0FNRV9NQUNST19SRVEQ6E8S",
-            "HAoXQUNfR0FNRV9NQUNST19LSUxMX05PVEkQ6U8SJAofQUNfR0FNRV9NQUNS",
-            "T19UUkFDRV9PQkpFQ1RfTk9USRDqTxIbChZBQ19HRVRfUExBWUVSX0VUQ19O",
-            "T1RJEOtPEhcKEkFDX0NIQU5HRV9FVENfTk9USRDsTxIaChVDQV9IRVJPX1JF",
-            "SU5GT1JDRV9SRVEQ7U8SGgoVQUNfSEVST19SRUlORk9SQ0VfQUNLEO5PEhgK",
-            "E0NBX0hFUk9fQ09NUE9TRV9SRVEQ708SGAoTQUNfSEVST19DT01QT1NFX0FD",
-            "SxDwTxIaChVDQV9IRVJPX1RSQU5TQ0VORF9SRVEQ8U8SGgoVQUNfSEVST19U",
-            "UkFOU0NFTkRfQUNLEPJPEhoKFUNBX0hFUk9fRVZPTFVUSU9OX1JFURDzTxIa",
-            "ChVBQ19IRVJPX0VWT0xVVElPTl9BQ0sQ9E8SGAoTQUNfQ0hBTkdFX0hFUk9f",
-            "Tk9USRD1TxIeChlBQ19HRVRfUExBWUVSX1RJQ0tFVF9OT1RJEPZPEhoKFUFD",
-            "X0NIQU5HRV9USUNLRVRfTk9USRD3TxIdChhBQ19HRVRfUExBWUVSX1NUQUdF",
-            "X05PVEkQ+E8SGwoWQ0FfU0tJTExfUkVJTkZPUkNFX1JFURD5TxIbChZBQ19T",
-            "S0lMTF9SRUlORk9SQ0VfQUNLEPpPEhoKFUNBX0lURU1fUkVJTkZPUkNFX1JF",
-            "URD7TxIaChVBQ19JVEVNX1JFSU5GT1JDRV9BQ0sQ/E8SFQoQQ0FfSVRFTV9M",
-            "T0NLX1JFURD9TxIVChBBQ19JVEVNX0xPQ0tfQUNLEP5PEhkKFENBX09QRU5f",
-            "SVRFTV9CT1hfUkVREIBQEhkKFEFDX09QRU5fSVRFTV9CT1hfQUNLEIFQEiQK",
-            "H0NBX1NUQUdFX0FDSElFVkVNRU5UX1JFV0FSRF9SRVEQglASJAofQUNfU1RB",
-            "R0VfQUNISUVWRU1FTlRfUkVXQVJEX0FDSxCDUBIZChRDQV9FTlRFUl9EVU5H",
-            "RU9OX1JFURCEUBIZChRBQ19FTlRFUl9EVU5HRU9OX0FDSxCFUBIZChRBQ19F",
-            "TlRFUl9EVU5HRU9OX05BSxCGUBIfChpBQ19HRVRfUExBWUVSX0RVTkdFT05f",
-            "Tk9USRCHUBIcChdDQV9JVEVNX0RJU0FTU0VNQkxZX1JFURCIUBIcChdBQ19J",
-            "VEVNX0RJU0FTU0VNQkxZX0FDSxCJUBIjCh5DQV9HRVRfSEVST19HUk9XVEhf",
-            "U1RPUkFHRV9SRVEQilASIwoeQUNfR0VUX0hFUk9fR1JPV1RIX1NUT1JBR0Vf",
-            "QUNLEItQEiQKH0NBX0hFUk9fUFVTSF9HUk9XVEhfU1RPUkFHRV9SRVEQjFAS",
-            "JAofQUNfSEVST19QVVNIX0dST1dUSF9TVE9SQUdFX0FDSxCNUBIjCh5DQV9I",
-            "RVJPX1BPUF9HUk9XVEhfU1RPUkFHRV9SRVEQjlASIwoeQUNfSEVST19QT1Bf",
-            "R1JPV1RIX1NUT1JBR0VfQUNLEI9QEisKJkFDX0dFVF9QTEFZRVJfSEVST19H",
-            "Uk9XVEhfU1RPUkFHRV9OT1RJEJBQEi8KKkFDX0dFVF9QTEFZRVJfSEVST19O",
-            "T05fR1JPV1RIX1NUT1JBR0VfTk9USRCRUBIoCiNDQV9IRVJPX1BVU0hfTk9O",
-            "X0dST1dUSF9TVE9SQUdFX1JFURCSUBIoCiNBQ19IRVJPX1BVU0hfTk9OX0dS",
-            "T1dUSF9TVE9SQUdFX0FDSxCTUBInCiJDQV9IRVJPX1BPUF9OT05fR1JPV1RI",
-            "X1NUT1JBR0VfUkVREJRQEicKIkFDX0hFUk9fUE9QX05PTl9HUk9XVEhfU1RP",
-            "UkFHRV9BQ0sQlVASJwoiQUNfQ0hBTkdFX0hFUk9fR1JPV1RIX1NUT1JBR0Vf",
-            "Tk9USRCWUBIrCiZBQ19DSEFOR0VfSEVST19OT05fR1JPV1RIX1NUT1JBR0Vf",
-            "Tk9USRCXUBItCihDQV9DSEFOR0VfUkVQRVRJVElPTl9CQUNLR1JPVU5EX01P",
-            "REVfUkVREJhQEi0KKEFDX0NIQU5HRV9SRVBFVElUSU9OX0JBQ0tHUk9VTkRf",
-            "TU9ERV9BQ0sQmVASLQooQ0FfQ0hBTkdFX1JFUEVUSVRJT05fRk9SRUdST1VO",
-            "RF9NT0RFX1JFURCaUBItCihBQ19DSEFOR0VfUkVQRVRJVElPTl9GT1JFR1JP",
-            "VU5EX01PREVfQUNLEJtQEikKJENBX1JFUEVUSVRJT05fQkFUVExFX0VOVEVS",
-            "X1NUQUdFX1JFURCcUBIpCiRBQ19SRVBFVElUSU9OX0JBVFRMRV9FTlRFUl9T",
-            "VEFHRV9BQ0sQnVASKQokQUNfUkVQRVRJVElPTl9CQVRUTEVfRU5URVJfU1RB",
-            "R0VfTkFLEJ5QEisKJkNBX0NIQU5HRV9SRVBFVElUSU9OX0JBVFRMRV9PUFRJ",
-            "T05fUkVREJ9QEisKJkFDX0NIQU5HRV9SRVBFVElUSU9OX0JBVFRMRV9PUFRJ",
-            "T05fQUNLEKBQEiIKHEFEX0FEVkVOVFVSRV9EQlNFUlZJQ0VfQkVHSU4QhJ0B",
-            "EhIKDEFEX0xPR0lOX1JFURCFnQESEgoMREFfTE9HSU5fQUNLEIadARISCgxE",
-            "QV9MT0dJTl9OQUsQh50BEiAKGkFEX0VORF9PRl9HQU1FX1NFU1NJT05fUkVR",
-            "EIidARIgChpEQV9FTkRfT0ZfR0FNRV9TRVNTSU9OX0FDSxCJnQESGAoSQURf",
-            "UExBWUVSX0lORk9fUkVREIqdARIYChJEQV9QTEFZRVJfSU5GT19BQ0sQi50B",
-            "EhgKEkFEX1BMQVlFUl9IRVJPX1JFURCMnQESGAoSREFfUExBWUVSX0hFUk9f",
-            "QUNLEI2dARIeChhBRF9QTEFZRVJfRVFVSVBfSVRFTV9SRVEQjp0BEh4KGERB",
-            "X1BMQVlFUl9FUVVJUF9JVEVNX0FDSxCPnQESIAoaQURfQURWRU5UVVJFX0RC",
-            "U0VSVklDRV9FTkQQz4YDKu8ECglFRXJyb3JNc2cSDQoJRV9TVUNDRVNTEAAS",
-            "DQoJRV9VTktOT1dOEAESHgoaRV9JTlZBTElEX1BST1RPQ09MX1ZFUlNJT04Q",
-            "AhIUChBFX0RVUExJQ0FURV9OQU1FEAMSGwoXRV9BVVRIRU5USUNBVElPTl9G",
-            "QUlMRUQQBBIdChlFX0lOVEVSTkFMX0RBVEFCQVNFX0VSUk9SEAUSEgoORV9Q",
-            "Uk9DRVNTX0ZBSUwQBhIWChJFX05PVF9FWElTVF9QTEFZRVIQBxIWChJFX0RV",
-            "UExJQ0FURV9DTElFTlQQCBIoCiRFX1dST05HX1BMQVlFUl9EQVRBX0NMSUVO",
-            "VF9SRUNPTk5FQ1QQCRIaChZFX0RVUExJQ0FURV9DT05ORUNUSU9OEAoSHQoZ",
-            "RV9EQl9EVVBMSUNBVEVfQ09OTkVDVElPThALEhMKD0VfVE9LRU5fRVhQSVJF",
-            "RBAMEh4KGkVfSU5WQUxJRF9TSUdOQVRVUkVfRk9STUFUEA0SEgoORV9ERUNP",
-            "REVfRVJST1IQDhIqCiZFX05PVF9FWElTVF9BVkFJTEFCTEVfQURWRU5UVVJF",
-            "X1NFUlZFUhAPEhgKFEVfTUFJTlRFTkFOQ0VfU0VSVkVSEBASFAoQRV9CTE9D",
-            "S19DT05URU5UUxAREhYKEkVfSU5WQUxJRF9QTEFURk9STRASEg8KC0VfTk1T",
-            "U19GQUlMEBMSIwofRV9XQUlUSU5HX0FEVkVOVFVSRV9TRVJWRVJfSU5JVBAV",
-            "EiIKHkVfUExBWUVSX0xPQURJTkdfTk9UX0NPTVBMRVRFRBAWEhIKDkVfSU5W",
-            "QUxJRF9EQVRBEGQqGQoNRVBsYXRmb3JtVHlwZRIICgROT05FEAA="));
+            "T1RPQ09MX1ZFUlNJT04QBCqpAgoKRU1lc3NhZ2VJRBISCg5ORVRfRElTQ09O",
+            "TkVDVBBlEhEKDU5FVF9BTElWRV9SRVEQZhIRCg1ORVRfQUxJVkVfQUNLEGcS",
+            "HAoXQ09fQ0xJRU5UX09VVEdBTUVfQkVHSU4QkE4SEQoMQ09fTE9HSU5fUkVR",
+            "EJJOEhEKDE9DX0xPR0lOX0FDSxCTThIWChFDT19HRVRfUExBWUVSX1JFURDX",
+            "TxIbChVDT19DTElFTlRfT1VUR0FNRV9FTkQQn5wBEiAKGk9EX09VVEdBTUVf",
+            "REJTRVJWSUNFX0JFR0lOEISdARISCgxPRF9MT0dJTl9SRVEQhZ0BEhIKDERP",
+            "X0xPR0lOX0FDSxCGnQESHgoYT0RfT1VUR0FNRV9EQlNFUlZJQ0VfRU5EEM+G",
+            "Ayo9CglFRXJyb3JNc2cSDQoJRV9TVUNDRVNTEAASDQoJRV9VTktOT1dOEAES",
+            "EgoORV9JTlZBTElEX0RBVEEQZA=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Th.EProtocolVersion), typeof(global::Th.EMessageID), typeof(global::Th.EErrorMsg), typeof(global::Th.EPlatformType), }, null, null));
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Th.EProtocolVersion), typeof(global::Th.EMessageID), typeof(global::Th.EErrorMsg), }, null, null));
     }
     #endregion
 
@@ -134,128 +53,24 @@ namespace Th {
     /// <summary>
     ///------------------공통
     /// </summary>
-    [pbr::OriginalName("NET_CONNECT")] NetConnect = 100,
     [pbr::OriginalName("NET_DISCONNECT")] NetDisconnect = 101,
     [pbr::OriginalName("NET_ALIVE_REQ")] NetAliveReq = 102,
     [pbr::OriginalName("NET_ALIVE_ACK")] NetAliveAck = 103,
-    [pbr::OriginalName("WRITE_SERVER_LOG")] WriteServerLog = 104,
-    [pbr::OriginalName("INTERNAL_EVENT_TICK")] InternalEventTick = 105,
     /// <summary>
-    ////////////
+    ////clent &lt;-> outgame
     /// </summary>
-    [pbr::OriginalName("NULL_MESSAGE")] NullMessage = 106,
+    [pbr::OriginalName("CO_CLIENT_OUTGAME_BEGIN")] CoClientOutgameBegin = 10000,
+    [pbr::OriginalName("CO_LOGIN_REQ")] CoLoginReq = 10002,
+    [pbr::OriginalName("OC_LOGIN_ACK")] OcLoginAck = 10003,
+    [pbr::OriginalName("CO_GET_PLAYER_REQ")] CoGetPlayerReq = 10199,
+    [pbr::OriginalName("CO_CLIENT_OUTGAME_END")] CoClientOutgameEnd = 19999,
     /// <summary>
-    ////clent &lt;-> gateway
+    ////outgame &lt;-> db
     /// </summary>
-    [pbr::OriginalName("CG_CLIENT_GATEWAY_BEGIN")] CgClientGatewayBegin = 1000,
-    [pbr::OriginalName("CG_AUTH_LOGIN_REQ")] CgAuthLoginReq = 1001,
-    [pbr::OriginalName("GC_AUTH_LOGIN_ACK")] GcAuthLoginAck = 1002,
-    [pbr::OriginalName("GC_AUTH_LOGIN_NAK")] GcAuthLoginNak = 1003,
-    [pbr::OriginalName("CG_GET_NMSS_TOKEN_REQ")] CgGetNmssTokenReq = 1004,
-    [pbr::OriginalName("GC_GET_NMSS_TOKEN_ACK")] GcGetNmssTokenAck = 1005,
-    [pbr::OriginalName("CG_APP_CERTIFICATION_REQ")] CgAppCertificationReq = 1006,
-    [pbr::OriginalName("GC_APP_CERTIFICATION_ACK")] GcAppCertificationAck = 1007,
-    [pbr::OriginalName("GC_GET_NMSS_TOKEN_NAK")] GcGetNmssTokenNak = 1008,
-    [pbr::OriginalName("GC_APP_CERTIFICATION_NAK")] GcAppCertificationNak = 1009,
-    [pbr::OriginalName("CG_ENCRYPTION_REQ")] CgEncryptionReq = 1010,
-    [pbr::OriginalName("GC_ENCRYPTION_ACK")] GcEncryptionAck = 1011,
-    [pbr::OriginalName("CG_GET_WAITING_QUEUE_ORDER_REQ")] CgGetWaitingQueueOrderReq = 1012,
-    [pbr::OriginalName("GC_GET_WAITING_QUEUE_ORDER_ACK")] GcGetWaitingQueueOrderAck = 1013,
-    [pbr::OriginalName("CG_CLIENT_GATEWAY_END")] CgClientGatewayEnd = 9999,
-    /// <summary>
-    ////clent &lt;-> adventure
-    ////non battle
-    /// </summary>
-    [pbr::OriginalName("CA_CLIENT_ADVENTURE_BEGIN")] CaClientAdventureBegin = 10000,
-    [pbr::OriginalName("AC_COMMON_NAK")] AcCommonNak = 10001,
-    [pbr::OriginalName("CA_LOGIN_REQ")] CaLoginReq = 10002,
-    [pbr::OriginalName("AC_LOGIN_ACK")] AcLoginAck = 10003,
-    [pbr::OriginalName("CA_GET_PLAYER_REQ")] CaGetPlayerReq = 10199,
-    [pbr::OriginalName("AC_GET_PLAYER_ACK")] AcGetPlayerAck = 10200,
-    [pbr::OriginalName("AC_GET_PLAYER_INFO_NOTI")] AcGetPlayerInfoNoti = 10201,
-    [pbr::OriginalName("AC_GET_PLAYER_HERO_NOTI")] AcGetPlayerHeroNoti = 10202,
-    [pbr::OriginalName("AC_GET_PLAYER_FORMATION_NOTI")] AcGetPlayerFormationNoti = 10204,
-    [pbr::OriginalName("AC_GET_PLAYER_DECK_NOTI")] AcGetPlayerDeckNoti = 10205,
-    [pbr::OriginalName("CA_SAVE_HERO_DECK_REQ")] CaSaveHeroDeckReq = 10206,
-    [pbr::OriginalName("AC_SAVE_HERO_DECK_ACK")] AcSaveHeroDeckAck = 10207,
-    [pbr::OriginalName("CA_HERO_EQUIP_ITEM_REQ")] CaHeroEquipItemReq = 10209,
-    [pbr::OriginalName("AC_HERO_EQUIP_ITEM_ACK")] AcHeroEquipItemAck = 10210,
-    [pbr::OriginalName("AC_GET_PLAYER_USER_OPTION_NOTI")] AcGetPlayerUserOptionNoti = 10211,
-    [pbr::OriginalName("CA_SAVE_USER_OPTION_REQ")] CaSaveUserOptionReq = 10212,
-    [pbr::OriginalName("AC_SAVE_USER_OPTION_ACK")] AcSaveUserOptionAck = 10213,
-    [pbr::OriginalName("AC_CHANGE_ITEM_NOTI")] AcChangeItemNoti = 10215,
-    [pbr::OriginalName("CA_GAME_MACRO_REQ")] CaGameMacroReq = 10216,
-    [pbr::OriginalName("AC_GAME_MACRO_KILL_NOTI")] AcGameMacroKillNoti = 10217,
-    [pbr::OriginalName("AC_GAME_MACRO_TRACE_OBJECT_NOTI")] AcGameMacroTraceObjectNoti = 10218,
-    [pbr::OriginalName("AC_GET_PLAYER_ETC_NOTI")] AcGetPlayerEtcNoti = 10219,
-    [pbr::OriginalName("AC_CHANGE_ETC_NOTI")] AcChangeEtcNoti = 10220,
-    [pbr::OriginalName("CA_HERO_REINFORCE_REQ")] CaHeroReinforceReq = 10221,
-    [pbr::OriginalName("AC_HERO_REINFORCE_ACK")] AcHeroReinforceAck = 10222,
-    [pbr::OriginalName("CA_HERO_COMPOSE_REQ")] CaHeroComposeReq = 10223,
-    [pbr::OriginalName("AC_HERO_COMPOSE_ACK")] AcHeroComposeAck = 10224,
-    [pbr::OriginalName("CA_HERO_TRANSCEND_REQ")] CaHeroTranscendReq = 10225,
-    [pbr::OriginalName("AC_HERO_TRANSCEND_ACK")] AcHeroTranscendAck = 10226,
-    [pbr::OriginalName("CA_HERO_EVOLUTION_REQ")] CaHeroEvolutionReq = 10227,
-    [pbr::OriginalName("AC_HERO_EVOLUTION_ACK")] AcHeroEvolutionAck = 10228,
-    [pbr::OriginalName("AC_CHANGE_HERO_NOTI")] AcChangeHeroNoti = 10229,
-    [pbr::OriginalName("AC_GET_PLAYER_TICKET_NOTI")] AcGetPlayerTicketNoti = 10230,
-    [pbr::OriginalName("AC_CHANGE_TICKET_NOTI")] AcChangeTicketNoti = 10231,
-    [pbr::OriginalName("AC_GET_PLAYER_STAGE_NOTI")] AcGetPlayerStageNoti = 10232,
-    [pbr::OriginalName("CA_SKILL_REINFORCE_REQ")] CaSkillReinforceReq = 10233,
-    [pbr::OriginalName("AC_SKILL_REINFORCE_ACK")] AcSkillReinforceAck = 10234,
-    [pbr::OriginalName("CA_ITEM_REINFORCE_REQ")] CaItemReinforceReq = 10235,
-    [pbr::OriginalName("AC_ITEM_REINFORCE_ACK")] AcItemReinforceAck = 10236,
-    [pbr::OriginalName("CA_ITEM_LOCK_REQ")] CaItemLockReq = 10237,
-    [pbr::OriginalName("AC_ITEM_LOCK_ACK")] AcItemLockAck = 10238,
-    [pbr::OriginalName("CA_OPEN_ITEM_BOX_REQ")] CaOpenItemBoxReq = 10240,
-    [pbr::OriginalName("AC_OPEN_ITEM_BOX_ACK")] AcOpenItemBoxAck = 10241,
-    [pbr::OriginalName("CA_STAGE_ACHIEVEMENT_REWARD_REQ")] CaStageAchievementRewardReq = 10242,
-    [pbr::OriginalName("AC_STAGE_ACHIEVEMENT_REWARD_ACK")] AcStageAchievementRewardAck = 10243,
-    [pbr::OriginalName("CA_ENTER_DUNGEON_REQ")] CaEnterDungeonReq = 10244,
-    [pbr::OriginalName("AC_ENTER_DUNGEON_ACK")] AcEnterDungeonAck = 10245,
-    [pbr::OriginalName("AC_ENTER_DUNGEON_NAK")] AcEnterDungeonNak = 10246,
-    [pbr::OriginalName("AC_GET_PLAYER_DUNGEON_NOTI")] AcGetPlayerDungeonNoti = 10247,
-    [pbr::OriginalName("CA_ITEM_DISASSEMBLY_REQ")] CaItemDisassemblyReq = 10248,
-    [pbr::OriginalName("AC_ITEM_DISASSEMBLY_ACK")] AcItemDisassemblyAck = 10249,
-    [pbr::OriginalName("CA_GET_HERO_GROWTH_STORAGE_REQ")] CaGetHeroGrowthStorageReq = 10250,
-    [pbr::OriginalName("AC_GET_HERO_GROWTH_STORAGE_ACK")] AcGetHeroGrowthStorageAck = 10251,
-    [pbr::OriginalName("CA_HERO_PUSH_GROWTH_STORAGE_REQ")] CaHeroPushGrowthStorageReq = 10252,
-    [pbr::OriginalName("AC_HERO_PUSH_GROWTH_STORAGE_ACK")] AcHeroPushGrowthStorageAck = 10253,
-    [pbr::OriginalName("CA_HERO_POP_GROWTH_STORAGE_REQ")] CaHeroPopGrowthStorageReq = 10254,
-    [pbr::OriginalName("AC_HERO_POP_GROWTH_STORAGE_ACK")] AcHeroPopGrowthStorageAck = 10255,
-    [pbr::OriginalName("AC_GET_PLAYER_HERO_GROWTH_STORAGE_NOTI")] AcGetPlayerHeroGrowthStorageNoti = 10256,
-    [pbr::OriginalName("AC_GET_PLAYER_HERO_NON_GROWTH_STORAGE_NOTI")] AcGetPlayerHeroNonGrowthStorageNoti = 10257,
-    [pbr::OriginalName("CA_HERO_PUSH_NON_GROWTH_STORAGE_REQ")] CaHeroPushNonGrowthStorageReq = 10258,
-    [pbr::OriginalName("AC_HERO_PUSH_NON_GROWTH_STORAGE_ACK")] AcHeroPushNonGrowthStorageAck = 10259,
-    [pbr::OriginalName("CA_HERO_POP_NON_GROWTH_STORAGE_REQ")] CaHeroPopNonGrowthStorageReq = 10260,
-    [pbr::OriginalName("AC_HERO_POP_NON_GROWTH_STORAGE_ACK")] AcHeroPopNonGrowthStorageAck = 10261,
-    [pbr::OriginalName("AC_CHANGE_HERO_GROWTH_STORAGE_NOTI")] AcChangeHeroGrowthStorageNoti = 10262,
-    [pbr::OriginalName("AC_CHANGE_HERO_NON_GROWTH_STORAGE_NOTI")] AcChangeHeroNonGrowthStorageNoti = 10263,
-    [pbr::OriginalName("CA_CHANGE_REPETITION_BACKGROUND_MODE_REQ")] CaChangeRepetitionBackgroundModeReq = 10264,
-    [pbr::OriginalName("AC_CHANGE_REPETITION_BACKGROUND_MODE_ACK")] AcChangeRepetitionBackgroundModeAck = 10265,
-    [pbr::OriginalName("CA_CHANGE_REPETITION_FOREGROUND_MODE_REQ")] CaChangeRepetitionForegroundModeReq = 10266,
-    [pbr::OriginalName("AC_CHANGE_REPETITION_FOREGROUND_MODE_ACK")] AcChangeRepetitionForegroundModeAck = 10267,
-    [pbr::OriginalName("CA_REPETITION_BATTLE_ENTER_STAGE_REQ")] CaRepetitionBattleEnterStageReq = 10268,
-    [pbr::OriginalName("AC_REPETITION_BATTLE_ENTER_STAGE_ACK")] AcRepetitionBattleEnterStageAck = 10269,
-    [pbr::OriginalName("AC_REPETITION_BATTLE_ENTER_STAGE_NAK")] AcRepetitionBattleEnterStageNak = 10270,
-    [pbr::OriginalName("CA_CHANGE_REPETITION_BATTLE_OPTION_REQ")] CaChangeRepetitionBattleOptionReq = 10271,
-    [pbr::OriginalName("AC_CHANGE_REPETITION_BATTLE_OPTION_ACK")] AcChangeRepetitionBattleOptionAck = 10272,
-    /// <summary>
-    ////adventure &lt;-> db
-    /// </summary>
-    [pbr::OriginalName("AD_ADVENTURE_DBSERVICE_BEGIN")] AdAdventureDbserviceBegin = 20100,
-    [pbr::OriginalName("AD_LOGIN_REQ")] AdLoginReq = 20101,
-    [pbr::OriginalName("DA_LOGIN_ACK")] DaLoginAck = 20102,
-    [pbr::OriginalName("DA_LOGIN_NAK")] DaLoginNak = 20103,
-    [pbr::OriginalName("AD_END_OF_GAME_SESSION_REQ")] AdEndOfGameSessionReq = 20104,
-    [pbr::OriginalName("DA_END_OF_GAME_SESSION_ACK")] DaEndOfGameSessionAck = 20105,
-    [pbr::OriginalName("AD_PLAYER_INFO_REQ")] AdPlayerInfoReq = 20106,
-    [pbr::OriginalName("DA_PLAYER_INFO_ACK")] DaPlayerInfoAck = 20107,
-    [pbr::OriginalName("AD_PLAYER_HERO_REQ")] AdPlayerHeroReq = 20108,
-    [pbr::OriginalName("DA_PLAYER_HERO_ACK")] DaPlayerHeroAck = 20109,
-    [pbr::OriginalName("AD_PLAYER_EQUIP_ITEM_REQ")] AdPlayerEquipItemReq = 20110,
-    [pbr::OriginalName("DA_PLAYER_EQUIP_ITEM_ACK")] DaPlayerEquipItemAck = 20111,
-    [pbr::OriginalName("AD_ADVENTURE_DBSERVICE_END")] AdAdventureDbserviceEnd = 49999,
+    [pbr::OriginalName("OD_OUTGAME_DBSERVICE_BEGIN")] OdOutgameDbserviceBegin = 20100,
+    [pbr::OriginalName("OD_LOGIN_REQ")] OdLoginReq = 20101,
+    [pbr::OriginalName("DO_LOGIN_ACK")] DoLoginAck = 20102,
+    [pbr::OriginalName("OD_OUTGAME_DBSERVICE_END")] OdOutgameDbserviceEnd = 49999,
   }
 
   public enum EErrorMsg {
@@ -265,81 +80,9 @@ namespace Th {
     [pbr::OriginalName("E_SUCCESS")] ESuccess = 0,
     [pbr::OriginalName("E_UNKNOWN")] EUnknown = 1,
     /// <summary>
-    /// 서버와 버전이 다릅니다.
-    /// </summary>
-    [pbr::OriginalName("E_INVALID_PROTOCOL_VERSION")] EInvalidProtocolVersion = 2,
-    /// <summary>
-    /// 같은 닉네임이 존재합니다.
-    /// </summary>
-    [pbr::OriginalName("E_DUPLICATE_NAME")] EDuplicateName = 3,
-    /// <summary>
-    /// 인증에 실패하였습니다.
-    /// </summary>
-    [pbr::OriginalName("E_AUTHENTICATION_FAILED")] EAuthenticationFailed = 4,
-    /// <summary>
-    /// 서버가 요청을 수행하는 동안 예상치 못한 상황이 발생했습니다.
-    /// </summary>
-    [pbr::OriginalName("E_INTERNAL_DATABASE_ERROR")] EInternalDatabaseError = 5,
-    [pbr::OriginalName("E_PROCESS_FAIL")] EProcessFail = 6,
-    [pbr::OriginalName("E_NOT_EXIST_PLAYER")] ENotExistPlayer = 7,
-    /// <summary>
-    /// 중복된 패킷을 서버로 요청했을 경우
-    /// </summary>
-    [pbr::OriginalName("E_DUPLICATE_CLIENT")] EDuplicateClient = 8,
-    /// <summary>
-    /// 재접속이 필요합니다.
-    /// </summary>
-    [pbr::OriginalName("E_WRONG_PLAYER_DATA_CLIENT_RECONNECT")] EWrongPlayerDataClientReconnect = 9,
-    /// <summary>
-    ///중복접속입니다.
-    /// </summary>
-    [pbr::OriginalName("E_DUPLICATE_CONNECTION")] EDuplicateConnection = 10,
-    /// <summary>
-    ///중복접속입니다.
-    /// </summary>
-    [pbr::OriginalName("E_DB_DUPLICATE_CONNECTION")] EDbDuplicateConnection = 11,
-    /// <summary>
-    ///만료된 토큰입니다.
-    /// </summary>
-    [pbr::OriginalName("E_TOKEN_EXPIRED")] ETokenExpired = 12,
-    /// <summary>
-    ///잘못된 서명 포멧입니다.
-    /// </summary>
-    [pbr::OriginalName("E_INVALID_SIGNATURE_FORMAT")] EInvalidSignatureFormat = 13,
-    /// <summary>
-    ///토큰 디코딩이 실패했습니다.
-    /// </summary>
-    [pbr::OriginalName("E_DECODE_ERROR")] EDecodeError = 14,
-    /// <summary>
-    /// 이용가능한 어드벤쳐서버가 없습니다.
-    /// </summary>
-    [pbr::OriginalName("E_NOT_EXIST_AVAILABLE_ADVENTURE_SERVER")] ENotExistAvailableAdventureServer = 15,
-    /// <summary>
-    /// 점검 중입니다.
-    /// </summary>
-    [pbr::OriginalName("E_MAINTENANCE_SERVER")] EMaintenanceServer = 16,
-    /// <summary>
-    ///콘텐츠 이용 제한 입니다.
-    /// </summary>
-    [pbr::OriginalName("E_BLOCK_CONTENTS")] EBlockContents = 17,
-    /// <summary>
-    /// 유효하지 않는 플랫폼 (EPlatformType 참고)
-    /// </summary>
-    [pbr::OriginalName("E_INVALID_PLATFORM")] EInvalidPlatform = 18,
-    /// <summary>
-    /// NMSS 관련 오류
-    /// </summary>
-    [pbr::OriginalName("E_NMSS_FAIL")] ENmssFail = 19,
-    [pbr::OriginalName("E_WAITING_ADVENTURE_SERVER_INIT")] EWaitingAdventureServerInit = 21,
-    [pbr::OriginalName("E_PLAYER_LOADING_NOT_COMPLETED")] EPlayerLoadingNotCompleted = 22,
-    /// <summary>
     ///공통 에러
     /// </summary>
     [pbr::OriginalName("E_INVALID_DATA")] EInvalidData = 100,
-  }
-
-  public enum EPlatformType {
-    [pbr::OriginalName("NONE")] None = 0,
   }
 
   #endregion

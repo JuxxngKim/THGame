@@ -40,13 +40,13 @@ public sealed class OutGameLogicEventor : LogicEventor
         RegisterHandler<NetAliveReq>((int)EMessageID.NetAliveReq,
             OnAliveReq, ELogicEvent.Arrange);
 
-        // CALoginReq 는 한 tick 안에서 두 phase 에 걸쳐 처리된다:
-        //  Prepare(여기 OnCALoginReq) — Player 를 인증 대기(AuthPending) 상태로 생성·등록만 한다.
-        //  Work        — 같은 tick 에서 Player.OnCALoginReq 가 ADLoginReq 를 Data 계층으로 송신한다.
-        RegisterHandler<CALoginReq>((int)EMessageID.CaLoginReq,
-            OnCALoginReq, ELogicEvent.Prepare);
+        // COLoginReq 는 한 tick 안에서 두 phase 에 걸쳐 처리된다:
+        //  Prepare(여기 OnCOLoginReq) — Player 를 인증 대기(AuthPending) 상태로 생성·등록만 한다.
+        //  Work        — 같은 tick 에서 Player.OnCOLoginReq 가 ODLoginReq 를 Data 계층으로 송신한다.
+        RegisterHandler<COLoginReq>((int)EMessageID.CoLoginReq,
+            OnCOLoginReq, ELogicEvent.Prepare);
 
-        // Player 단위 패킷(CAGetPlayerReq 등)은 Player.Execute 안에서 처리 — 등록은 Player static 테이블.
+        // Player 단위 패킷(COGetPlayerReq 등)은 Player.Execute 안에서 처리 — 등록은 Player static 테이블.
     }
 
     public override void Event(long tickMs)
@@ -102,18 +102,18 @@ public sealed class OutGameLogicEventor : LogicEventor
         SendTo(sessionID, (int)EMessageID.NetAliveAck, new NetAliveAck());
     }
 
-    // CALoginReq 의 Prepare phase 담당부 — 여기선 Player 등록까지만 하고,
-    // 실제 로그인 요청(ADLoginReq) 송신은 같은 tick 의 Work phase 에서 Player.OnCALoginReq 가 수행한다.
-    private void OnCALoginReq(long sessionID, CALoginReq msg, byte flag)
+    // COLoginReq 의 Prepare phase 담당부 — 여기선 Player 등록까지만 하고,
+    // 실제 로그인 요청(ODLoginReq) 송신은 같은 tick 의 Work phase 에서 Player.OnCOLoginReq 가 수행한다.
+    private void OnCOLoginReq(long sessionID, COLoginReq msg, byte flag)
     {
-        // 멱등성: 동일 세션에서 중복 CALoginReq 차단.
+        // 멱등성: 동일 세션에서 중복 COLoginReq 차단.
         if (_workExecutor.Find(sessionID) is not null)
         {
-            Log.Warning("CALoginReq duplicated SessionID={ID} PID={PID}", sessionID, msg.PID);
+            Log.Warning("COLoginReq duplicated SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
         }
 
-        // AccountID 는 Data 계층의 DALoginAck 로 채워진다 — 인증 대기 상태로 등록.
+        // AccountID 는 Data 계층의 DOLoginAck 로 채워진다 — 인증 대기 상태로 등록.
         var player = new Player(sessionID)
         {
             AccountID = 0,
@@ -123,11 +123,11 @@ public sealed class OutGameLogicEventor : LogicEventor
 
         if (!_workExecutor.TryRegister(player))
         {
-            Log.Warning("CALoginReq register failed SessionID={ID} PID={PID}", sessionID, msg.PID);
+            Log.Warning("COLoginReq register failed SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
         }
 
-        Log.Information("CALoginReq accepted SessionID={ID} PID={PID}", sessionID, msg.PID);
+        Log.Information("COLoginReq accepted SessionID={ID} PID={PID}", sessionID, msg.PID);
     }
 
     // ====================== 주기 작업 ======================
