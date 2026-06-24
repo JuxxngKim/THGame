@@ -33,10 +33,7 @@ public sealed class Player : ISessionWorker
         // 로그인 패킷(COLoginReq/DOLoginAck)은 더 이상 Player 가 처리하지 않는다.
         // COLoginReq → LoginSession, DOLoginAck → OutGameLogicEventor(Prepare)에서 처리.
         Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, m) => p.OnCOGetPlayerReq(m));
-
-        // TODO(proto): 필드 진입 요청 패킷 추가 시 여기서 배선.
-        //   Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, m) => p.OnCOEnterReq(m));
-        //   핸들러 본문에서 EnterField(roomID) 를 호출하면 InGame 진입이 트리거된다.
+        Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, m) => p.OnCOEnterReq(m));
     }
 
     // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관.
@@ -107,14 +104,29 @@ public sealed class Player : ISessionWorker
         // TODO: player 데이터 조회 + OcGetPlayerAck 응답 (Send((int)EMessageID.OcGetPlayerAck, ack))
     }
 
+    // 클라 필드 진입 요청 — 입장 자격 검증의 권위 지점(OutGame Player 가 세션 상태/권한을 안다).
+    private void OnCOEnterReq(COEnterReq msg)
+    {
+        // 이미 필드에 있으면 중복 입장 거부.
+        if (State == EPlayerState.InField)
+        {
+            Log.Warning("Enter rejected — already in field SessionID={ID} StageID={Stage}", SessionID, msg.StageID);
+            return;
+        }
+
+        // StageID → RoomID 는 현재 1:1(공유 필드, "맵=룸"). 인스턴싱이 필요해지면 여기서 인스턴스 선택.
+        EnterField(new RoomID(msg.StageID));
+    }
+
     // ====================== InGame 진입 (크로스도메인) ======================
 
     // OutGame Player(메인, 영속)는 그대로 두고 InGame 룸에 필드 캐릭터 진입을 요청한다.
-    // 직접 참조 없이 InGameService 명령 큐로만 전달 — 실제 진입 처리는 InGameService 의 Prepare phase.
-    // (proto 추가 후 COEnterReq 핸들러에서 호출. 현재는 진입 배선 골격.)
+    // 직접 참조 없이 OIEnterReq 패킷을 InGameService 로 쏜다 — 실제 진입 처리는 InGameService 의 Prepare.
     public void EnterField(RoomID roomID)
     {
         State = EPlayerState.InField;
-        InGameService.Instance.EnqueueEnter(SessionID, roomID);
+
+        var req = new OIEnterReq { RoomID = roomID.Value };
+        InGameService.Instance.EnqueuePacket(SessionID, (int)EMessageID.OiEnterReq, req.ToByteArray());
     }
 }

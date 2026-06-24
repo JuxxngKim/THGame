@@ -20,6 +20,7 @@ enum EMessageID
 	CO_LOGIN_REQ								= 10002;
 	OC_LOGIN_ACK								= 10003;
 	CO_GET_PLAYER_REQ							= 10199;
+	CO_ENTER_REQ								= 10200;
 
 	CO_CLIENT_OUTGAME_END						= 19999;
 
@@ -30,6 +31,14 @@ enum EMessageID
 	DO_LOGIN_ACK								= 20102;
 
 	OD_OUTGAME_DBSERVICE_END					= 49999;
+
+	///outgame -> ingame (cross-domain, 서버 내부 전용)
+	OI_OUTGAME_INGAME_BEGIN						= 50000;
+
+	OI_ENTER_REQ								= 50001;
+	OI_LEAVE_REQ								= 50002;
+
+	OI_OUTGAME_INGAME_END						= 59999;
 }
 
 enum EErrorMsg

@@ -36,3 +36,17 @@ message DOLoginAck
 	required bool				Authenticated			= 12;
 	optional string				IP						= 14;
 }
+
+// outgame -> ingame: 필드(룸) 진입 요청. SessionID 는 PacketMessage 가 운반하므로 body 엔 RoomID 만.
+message OIEnterReq
+{
+	optional EMessageID			MessageID			= 99	[default = OI_ENTER_REQ];
+
+	required int64				RoomID				= 1;
+}
+
+// outgame -> ingame: 필드(룸) 이탈 요청. SessionID 는 PacketMessage 가 운반하므로 body 없음.
+message OILeaveReq
+{
+	optional EMessageID			MessageID			= 99	[default = OI_LEAVE_REQ];
+}

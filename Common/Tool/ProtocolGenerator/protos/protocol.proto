@@ -61,6 +61,13 @@ message COGetPlayerReq
 	optional EMessageID			MessageID			= 99	[default = CO_GET_PLAYER_REQ];
 }
 
+message COEnterReq
+{
+	optional EMessageID			MessageID			= 99	[default = CO_ENTER_REQ];
+
+	required int32				StageID				= 1;
+}
+
 // struct ///////////////////////////////////////////////////////////////////////////
 message MDateTime
 {

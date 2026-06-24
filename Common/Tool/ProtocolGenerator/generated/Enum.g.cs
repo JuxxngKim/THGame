@@ -25,15 +25,18 @@ namespace Th {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CgplbnVtLnByb3RvEgJ0aCorChBFUHJvdG9jb2xWZXJzaW9uEhcKE1JFX1BS",
-            "T1RPQ09MX1ZFUlNJT04QBCqpAgoKRU1lc3NhZ2VJRBISCg5ORVRfRElTQ09O",
+            "T1RPQ09MX1ZFUlNJT04QBCqgAwoKRU1lc3NhZ2VJRBISCg5ORVRfRElTQ09O",
             "TkVDVBBlEhEKDU5FVF9BTElWRV9SRVEQZhIRCg1ORVRfQUxJVkVfQUNLEGcS",
             "HAoXQ09fQ0xJRU5UX09VVEdBTUVfQkVHSU4QkE4SEQoMQ09fTE9HSU5fUkVR",
             "EJJOEhEKDE9DX0xPR0lOX0FDSxCTThIWChFDT19HRVRfUExBWUVSX1JFURDX",
-            "TxIbChVDT19DTElFTlRfT1VUR0FNRV9FTkQQn5wBEiAKGk9EX09VVEdBTUVf",
-            "REJTRVJWSUNFX0JFR0lOEISdARISCgxPRF9MT0dJTl9SRVEQhZ0BEhIKDERP",
-            "X0xPR0lOX0FDSxCGnQESHgoYT0RfT1VUR0FNRV9EQlNFUlZJQ0VfRU5EEM+G",
-            "Ayo9CglFRXJyb3JNc2cSDQoJRV9TVUNDRVNTEAASDQoJRV9VTktOT1dOEAES",
-            "EgoORV9JTlZBTElEX0RBVEEQZA=="));
+            "TxIRCgxDT19FTlRFUl9SRVEQ2E8SGwoVQ09fQ0xJRU5UX09VVEdBTUVfRU5E",
+            "EJ+cARIgChpPRF9PVVRHQU1FX0RCU0VSVklDRV9CRUdJThCEnQESEgoMT0Rf",
+            "TE9HSU5fUkVREIWdARISCgxET19MT0dJTl9BQ0sQhp0BEh4KGE9EX09VVEdB",
+            "TUVfREJTRVJWSUNFX0VORBDPhgMSHQoXT0lfT1VUR0FNRV9JTkdBTUVfQkVH",
+            "SU4Q0IYDEhIKDE9JX0VOVEVSX1JFURDRhgMSEgoMT0lfTEVBVkVfUkVRENKG",
+            "AxIbChVPSV9PVVRHQU1FX0lOR0FNRV9FTkQQ39QDKj0KCUVFcnJvck1zZxIN",
+            "CglFX1NVQ0NFU1MQABINCglFX1VOS05PV04QARISCg5FX0lOVkFMSURfREFU",
+            "QRBk"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Th.EProtocolVersion), typeof(global::Th.EMessageID), typeof(global::Th.EErrorMsg), }, null, null));
@@ -63,6 +66,7 @@ namespace Th {
     [pbr::OriginalName("CO_LOGIN_REQ")] CoLoginReq = 10002,
     [pbr::OriginalName("OC_LOGIN_ACK")] OcLoginAck = 10003,
     [pbr::OriginalName("CO_GET_PLAYER_REQ")] CoGetPlayerReq = 10199,
+    [pbr::OriginalName("CO_ENTER_REQ")] CoEnterReq = 10200,
     [pbr::OriginalName("CO_CLIENT_OUTGAME_END")] CoClientOutgameEnd = 19999,
     /// <summary>
     ////outgame &lt;-> db
@@ -71,6 +75,13 @@ namespace Th {
     [pbr::OriginalName("OD_LOGIN_REQ")] OdLoginReq = 20101,
     [pbr::OriginalName("DO_LOGIN_ACK")] DoLoginAck = 20102,
     [pbr::OriginalName("OD_OUTGAME_DBSERVICE_END")] OdOutgameDbserviceEnd = 49999,
+    /// <summary>
+    ////outgame -> ingame (cross-domain, 서버 내부 전용)
+    /// </summary>
+    [pbr::OriginalName("OI_OUTGAME_INGAME_BEGIN")] OiOutgameIngameBegin = 50000,
+    [pbr::OriginalName("OI_ENTER_REQ")] OiEnterReq = 50001,
+    [pbr::OriginalName("OI_LEAVE_REQ")] OiLeaveReq = 50002,
+    [pbr::OriginalName("OI_OUTGAME_INGAME_END")] OiOutgameIngameEnd = 59999,
   }
 
   public enum EErrorMsg {

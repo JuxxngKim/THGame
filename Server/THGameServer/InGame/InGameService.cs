@@ -1,6 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Google.Protobuf;
 using Serilog;
+using Th;
 using TH.Common;
 using TH.Common.Time;
 
@@ -19,11 +20,12 @@ public sealed class InGameService : Singleton<InGameService>
     // Windows 타이머 quantum(~15.6ms)보다 약간 크게 잡아 Sleep 분해능 오차를 spin 구간이 흡수한다.
     private const int SpinThresholdMs = 16;
 
-    // 네트워크발 InGame 패킷 입력 큐 — OutGame 과 동일한 더블버퍼 PacketQueue 재사용.
+    // InGame 패킷 입력 큐 — OutGame 과 동일한 더블버퍼 PacketQueue 재사용. 클라발 게임플레이 패킷과
+    // OutGame 발 제어 패킷(OIEnterReq/OILeaveReq)이 모두 이 큐로 들어온다(입력은 전부 패킷).
     private readonly PacketQueue _packetQueue = new();
 
-    // 크로스도메인(OutGame → InGame) 진입/이탈/포탈 명령 큐. 외부 스레드는 Enqueue 만, 처리는 Prepare.
-    private readonly ConcurrentQueue<IRoomCommand> _commandQueue = new();
+    // 제어 패킷(OIEnterReq/OILeaveReq) 핸들러 테이블 — packetID → dispatch. Prepare(단일 스레드)에서만 호출.
+    private readonly Dictionary<int, Action<PacketMessage>> _handlers = new();
 
     private readonly SessionRoomMap _sessionRoomMap = new();
     private readonly RoomRepository _repo = new();
@@ -33,21 +35,67 @@ public sealed class InGameService : Singleton<InGameService>
 
     private InGameService()
     {
+        // 크로스도메인 제어 패킷 배선. enter/leave 는 SessionRoomMap/RoomRepository(공유 상태) 변경이
+        // 필요하므로 룸이 아니라 여기 Prepare 에서 처리하고, 룸 내부(Character) 변경만 룸 Inbox 로 위임한다.
+        Register<OIEnterReq>((int)EMessageID.OiEnterReq, OnEnter);
+        Register<OILeaveReq>((int)EMessageID.OiLeaveReq, OnLeave);
     }
 
     // ====================== 외부 진입점 (멀티스레드 안전) ======================
 
-    // 네트워크(IO) 스레드에서 InGame 대역 패킷을 적재. PacketQueue.Enqueue 는 lock 보호.
+    // 네트워크(IO) 스레드 + OutGame Work 스레드에서 InGame 패킷을 적재. PacketQueue.Enqueue 는 lock 보호.
+    // 클라발 게임플레이 패킷도, OutGame 발 제어 패킷(OIEnterReq/OILeaveReq)도 동일한 이 진입점으로.
     public void EnqueuePacket(long sessionID, int packetID, byte[] payload)
         => _packetQueue.Enqueue(sessionID, packetID, payload);
 
-    // OutGame Player(Work 스레드) 등에서 진입을 요청. 직접 참조 없이 명령 큐로만 전달.
-    public void EnqueueEnter(long sessionID, RoomID roomID)
-        => _commandQueue.Enqueue(new EnterCommand(sessionID, roomID));
+    // ====================== 제어 패킷 핸들러 (Prepare 단일 스레드) ======================
 
-    // 이탈/disconnect 시 호출. 세션이 어느 룸에도 없으면 Prepare 에서 no-op 처리된다.
-    public void EnqueueLeave(long sessionID)
-        => _commandQueue.Enqueue(new LeaveCommand(sessionID));
+    // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관.
+    // (OutGame Player.Register / LogicEventor.RegisterHandler 와 동형 패턴.)
+    private void Register<T>(int packetID, Action<PacketMessage, T> handler)
+        where T : class, IMessage<T>, new()
+    {
+        var parser = new MessageParser<T>(() => new T());
+
+        _handlers[packetID] = packet =>
+        {
+            T msg;
+            try
+            {
+                msg = parser.ParseFrom(packet.Payload);
+            }
+            catch (InvalidProtocolBufferException ex)
+            {
+                Log.Warning(ex, "InGame control packet parse failed SessionID={ID} PacketID={PID}",
+                    packet.SessionID, packetID);
+                return;
+            }
+
+            handler(packet, msg);
+        };
+    }
+
+    // 진입 — 공유 상태(SessionRoomMap/RoomRepository) 변경은 여기서(Prepare). 룸이 없으면 생성한다.
+    // 실제 Character 생성은 룸 Inbox 로 위임 → 룸 Work 에서 single-writer 로 처리.
+    private void OnEnter(PacketMessage packet, OIEnterReq msg)
+    {
+        var roomID = new RoomID(msg.RoomID);
+        var room = _repo.GetOrCreate(roomID);
+        _sessionRoomMap.Set(packet.SessionID, roomID);
+        room.Inbox.Enqueue(packet);
+    }
+
+    // 이탈 — SessionRoomMap 에서 현재 룸을 찾아 제거. 세션이 어느 룸에도 없으면 no-op
+    // (이미 이탈했거나 진입 전 disconnect). Character 제거는 룸 Inbox 로 위임.
+    private void OnLeave(PacketMessage packet, OILeaveReq msg)
+    {
+        _ = msg;
+        if (!_sessionRoomMap.TryGet(packet.SessionID, out var roomID))
+            return;
+
+        _sessionRoomMap.Remove(packet.SessionID);
+        _repo.Find(roomID)?.Inbox.Enqueue(packet);
+    }
 
     // ====================== lifecycle ======================
 
@@ -126,31 +174,33 @@ public sealed class InGameService : Singleton<InGameService>
         Work(dtMs);
     }
 
-    // Prepare (단일 tick 스레드) — SessionRoomMap mutate 와 룸 inbox 적재는 전부 여기서.
+    // Prepare (단일 tick 스레드) — SessionRoomMap/RoomRepository mutate 와 룸 Inbox 적재는 전부 여기서.
     private void Prepare()
     {
-        // (1) 네트워크 패킷 라우팅: sessionID → SessionRoomMap → 해당 룸 inbox 로 PacketRoomJob 적재.
         var raw = _packetQueue.Swap();
         foreach (var p in raw)
         {
-            if (_sessionRoomMap.TryGet(p.SessionID, out var roomID) && _repo.Find(roomID) is { } room)
-                room.JobQueue.Enqueue(new PacketRoomJob(p));
+            // 제어 패킷(OIEnterReq/OILeaveReq): 공유 상태 변경 + 룸 Inbox 적재.
+            if (_handlers.TryGetValue(p.PacketID, out var handle))
+            {
+                try
+                {
+                    handle(p);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "InGame control handler exception SessionID={ID} PacketID={PID}",
+                        p.SessionID, p.PacketID);
+                }
+                continue;
+            }
+
+            // 게임플레이 패킷: 라우팅만 — 실제 처리는 룸 Work(DrainInbox)에서 병렬로.
             // 어느 룸에도 없는 세션의 패킷은 드롭(진입 전 도착 / 이탈 후 잔여).
+            if (_sessionRoomMap.TryGet(p.SessionID, out var roomID) && _repo.Find(roomID) is { } room)
+                room.Inbox.Enqueue(p);
         }
         raw.Clear();
-
-        // (2) 크로스도메인 명령 처리 — enterRoom/leaveRoom/포탈. SessionRoomMap mutate 는 오직 여기.
-        while (_commandQueue.TryDequeue(out var cmd))
-        {
-            try
-            {
-                cmd.Apply(_sessionRoomMap, _repo);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Room command exception Cmd={Cmd}", cmd.GetType().Name);
-            }
-        }
     }
 
     // Work (병렬) — 룸들을 직접 병렬 실행. 룸끼리 병렬, 한 룸은 한 스레드(룸 single-writer 보장).

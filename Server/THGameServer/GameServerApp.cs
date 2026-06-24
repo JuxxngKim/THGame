@@ -73,8 +73,10 @@ public sealed class GameServerApp
                 OutGameService.Instance.EnqueuePacket(
                     session.SessionID, (int)EMessageID.NetDisconnect, Array.Empty<byte>());
 
-                // 필드에 있던 세션이면 룸에서도 이탈시킨다(어느 룸에도 없으면 Prepare 에서 no-op).
-                InGameService.Instance.EnqueueLeave(session.SessionID);
+                // 필드에 있던 세션이면 룸에서도 이탈시킨다. OILeaveReq 합성 패킷으로 주입(위 NetDisconnect 와
+                // 동형). 어느 룸에도 없는 세션이면 InGame Prepare 의 OnLeave 에서 no-op.
+                InGameService.Instance.EnqueuePacket(
+                    session.SessionID, (int)EMessageID.OiLeaveReq, Array.Empty<byte>());
             };
 
             return true;
