@@ -230,12 +230,13 @@ GameRoom.Tick(dt):
   enqueue 는 Work 시작 전에 끝나고, Work 중엔 그 룸을 잡은 워커 1개만 enqueue → single-producer-during-work.
 - **룸 내부 상태(Character 컬렉션·Position)는 single-writer → 무락.** 외부 변경은 JobQueue 경유만.
 
-### 6.5. 교체 가능 경계 (확장성)
+### 6.5. 브로드캐스트 (확장 지점)
 
-- **`IInterestManagement`** — "이벤트를 누구에게 보낼지"만 책임. 현재 `BroadcastInterest`
-  (`GetReceivers` = 룸 전원, `OnEnter/OnMove/OnLeave` = no-op). **호출 지점은 GameRoom 에 이미 배선**
-  (진입/이동/이탈 시점)되어 있고, 모든 브로드캐스트는 `GetReceivers` 한 곳만 경유한다. 추후
-  `GridAoiInterest`(시야 기반)로 교체해도 GameRoom 시뮬 코드를 건드리지 않는다(AOI 이음매).
+- **`GameRoom.Broadcast(source, packetID, payload)`** — 룸 전원에게 직접 송신. 맵당 인원 캡이 있어
+  룸 내부 전원 전송으로 충분하다는 도메인 전제. `_characters` 를 직접 순회하므로 별도 추상화 없음.
+- **확장 지점**: 시야 기반 AOI(`GridAoi` 등)가 필요해지면 이 `Broadcast` 한 곳에서 수신자 선별로
+  분기한다(`source` 인자를 그 필터 입력으로 보존해 둠). 전 단계의 `IInterestManagement` 교체 경계는
+  단일 전략만 쓰는 현 단계에서 불필요한 간접층이라 제거했다 — 필요 시점에 다시 도입한다.
 
 ### 6.6. Player ↔ Character 분리
 
@@ -249,13 +250,12 @@ GameRoom.Tick(dt):
 |------|------|
 | `InGame/InGameService.cs` | `Singleton`. 자체 100ms tick(TickMillis() 가변 dt, sleep+spin), Prepare(라우팅+명령)/Work(룸 병렬 실행) |
 | `InGame/InGameMessage.cs` | InGame 패킷 대역(50000~59999) 상수 + `IsInGame` 분류 |
-| `InGame/GameRoom.cs` | 룸 1틱(JobQueue count-snapshot drain + 시뮬), Character 컬렉션, Interest 경유 브로드캐스트/훅 |
+| `InGame/GameRoom.cs` | 룸 1틱(JobQueue count-snapshot drain + 시뮬), Character 컬렉션, 룸 전원 브로드캐스트 |
 | `InGame/RoomID.cs` | `readonly record struct RoomID(long)` — 타입 안전 룸 ID |
 | `InGame/IRoomJob.cs` | 범용 룸 inbox 작업 인터페이스 (`Execute(GameRoom)`) |
 | `InGame/PacketRoomJob.cs` | 네트워크발 InGame 패킷 1건을 룸에서 처리하는 job |
-| `InGame/RoomLifecycleJobs.cs` | `EnterRoomJob` / `LeaveRoomJob` — 룸 내 Character 생성/제거 + Interest 훅 |
+| `InGame/RoomLifecycleJobs.cs` | `EnterRoomJob` / `LeaveRoomJob` — 룸 내 Character 생성/제거 |
 | `InGame/IRoomCommand.cs` | 크로스도메인 명령(`EnterCommand`/`LeaveCommand`). Prepare 에서 `Apply` |
 | `InGame/SessionRoomMap.cs` | SessionId→RoomID. Prepare 전용 mutate, Work read-only (무락) |
-| `InGame/RoomRepository.cs` | RoomID→GameRoom. 룸 생성/조회. Interest 주입 보유 |
-| `InGame/IInterestManagement.cs` · `BroadcastInterest.cs` | 관심 관리(교체 경계) + 전원 브로드캐스트 구현 |
+| `InGame/RoomRepository.cs` | RoomID→GameRoom. 룸 생성/조회 |
 | `Game/Character.cs` · `Game/Position.cs` | 필드 캐릭터 엔티티 + 좌표 값 타입 |
