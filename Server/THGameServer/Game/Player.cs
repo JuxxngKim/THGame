@@ -9,7 +9,7 @@ namespace TH.Server.Game;
 
 // 세션-스코프 Player 엔티티. tick 메인 스레드 또는 worker 스레드 1개가 단독 접근하므로 동기화 멤버 없음.
 // 패킷 핸들러 테이블은 static 공유(전 Player 공통), 처리 본문은 인스턴스 메서드.
-public sealed class Player
+public sealed class Player : ISessionWorker
 {
     public long SessionID { get; }
     public long AccountID { get; set; }

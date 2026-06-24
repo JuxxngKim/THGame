@@ -103,11 +103,9 @@ public sealed class OutGameLogicEventor : LogicEventor
     {
         if (IsPrepareEvent(flag))
         {
-            // 인증 완료 전(LoginSession) / 후(Player) 어느 단계든 끊길 수 있으므로 양쪽 모두 정리.
-            if (_workExecutor.RemoveLogin(sessionID))
-                Log.Debug("LoginSession removed SessionID={ID}", sessionID);
+            // LoginSession / Player 어느 단계든 타입 무관하게 단일 Remove 로 정리된다.
             if (_workExecutor.Remove(sessionID))
-                Log.Debug("PlayerArchive removed SessionID={ID}", sessionID);
+                Log.Debug("Worker removed on disconnect SessionID={ID}", sessionID);
         }
         else if (IsArrangeEvent(flag))
         {
@@ -122,8 +120,9 @@ public sealed class OutGameLogicEventor : LogicEventor
         SendTo(sessionID, (int)EMessageID.NetAliveAck, new NetAliveAck());
     }
 
-    // COLoginReq 의 Prepare phase 담당부 — Player 가 아니라 LoginSession 을 생성·등록한다.
-    // 실제 로그인 요청(ODLoginReq) 송신은 같은 tick 의 Work phase 에서 LoginSession.Execute 가 수행한다.
+    // COLoginReq 의 Prepare phase 담당부 — LoginSession 을 생성·등록한다.
+    // 데이터 필드(PID 등)를 msg 에서 채워두고, ODLoginReq 송신은 같은 tick 의
+    // Work phase 에서 LoginSession.Execute(packets)→OnCOLoginReq 핸들러가 수행한다.
     private void OnCOLoginReq(long sessionID, COLoginReq msg, byte flag)
     {
         // 멱등성: 인증 대기 중(LoginSession)이거나 이미 로그인된(Player) 세션의 중복 COLoginReq 차단.
@@ -141,7 +140,7 @@ public sealed class OutGameLogicEventor : LogicEventor
             LanguageID   = msg.LanguageID,
         };
 
-        if (!_workExecutor.TryRegisterLogin(login))
+        if (!_workExecutor.TryRegister(sessionID, login))
         {
             Log.Warning("COLoginReq register failed SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
@@ -162,7 +161,7 @@ public sealed class OutGameLogicEventor : LogicEventor
             return;
         }
 
-        _workExecutor.RemoveLogin(sessionID);
+        _workExecutor.Remove(sessionID);
 
         var player = new Player(sessionID)
         {
@@ -171,7 +170,7 @@ public sealed class OutGameLogicEventor : LogicEventor
             State     = EPlayerState.LoggedIn,
         };
 
-        if (!_workExecutor.TryRegister(player))
+        if (!_workExecutor.TryRegister(sessionID, player))
         {
             Log.Warning("DOLoginAck register failed SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
