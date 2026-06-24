@@ -3,7 +3,6 @@ using Serilog;
 using Th;
 using TH.Common;
 using TH.Common.Network;
-using TH.Server.Data;
 using TH.Server.Logic;
 
 namespace TH.Server.Game;
@@ -17,13 +16,11 @@ public sealed class Player
     public string PID { get; set; } = string.Empty;
     public EPlayerState State { get; set; }
 
-    // 로그인 컨텍스트 — COLoginReq 의 클라이언트 버전. DOLoginAck 수신 시 OCLoginAck 구성에 사용.
-    private int _loginVersion;
-
+    // Player 는 DB 인증 성공(DOLoginAck) 후에만 생성된다 — 항상 로그인 완료 상태로 시작.
     public Player(long sessionID)
     {
         SessionID = sessionID;
-        State = EPlayerState.Connecting;
+        State = EPlayerState.LoggedIn;
     }
 
     // ====================== 패킷 핸들러 테이블 (static 공유) ======================
@@ -33,8 +30,8 @@ public sealed class Player
 
     static Player()
     {
-        Register<COLoginReq>((int)EMessageID.CoLoginReq, (p, m) => p.OnCOLoginReq(m));
-        Register<DOLoginAck>((int)EMessageID.DoLoginAck, (p, m) => p.OnDOLoginAck(m));
+        // 로그인 패킷(COLoginReq/DOLoginAck)은 더 이상 Player 가 처리하지 않는다.
+        // COLoginReq → LoginSession, DOLoginAck → OutGameLogicEventor(Prepare)에서 처리.
         Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, m) => p.OnCOGetPlayerReq(m));
 
         // TODO(proto): 필드 진입 요청 패킷 추가 시 여기서 배선.
@@ -104,50 +101,6 @@ public sealed class Player
     }
 
     // ====================== 메시지 핸들러 ======================
-
-    // COLoginReq — Player 는 Eventor(Prepare)에서 이미 생성/등록된 상태로, 이 핸들러는 Work phase 에서 호출된다.
-    // Data 계층으로 ODLoginReq 를 송신하고, 응답 DOLoginAck 는 PacketQueue 로 복귀해 다음 tick 의 OnDOLoginAck 가 처리한다.
-    private void OnCOLoginReq(COLoginReq msg)
-    {
-        _loginVersion = msg.CurrentVersion;
-
-        var odReq = new ODLoginReq
-        {
-            MessageID    = EMessageID.OdLoginReq,
-            PID          = msg.PID,
-            LogKey       = 0,
-            UpdateDate   = new MDateTime(),
-            IsReconnect  = msg.IsReconnect,
-            ServerID     = 0,
-            LanguageID   = msg.LanguageID,
-        };
-        DBService.Instance.Send(SessionID, (int)EMessageID.OdLoginReq, odReq);
-    }
-
-    // Data 계층의 로그인 인증 결과. 인증 정보를 반영하고 클라이언트에 OCLoginAck 로 응답한다.
-    private void OnDOLoginAck(DOLoginAck msg)
-    {
-        AccountID = msg.AccountID;
-        State     = EPlayerState.LoggedIn;
-
-        var ack = new OCLoginAck
-        {
-            MessageID               = EMessageID.OcLoginAck,
-            AccountID               = msg.AccountID,
-            AccountName             = msg.PlayerName,
-            ConntectedIP            = string.Empty,
-            ConnectedPort           = 0,
-            IsReconnect             = msg.IsReconnect,
-            IsNewAccount            = msg.IsNewAccount,
-            FreeNicknameChangeCount = msg.FreeNicknameChangeCount,
-            Version                 = _loginVersion.ToString(),
-            ServerID                = 0,
-            ChannelID               = msg.ChannelID,
-        };
-        Send((int)EMessageID.OcLoginAck, ack);
-
-        Log.Information("Login ok SessionID={ID} PID={PID} AccountID={AID}", SessionID, PID, AccountID);
-    }
 
     private void OnCOGetPlayerReq(COGetPlayerReq msg)
     {
