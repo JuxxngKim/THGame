@@ -27,7 +27,11 @@ public sealed class OutGameLogicEventor : LogicEventor
     private long _nextServerAliveSyncTime;
     private long _nextLoginTimeoutCheck;
 
-    // Player 단위 worker phase 오케스트레이션 + live Player 집합 소유 — 이 eventor 가 소유(composition).
+    // ISessionWorker(Player + LoginSession) 집합 — 이 eventor 가 소유(composition).
+    // 등록/제거/조회 등 lifecycle 은 전부 여기(Prepare/Event, 단일 tick 스레드)를 통한다.
+    private readonly PlayerArchive _archive = new();
+
+    // worker phase 병렬 실행기(stateless) — 순회 대상은 Work 에서 _archive.Values 로 전달한다.
     private readonly PlayerWorkExecutor _workExecutor = new();
 
     public OutGameLogicEventor()
@@ -89,13 +93,37 @@ public sealed class OutGameLogicEventor : LogicEventor
         if (_nextLoginTimeoutCheck <= tickMs)
         {
             _nextLoginTimeoutCheck = tickMs + LoginTimeoutCheckMs;
-            _workExecutor.RemoveExpiredLogins(tickMs, LoginTimeoutMs);
+            RemoveExpiredLogins(tickMs, LoginTimeoutMs);
         }
     }
 
-    // worker phase — Player 단위 병렬 분산은 PlayerWorkExecutor 가 담당. 여기선 위임만 한다.
+    // 만료(타임아웃) 로그인 세션 정리 — Event phase(단일 tick 스레드)에서만 호출.
+    // 만료 세션은 archive 에서 제거하고 해당 네트워크 세션도 종료한다.
+    private void RemoveExpiredLogins(long now, long timeoutMs)
+    {
+        if (_archive.Count == 0) return;
+
+        List<long>? expired = null;
+        foreach (var worker in _archive.Values)
+        {
+            if (worker is not LoginSession session) continue;
+            if (now - session.CreatedAt <= timeoutMs) continue;
+            (expired ??= new List<long>()).Add(session.SessionID);
+        }
+
+        if (expired is null) return;
+
+        foreach (var sessionID in expired)
+        {
+            _archive.Remove(sessionID);
+            NetworkManager.Instance.CloseSession(sessionID);
+            Log.Warning("LoginSession timed out SessionID={ID}", sessionID);
+        }
+    }
+
+    // worker phase — 병렬 실행은 PlayerWorkExecutor 가 담당. 순회 대상(archive)은 여기서 넘긴다.
     public override void Work(long tickMs, Dictionary<long, List<PacketMessage>> sessionPackets)
-        => _workExecutor.Run(tickMs, sessionPackets);
+        => _workExecutor.Run(tickMs, _archive.Values, sessionPackets);
 
     // ====================== 메시지 핸들러 ======================
 
@@ -104,7 +132,7 @@ public sealed class OutGameLogicEventor : LogicEventor
         if (IsPrepareEvent(flag))
         {
             // LoginSession / Player 어느 단계든 타입 무관하게 단일 Remove 로 정리된다.
-            if (_workExecutor.Remove(sessionID))
+            if (_archive.Remove(sessionID))
                 Log.Debug("Worker removed on disconnect SessionID={ID}", sessionID);
         }
         else if (IsArrangeEvent(flag))
@@ -126,7 +154,7 @@ public sealed class OutGameLogicEventor : LogicEventor
     private void OnCOLoginReq(long sessionID, COLoginReq msg, byte flag)
     {
         // 멱등성: 인증 대기 중(LoginSession)이거나 이미 로그인된(Player) 세션의 중복 COLoginReq 차단.
-        if (_workExecutor.FindLogin(sessionID) is not null || _workExecutor.Find(sessionID) is not null)
+        if (_archive.Find<LoginSession>(sessionID) is not null || _archive.Find<Player>(sessionID) is not null)
         {
             Log.Warning("COLoginReq duplicated SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
@@ -140,7 +168,7 @@ public sealed class OutGameLogicEventor : LogicEventor
             LanguageID   = msg.LanguageID,
         };
 
-        if (!_workExecutor.TryRegister(sessionID, login))
+        if (!_archive.TryRegister(sessionID, login))
         {
             Log.Warning("COLoginReq register failed SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
@@ -153,7 +181,7 @@ public sealed class OutGameLogicEventor : LogicEventor
     // LoginSession 을 제거하고 그 자리에 Player 를 등록한 뒤, 클라이언트에 OCLoginAck 로 응답한다.
     private void OnDOLoginAck(long sessionID, DOLoginAck msg, byte flag)
     {
-        var login = _workExecutor.FindLogin(sessionID);
+        var login = _archive.Find<LoginSession>(sessionID);
         if (login is null)
         {
             // 타임아웃 등으로 이미 제거된 세션 — 무시.
@@ -161,7 +189,7 @@ public sealed class OutGameLogicEventor : LogicEventor
             return;
         }
 
-        _workExecutor.Remove(sessionID);
+        _archive.Remove(sessionID);
 
         var player = new Player(sessionID)
         {
@@ -170,7 +198,7 @@ public sealed class OutGameLogicEventor : LogicEventor
             State     = EPlayerState.LoggedIn,
         };
 
-        if (!_workExecutor.TryRegister(sessionID, player))
+        if (!_archive.TryRegister(sessionID, player))
         {
             Log.Warning("DOLoginAck register failed SessionID={ID} PID={PID}", sessionID, msg.PID);
             return;
