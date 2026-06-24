@@ -32,13 +32,22 @@ enum EMessageID
 
 	OD_OUTGAME_DBSERVICE_END					= 49999;
 
-	///outgame -> ingame (cross-domain, 서버 내부 전용)
+	///outgame <-> ingame (cross-domain, 서버 내부 전용)
 	OI_OUTGAME_INGAME_BEGIN						= 50000;
 
 	OI_ENTER_REQ								= 50001;
 	OI_LEAVE_REQ								= 50002;
 
+	IO_ENTER_ACK								= 50101;
+
 	OI_OUTGAME_INGAME_END						= 59999;
+
+	///ingame -> client (클라 대면)
+	IC_INGAME_CLIENT_BEGIN						= 60000;
+
+	IC_ENTER_NOTI								= 60001;
+
+	IC_INGAME_CLIENT_END						= 69999;
 }
 
 enum EErrorMsg

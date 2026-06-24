@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Google.Protobuf;
 using Serilog;
 using Th;
 using TH.Common.Network;
@@ -69,13 +70,13 @@ public sealed class GameRoom
 
     // ====================== 룸 내부 mutate (Work 스레드 단독) ======================
 
-    // 진입 — Character 생성/등록.
-    public void AddCharacter(long sessionID)
+    // 진입 — Character 생성/등록. 중복(이미 룸에 있음)이면 null 을 반환해 호출부가 통지를 건너뛰게 한다.
+    public Character? AddCharacter(long sessionID)
     {
         if (_bySession.ContainsKey(sessionID))
         {
             Log.Warning("Room enter skipped — already in room RoomID={RID} SessionID={SID}", ID, sessionID);
-            return;
+            return null;
         }
 
         var character = new Character(sessionID);
@@ -83,6 +84,7 @@ public sealed class GameRoom
         _characters.Add(character);
 
         Log.Debug("Character entered RoomID={RID} SessionID={SID}", ID, sessionID);
+        return character;
     }
 
     // 이탈 — Character 제거.
@@ -114,7 +116,7 @@ public sealed class GameRoom
         switch (packet.PacketID)
         {
             case (int)EMessageID.OiEnterReq:
-                AddCharacter(packet.SessionID);
+                OnEnter(packet.SessionID);
                 break;
 
             case (int)EMessageID.OiLeaveReq:
@@ -125,6 +127,26 @@ public sealed class GameRoom
                 Log.Debug("Unhandled room packet RoomID={RID} PacketID={PID}", ID, packet.PacketID);
                 break;
         }
+    }
+
+    // 진입 처리 — Character 생성 성공 시 클라(ICEnterNoti)와 OutGame(IOEnterAck)에 결과를 통지한다.
+    private void OnEnter(long sessionID)
+    {
+        var character = AddCharacter(sessionID);
+        if (character is null)
+            return;
+
+        // 클라에 스폰 정보 직접 통지(InGame → Client). 룸 Work 스레드에서 직접 송신 — Session.Send 는 스레드 안전.
+        var noti = new ICEnterNoti
+        {
+            SessionID = sessionID,
+            Position  = new MPosition { X = character.Position.X, Y = character.Position.Y, Z = character.Position.Z },
+        };
+        NetworkManager.Instance.FindSession(sessionID)?.Send((int)EMessageID.IcEnterNoti, noti.ToByteArray());
+
+        // OutGame 에 입장 확정 ack(InGame → OutGame). State=InField 전이는 OutGame Player 가 수행.
+        var ack = new IOEnterAck { RoomID = ID.Value };
+        OutGameService.Instance.EnqueuePacket(sessionID, (int)EMessageID.IoEnterAck, ack.ToByteArray());
     }
 
     // 룸 이벤트 전파 — 룸 전원에게 송신.

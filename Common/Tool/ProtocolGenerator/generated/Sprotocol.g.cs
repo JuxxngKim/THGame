@@ -40,14 +40,17 @@ namespace Th {
             "dGljYXRlZBgMIAIoCBIKCgJJUBgOIAEoCSJNCgpPSUVudGVyUmVxEi8KCU1l",
             "c3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6DE9JX0VOVEVSX1JFURIO",
             "CgZSb29tSUQYASACKAMiPQoKT0lMZWF2ZVJlcRIvCglNZXNzYWdlSUQYYyAB",
-            "KA4yDi50aC5FTWVzc2FnZUlEOgxPSV9MRUFWRV9SRVE="));
+            "KA4yDi50aC5FTWVzc2FnZUlEOgxPSV9MRUFWRV9SRVEiTQoKSU9FbnRlckFj",
+            "axIvCglNZXNzYWdlSUQYYyABKA4yDi50aC5FTWVzc2FnZUlEOgxJT19FTlRF",
+            "Ul9BQ0sSDgoGUm9vbUlEGAEgAigD"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Th.EnumReflection.Descriptor, global::Th.ProtocolReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ODLoginReq), global::Th.ODLoginReq.Parser, new[]{ "MessageID", "PID", "LogKey", "UpdateDate", "IsReconnect", "ServerID", "LanguageID", "AppVersion", "IP" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.DOLoginAck), global::Th.DOLoginAck.Parser, new[]{ "MessageID", "PID", "AccountID", "GameDbID", "PlayerName", "IsReconnect", "ChannelID", "FreeNicknameChangeCount", "IsNewAccount", "UpdateTime", "LanguageID", "TotalPlayTime", "Authenticated", "IP" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.OIEnterReq), global::Th.OIEnterReq.Parser, new[]{ "MessageID", "RoomID" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Th.OILeaveReq), global::Th.OILeaveReq.Parser, new[]{ "MessageID" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.OILeaveReq), global::Th.OILeaveReq.Parser, new[]{ "MessageID" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.IOEnterAck), global::Th.IOEnterAck.Parser, new[]{ "MessageID", "RoomID" }, null, null, null, null)
           }));
     }
     #endregion
@@ -1861,6 +1864,245 @@ namespace Th {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// ingame -> outgame: 입장 확정 ack. OutGame Player 가 받아 State 를 InField 로 확정한다.
+  /// </summary>
+  public sealed partial class IOEnterAck : pb::IMessage<IOEnterAck>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<IOEnterAck> _parser = new pb::MessageParser<IOEnterAck>(() => new IOEnterAck());
+    private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<IOEnterAck> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IOEnterAck() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IOEnterAck(IOEnterAck other) : this() {
+      _hasBits0 = other._hasBits0;
+      messageID_ = other.messageID_;
+      roomID_ = other.roomID_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IOEnterAck Clone() {
+      return new IOEnterAck(this);
+    }
+
+    /// <summary>Field number for the "MessageID" field.</summary>
+    public const int MessageIDFieldNumber = 99;
+    private readonly static global::Th.EMessageID MessageIDDefaultValue = global::Th.EMessageID.IoEnterAck;
+
+    private global::Th.EMessageID messageID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Th.EMessageID MessageID {
+      get { if ((_hasBits0 & 2) != 0) { return messageID_; } else { return MessageIDDefaultValue; } }
+      set {
+        _hasBits0 |= 2;
+        messageID_ = value;
+      }
+    }
+    /// <summary>Gets whether the "MessageID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasMessageID {
+      get { return (_hasBits0 & 2) != 0; }
+    }
+    /// <summary>Clears the value of the "MessageID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearMessageID() {
+      _hasBits0 &= ~2;
+    }
+
+    /// <summary>Field number for the "RoomID" field.</summary>
+    public const int RoomIDFieldNumber = 1;
+    private readonly static long RoomIDDefaultValue = 0L;
+
+    private long roomID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long RoomID {
+      get { if ((_hasBits0 & 1) != 0) { return roomID_; } else { return RoomIDDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        roomID_ = value;
+      }
+    }
+    /// <summary>Gets whether the "RoomID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasRoomID {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "RoomID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearRoomID() {
+      _hasBits0 &= ~1;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as IOEnterAck);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(IOEnterAck other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MessageID != other.MessageID) return false;
+      if (RoomID != other.RoomID) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (HasMessageID) hash ^= MessageID.GetHashCode();
+      if (HasRoomID) hash ^= RoomID.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (HasRoomID) {
+        output.WriteRawTag(8);
+        output.WriteInt64(RoomID);
+      }
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasRoomID) {
+        output.WriteRawTag(8);
+        output.WriteInt64(RoomID);
+      }
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (HasMessageID) {
+        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) MessageID);
+      }
+      if (HasRoomID) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(RoomID);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(IOEnterAck other) {
+      if (other == null) {
+        return;
+      }
+      if (other.HasMessageID) {
+        MessageID = other.MessageID;
+      }
+      if (other.HasRoomID) {
+        RoomID = other.RoomID;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            RoomID = input.ReadInt64();
+            break;
+          }
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            RoomID = input.ReadInt64();
+            break;
+          }
           case 792: {
             MessageID = (global::Th.EMessageID) input.ReadEnum();
             break;

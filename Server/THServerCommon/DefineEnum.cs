@@ -8,6 +8,7 @@ public enum EPlayerState : byte
     LoggedIn      = 2,
     InField       = 3,
     Disconnecting = 4,
+    Entering      = 5,   // 입장 왕복 중(COEnterReq 수신 ~ IOEnterAck 확정 전). 중복 입장 차단용.
 }
 
 [Flags]

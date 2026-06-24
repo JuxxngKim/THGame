@@ -46,10 +46,14 @@ namespace Th {
             "cRI0CglNZXNzYWdlSUQYYyABKA4yDi50aC5FTWVzc2FnZUlEOhFDT19HRVRf",
             "UExBWUVSX1JFUSJOCgpDT0VudGVyUmVxEi8KCU1lc3NhZ2VJRBhjIAEoDjIO",
             "LnRoLkVNZXNzYWdlSUQ6DENPX0VOVEVSX1JFURIPCgdTdGFnZUlEGAEgAigF",
-            "IqMBCglNRGF0ZVRpbWUSDwoEWWVhchgBIAEoBToBMBIQCgVNb250aBgCIAEo",
-            "BToBMBIOCgNEYXkYAyABKAU6ATASDwoESG91chgEIAEoBToBMBIRCgZNaW51",
-            "dGUYBSABKAU6ATASEQoGU2Vjb25kGAYgASgFOgEwEhYKC01pbGxpU2Vjb25k",
-            "GAcgASgFOgEwEhQKCURheU9mV2VlaxgIIAEoBToBMA=="));
+            "InMKC0lDRW50ZXJOb3RpEjAKCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNz",
+            "YWdlSUQ6DUlDX0VOVEVSX05PVEkSEQoJU2Vzc2lvbklEGAEgAigDEh8KCFBv",
+            "c2l0aW9uGAIgAigLMg0udGguTVBvc2l0aW9uIjUKCU1Qb3NpdGlvbhIMCgFY",
+            "GAEgASgCOgEwEgwKAVkYAiABKAI6ATASDAoBWhgDIAEoAjoBMCKjAQoJTURh",
+            "dGVUaW1lEg8KBFllYXIYASABKAU6ATASEAoFTW9udGgYAiABKAU6ATASDgoD",
+            "RGF5GAMgASgFOgEwEg8KBEhvdXIYBCABKAU6ATASEQoGTWludXRlGAUgASgF",
+            "OgEwEhEKBlNlY29uZBgGIAEoBToBMBIWCgtNaWxsaVNlY29uZBgHIAEoBToB",
+            "MBIUCglEYXlPZldlZWsYCCABKAU6ATA="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Th.EnumReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -60,6 +64,8 @@ namespace Th {
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.OCLoginAck), global::Th.OCLoginAck.Parser, new[]{ "MessageID", "AccountID", "AccountName", "ConntectedIP", "ConnectedPort", "IsReconnect", "IsNewAccount", "FreeNicknameChangeCount", "Version", "ServerID", "ChannelID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.COGetPlayerReq), global::Th.COGetPlayerReq.Parser, new[]{ "MessageID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.COEnterReq), global::Th.COEnterReq.Parser, new[]{ "MessageID", "StageID" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.ICEnterNoti), global::Th.ICEnterNoti.Parser, new[]{ "MessageID", "SessionID", "Position" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.MPosition), global::Th.MPosition.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.MDateTime), global::Th.MDateTime.Parser, new[]{ "Year", "Month", "Day", "Hour", "Minute", "Second", "MilliSecond", "DayOfWeek" }, null, null, null, null)
           }));
     }
@@ -2502,8 +2508,577 @@ namespace Th {
   }
 
   /// <summary>
+  /// ingame -> client: 필드 진입 통지(캐릭터 스폰 정보). 룸이 직접 클라로 송신.
+  /// </summary>
+  public sealed partial class ICEnterNoti : pb::IMessage<ICEnterNoti>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ICEnterNoti> _parser = new pb::MessageParser<ICEnterNoti>(() => new ICEnterNoti());
+    private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ICEnterNoti> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[7]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ICEnterNoti() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ICEnterNoti(ICEnterNoti other) : this() {
+      _hasBits0 = other._hasBits0;
+      messageID_ = other.messageID_;
+      sessionID_ = other.sessionID_;
+      position_ = other.position_ != null ? other.position_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ICEnterNoti Clone() {
+      return new ICEnterNoti(this);
+    }
+
+    /// <summary>Field number for the "MessageID" field.</summary>
+    public const int MessageIDFieldNumber = 99;
+    private readonly static global::Th.EMessageID MessageIDDefaultValue = global::Th.EMessageID.IcEnterNoti;
+
+    private global::Th.EMessageID messageID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Th.EMessageID MessageID {
+      get { if ((_hasBits0 & 2) != 0) { return messageID_; } else { return MessageIDDefaultValue; } }
+      set {
+        _hasBits0 |= 2;
+        messageID_ = value;
+      }
+    }
+    /// <summary>Gets whether the "MessageID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasMessageID {
+      get { return (_hasBits0 & 2) != 0; }
+    }
+    /// <summary>Clears the value of the "MessageID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearMessageID() {
+      _hasBits0 &= ~2;
+    }
+
+    /// <summary>Field number for the "SessionID" field.</summary>
+    public const int SessionIDFieldNumber = 1;
+    private readonly static long SessionIDDefaultValue = 0L;
+
+    private long sessionID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long SessionID {
+      get { if ((_hasBits0 & 1) != 0) { return sessionID_; } else { return SessionIDDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        sessionID_ = value;
+      }
+    }
+    /// <summary>Gets whether the "SessionID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasSessionID {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "SessionID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearSessionID() {
+      _hasBits0 &= ~1;
+    }
+
+    /// <summary>Field number for the "Position" field.</summary>
+    public const int PositionFieldNumber = 2;
+    private global::Th.MPosition position_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Th.MPosition Position {
+      get { return position_; }
+      set {
+        position_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ICEnterNoti);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ICEnterNoti other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MessageID != other.MessageID) return false;
+      if (SessionID != other.SessionID) return false;
+      if (!object.Equals(Position, other.Position)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (HasMessageID) hash ^= MessageID.GetHashCode();
+      if (HasSessionID) hash ^= SessionID.GetHashCode();
+      if (position_ != null) hash ^= Position.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (HasSessionID) {
+        output.WriteRawTag(8);
+        output.WriteInt64(SessionID);
+      }
+      if (position_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Position);
+      }
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasSessionID) {
+        output.WriteRawTag(8);
+        output.WriteInt64(SessionID);
+      }
+      if (position_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Position);
+      }
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (HasMessageID) {
+        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) MessageID);
+      }
+      if (HasSessionID) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(SessionID);
+      }
+      if (position_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ICEnterNoti other) {
+      if (other == null) {
+        return;
+      }
+      if (other.HasMessageID) {
+        MessageID = other.MessageID;
+      }
+      if (other.HasSessionID) {
+        SessionID = other.SessionID;
+      }
+      if (other.position_ != null) {
+        if (position_ == null) {
+          Position = new global::Th.MPosition();
+        }
+        Position.MergeFrom(other.Position);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            SessionID = input.ReadInt64();
+            break;
+          }
+          case 18: {
+            if (position_ == null) {
+              Position = new global::Th.MPosition();
+            }
+            input.ReadMessage(Position);
+            break;
+          }
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            SessionID = input.ReadInt64();
+            break;
+          }
+          case 18: {
+            if (position_ == null) {
+              Position = new global::Th.MPosition();
+            }
+            input.ReadMessage(Position);
+            break;
+          }
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
   /// struct ///////////////////////////////////////////////////////////////////////////
   /// </summary>
+  public sealed partial class MPosition : pb::IMessage<MPosition>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<MPosition> _parser = new pb::MessageParser<MPosition>(() => new MPosition());
+    private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<MPosition> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[8]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MPosition() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MPosition(MPosition other) : this() {
+      _hasBits0 = other._hasBits0;
+      x_ = other.x_;
+      y_ = other.y_;
+      z_ = other.z_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MPosition Clone() {
+      return new MPosition(this);
+    }
+
+    /// <summary>Field number for the "X" field.</summary>
+    public const int XFieldNumber = 1;
+    private readonly static float XDefaultValue = 0F;
+
+    private float x_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public float X {
+      get { if ((_hasBits0 & 1) != 0) { return x_; } else { return XDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        x_ = value;
+      }
+    }
+    /// <summary>Gets whether the "X" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasX {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "X" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearX() {
+      _hasBits0 &= ~1;
+    }
+
+    /// <summary>Field number for the "Y" field.</summary>
+    public const int YFieldNumber = 2;
+    private readonly static float YDefaultValue = 0F;
+
+    private float y_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public float Y {
+      get { if ((_hasBits0 & 2) != 0) { return y_; } else { return YDefaultValue; } }
+      set {
+        _hasBits0 |= 2;
+        y_ = value;
+      }
+    }
+    /// <summary>Gets whether the "Y" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasY {
+      get { return (_hasBits0 & 2) != 0; }
+    }
+    /// <summary>Clears the value of the "Y" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearY() {
+      _hasBits0 &= ~2;
+    }
+
+    /// <summary>Field number for the "Z" field.</summary>
+    public const int ZFieldNumber = 3;
+    private readonly static float ZDefaultValue = 0F;
+
+    private float z_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public float Z {
+      get { if ((_hasBits0 & 4) != 0) { return z_; } else { return ZDefaultValue; } }
+      set {
+        _hasBits0 |= 4;
+        z_ = value;
+      }
+    }
+    /// <summary>Gets whether the "Z" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasZ {
+      get { return (_hasBits0 & 4) != 0; }
+    }
+    /// <summary>Clears the value of the "Z" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearZ() {
+      _hasBits0 &= ~4;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as MPosition);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(MPosition other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(X, other.X)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Y, other.Y)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Z, other.Z)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (HasX) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(X);
+      if (HasY) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Y);
+      if (HasZ) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Z);
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (HasX) {
+        output.WriteRawTag(13);
+        output.WriteFloat(X);
+      }
+      if (HasY) {
+        output.WriteRawTag(21);
+        output.WriteFloat(Y);
+      }
+      if (HasZ) {
+        output.WriteRawTag(29);
+        output.WriteFloat(Z);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasX) {
+        output.WriteRawTag(13);
+        output.WriteFloat(X);
+      }
+      if (HasY) {
+        output.WriteRawTag(21);
+        output.WriteFloat(Y);
+      }
+      if (HasZ) {
+        output.WriteRawTag(29);
+        output.WriteFloat(Z);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (HasX) {
+        size += 1 + 4;
+      }
+      if (HasY) {
+        size += 1 + 4;
+      }
+      if (HasZ) {
+        size += 1 + 4;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(MPosition other) {
+      if (other == null) {
+        return;
+      }
+      if (other.HasX) {
+        X = other.X;
+      }
+      if (other.HasY) {
+        Y = other.Y;
+      }
+      if (other.HasZ) {
+        Z = other.Z;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 13: {
+            X = input.ReadFloat();
+            break;
+          }
+          case 21: {
+            Y = input.ReadFloat();
+            break;
+          }
+          case 29: {
+            Z = input.ReadFloat();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 13: {
+            X = input.ReadFloat();
+            break;
+          }
+          case 21: {
+            Y = input.ReadFloat();
+            break;
+          }
+          case 29: {
+            Z = input.ReadFloat();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class MDateTime : pb::IMessage<MDateTime>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -2517,7 +3092,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[7]; }
+      get { return global::Th.ProtocolReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

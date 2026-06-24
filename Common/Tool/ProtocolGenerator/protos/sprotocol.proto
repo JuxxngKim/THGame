@@ -50,3 +50,11 @@ message OILeaveReq
 {
 	optional EMessageID			MessageID			= 99	[default = OI_LEAVE_REQ];
 }
+
+// ingame -> outgame: 입장 확정 ack. OutGame Player 가 받아 State 를 InField 로 확정한다.
+message IOEnterAck
+{
+	optional EMessageID			MessageID			= 99	[default = IO_ENTER_ACK];
+
+	required int64				RoomID				= 1;
+}

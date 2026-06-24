@@ -34,6 +34,7 @@ public sealed class Player : ISessionWorker
         // COLoginReq → LoginSession, DOLoginAck → OutGameLogicEventor(Prepare)에서 처리.
         Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, m) => p.OnCOGetPlayerReq(m));
         Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, m) => p.OnCOEnterReq(m));
+        Register<IOEnterAck>((int)EMessageID.IoEnterAck, (p, m) => p.OnIOEnterAck(m));
     }
 
     // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관.
@@ -105,28 +106,37 @@ public sealed class Player : ISessionWorker
     }
 
     // 클라 필드 진입 요청 — 입장 자격 검증의 권위 지점(OutGame Player 가 세션 상태/권한을 안다).
+    // 검증 통과 시 OIEnterReq 를 InGameService 로 쏘고 State 를 Entering 으로 둔다(InField 확정은 ack 에서).
     private void OnCOEnterReq(COEnterReq msg)
     {
-        // 이미 필드에 있으면 중복 입장 거부.
-        if (State == EPlayerState.InField)
+        // 로그인 직후 상태에서만 입장 허용 — Entering(왕복 중) / InField(이미 진입) 의 중복 요청 차단.
+        if (State != EPlayerState.LoggedIn)
         {
-            Log.Warning("Enter rejected — already in field SessionID={ID} StageID={Stage}", SessionID, msg.StageID);
+            Log.Warning("Enter rejected — invalid state SessionID={ID} State={State} StageID={Stage}",
+                SessionID, State, msg.StageID);
             return;
         }
 
+        State = EPlayerState.Entering;
+
         // StageID → RoomID 는 현재 1:1(공유 필드, "맵=룸"). 인스턴싱이 필요해지면 여기서 인스턴스 선택.
-        EnterField(new RoomID(msg.StageID));
+        // 직접 참조 없이 OIEnterReq 패킷을 InGameService 로 쏜다 — 실제 진입 처리는 InGameService 의 Prepare.
+        var req = new OIEnterReq { RoomID = msg.StageID };
+        InGameService.Instance.EnqueuePacket(SessionID, (int)EMessageID.OiEnterReq, req.ToByteArray());
     }
 
-    // ====================== InGame 진입 (크로스도메인) ======================
-
-    // OutGame Player(메인, 영속)는 그대로 두고 InGame 룸에 필드 캐릭터 진입을 요청한다.
-    // 직접 참조 없이 OIEnterReq 패킷을 InGameService 로 쏜다 — 실제 진입 처리는 InGameService 의 Prepare.
-    public void EnterField(RoomID roomID)
+    // InGame 입장 확정 ack — InGame 룸이 Character 생성을 마친 뒤 되돌려보낸다. 이 시점에 InField 확정.
+    // (State mutate 는 OutGame tick 스레드 = 이 Player 의 worker 단독이라 안전.)
+    private void OnIOEnterAck(IOEnterAck msg)
     {
-        State = EPlayerState.InField;
+        if (State != EPlayerState.Entering)
+        {
+            Log.Warning("IOEnterAck ignored — not entering SessionID={ID} State={State} RoomID={RID}",
+                SessionID, State, msg.RoomID);
+            return;
+        }
 
-        var req = new OIEnterReq { RoomID = roomID.Value };
-        InGameService.Instance.EnqueuePacket(SessionID, (int)EMessageID.OiEnterReq, req.ToByteArray());
+        State = EPlayerState.InField;
+        Log.Debug("Enter confirmed SessionID={ID} RoomID={RID}", SessionID, msg.RoomID);
     }
 }

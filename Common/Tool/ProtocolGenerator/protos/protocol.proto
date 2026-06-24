@@ -68,7 +68,23 @@ message COEnterReq
 	required int32				StageID				= 1;
 }
 
+// ingame -> client: 필드 진입 통지(캐릭터 스폰 정보). 룸이 직접 클라로 송신.
+message ICEnterNoti
+{
+	optional EMessageID			MessageID			= 99	[default = IC_ENTER_NOTI];
+
+	required int64				SessionID			= 1;
+	required MPosition			Position			= 2;
+}
+
 // struct ///////////////////////////////////////////////////////////////////////////
+message MPosition
+{
+	optional float				X					= 1		[default = 0];
+	optional float				Y					= 2		[default = 0];
+	optional float				Z					= 3		[default = 0];
+}
+
 message MDateTime
 {
 	optional int32				Year				= 1		[default = 0];
