@@ -86,7 +86,10 @@ public sealed class PlayerWorkExecutor
         if (_loginSessions.Count > 0)
         {
             foreach (var session in _loginSessions.Values)
-                session.Execute(tickMs);
+            {
+                var packets = sessionPackets.TryGetValue(session.SessionID, out var list) ? list : EmptyPackets;
+                session.Execute(tickMs, packets);
+            }
         }
 
         if (_archive.Count == 0) return;
