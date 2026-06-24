@@ -232,10 +232,10 @@ GameRoom.Tick(dt):
 
 ### 6.5. 브로드캐스트 (확장 지점)
 
-- **`GameRoom.Broadcast(source, packetID, payload)`** — 룸 전원에게 직접 송신. 맵당 인원 캡이 있어
+- **`GameRoom.Broadcast(packetID, payload)`** — 룸 전원에게 직접 송신. 맵당 인원 캡이 있어
   룸 내부 전원 전송으로 충분하다는 도메인 전제. `_characters` 를 직접 순회하므로 별도 추상화 없음.
 - **확장 지점**: 시야 기반 AOI(`GridAoi` 등)가 필요해지면 이 `Broadcast` 한 곳에서 수신자 선별로
-  분기한다(`source` 인자를 그 필터 입력으로 보존해 둠). 전 단계의 `IInterestManagement` 교체 경계는
+  분기한다(그때 송신 주체/기준점 인자를 추가). 전 단계의 `IInterestManagement` 교체 경계는
   단일 전략만 쓰는 현 단계에서 불필요한 간접층이라 제거했다 — 필요 시점에 다시 도입한다.
 
 ### 6.6. Player ↔ Character 분리

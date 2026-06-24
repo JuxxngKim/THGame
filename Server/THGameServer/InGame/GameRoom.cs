@@ -27,9 +27,6 @@ public sealed class GameRoom
         ID = roomID;
     }
 
-    // 브로드캐스트 수신 대상 노출 — Work 스레드에서만 접근.
-    public IReadOnlyList<Character> Characters => _characters;
-
     // 룸 1틱 — Work phase 에서 이 룸을 잡은 워커 스레드 1개가 단독 실행. dtMs 는 항상 고정(100ms).
     public void Tick(long dtMs)
     {
@@ -113,10 +110,9 @@ public sealed class GameRoom
         _ = packet;
     }
 
-    // 룸 이벤트 전파 — 룸 전원에게 송신. source 인자는 추후 송신 제외/필터 지점용으로 보존.
-    public void Broadcast(Character source, int packetID, byte[] payload)
+    // 룸 이벤트 전파 — 룸 전원에게 송신.
+    public void Broadcast(int packetID, byte[] payload)
     {
-        _ = source;
         for (int i = 0; i < _characters.Count; i++)
         {
             var session = NetworkManager.Instance.FindSession(_characters[i].SessionID);
