@@ -9,7 +9,7 @@ namespace TH.Server.Logic;
 // COLoginReq(Prepare)에서 생성·등록(+ 데이터 필드 초기화)되고,
 // Work phase 의 Execute 가 COLoginReq 패킷을 핸들러 테이블로 dispatch 해 ODLoginReq 를 Data 계층으로 송신한다.
 // 인증 성공 시 OutGameLogicEventor(Prepare)가 이 세션을 제거하고 그 자리에 Player 를 생성한다.
-// PlayerArchive(ISessionWorker 컬렉션)에 Player 와 함께 보관된다.
+// OutGameLogicEventor 가 소유하는 PlayerArchive(ISessionWorker 컬렉션)에 Player 와 함께 보관된다.
 public sealed class LoginSession : ISessionWorker
 {
     public long SessionID { get; }
