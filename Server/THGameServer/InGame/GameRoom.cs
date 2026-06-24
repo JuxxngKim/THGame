@@ -22,15 +22,12 @@ public sealed class GameRoom
     private readonly List<Character> _characters = new();
     private readonly Dictionary<long, Character> _bySession = new();
 
-    private readonly IInterestManagement _interest;
-
-    public GameRoom(RoomID roomID, IInterestManagement interest)
+    public GameRoom(RoomID roomID)
     {
         ID = roomID;
-        _interest = interest;
     }
 
-    // 브로드캐스트 수신 대상(Interest 경유) 노출 — GetReceivers 가 참조. Work 스레드에서만 접근.
+    // 브로드캐스트 수신 대상 노출 — Work 스레드에서만 접근.
     public IReadOnlyList<Character> Characters => _characters;
 
     // 룸 1틱 — Work phase 에서 이 룸을 잡은 워커 스레드 1개가 단독 실행. dtMs 는 항상 고정(100ms).
@@ -72,7 +69,7 @@ public sealed class GameRoom
 
     // ====================== 룸 내부 mutate (Work 스레드 단독) ======================
 
-    // 진입 — Character 생성/등록 후 Interest.OnEnter 훅 호출(현재 no-op, 호출 지점은 살아있음).
+    // 진입 — Character 생성/등록.
     public void AddCharacter(long sessionID)
     {
         if (_bySession.ContainsKey(sessionID))
@@ -85,22 +82,20 @@ public sealed class GameRoom
         _bySession.Add(sessionID, character);
         _characters.Add(character);
 
-        _interest.OnEnter(this, character);
         Log.Debug("Character entered RoomID={RID} SessionID={SID}", ID, sessionID);
     }
 
-    // 이탈 — Character 제거 후 Interest.OnLeave 훅 호출.
+    // 이탈 — Character 제거.
     public void RemoveCharacter(long sessionID)
     {
         if (!_bySession.Remove(sessionID, out var character))
             return;
 
         _characters.Remove(character);
-        _interest.OnLeave(this, character);
         Log.Debug("Character left RoomID={RID} SessionID={SID}", ID, sessionID);
     }
 
-    // 이동(server-authoritative) — 검증 통과 시 position 갱신 + Interest.OnMove 훅 호출.
+    // 이동(server-authoritative) — 검증 통과 시 position 갱신.
     // 실제 패킷 핸들러(HandlePacket)가 proto 추가 후 이 경로로 들어온다. 현재는 호출 지점 골격.
     public void MoveCharacter(long sessionID, Position target)
     {
@@ -108,10 +103,7 @@ public sealed class GameRoom
             return;
 
         // TODO: server-authoritative 이동 검증(속도/충돌/이동 가능 영역). 통과 시에만 갱신.
-        var prev = character.Position;
         character.Position = target;
-
-        _interest.OnMove(this, character, prev);
     }
 
     // 네트워크발 InGame 패킷 처리 진입점 — PacketRoomJob 이 호출. proto 무수정 단계라 현재는 골격.
@@ -121,14 +113,13 @@ public sealed class GameRoom
         _ = packet;
     }
 
-    // 룸 이벤트 전파 — 반드시 Interest.GetReceivers 한 곳만 경유한다(AOI 교체 이음매).
-    // source 가 일으킨 이벤트를 수신 대상에게만 송신. 현재 BroadcastInterest 는 전원 반환.
+    // 룸 이벤트 전파 — 룸 전원에게 송신. source 인자는 추후 송신 제외/필터 지점용으로 보존.
     public void Broadcast(Character source, int packetID, byte[] payload)
     {
-        var receivers = _interest.GetReceivers(this, source);
-        for (int i = 0; i < receivers.Count; i++)
+        _ = source;
+        for (int i = 0; i < _characters.Count; i++)
         {
-            var session = NetworkManager.Instance.FindSession(receivers[i].SessionID);
+            var session = NetworkManager.Instance.FindSession(_characters[i].SessionID);
             session?.Send(packetID, payload);
         }
     }

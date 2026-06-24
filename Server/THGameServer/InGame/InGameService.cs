@@ -25,16 +25,14 @@ public sealed class InGameService : Singleton<InGameService>
     // 크로스도메인(OutGame → InGame) 진입/이탈/포탈 명령 큐. 외부 스레드는 Enqueue 만, 처리는 Prepare.
     private readonly ConcurrentQueue<IRoomCommand> _commandQueue = new();
 
-    private readonly IInterestManagement _interest = new BroadcastInterest();
     private readonly SessionRoomMap _sessionRoomMap = new();
-    private readonly RoomRepository _repo;
+    private readonly RoomRepository _repo = new();
 
     private Thread? _mainThread;
     private volatile bool _stopping;
 
     private InGameService()
     {
-        _repo = new RoomRepository(_interest);
     }
 
     // ====================== 외부 진입점 (멀티스레드 안전) ======================
