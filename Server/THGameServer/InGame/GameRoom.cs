@@ -3,6 +3,7 @@ using Google.Protobuf;
 using Serilog;
 using Th;
 using TH.Common.Network;
+using TH.Server.Common;
 using TH.Server.Game;
 
 namespace TH.Server.Logic;
@@ -25,6 +26,18 @@ public sealed class GameRoom
     // 인원 캡 전제 — 처음엔 List 로 시작. 전원 순회/브로드캐스트가 주 연산이라 List 가 적합.
     private readonly List<Character> _characters = new();
     private readonly Dictionary<long, Character> _bySession = new();
+
+    // ====================== 패킷 핸들러 테이블 (static 공유) ======================
+
+    // packetID → dispatch 델리게이트(공통 테이블). static 생성자에서만 채우고 이후 읽기 전용.
+    private static readonly PacketHandlerTable<GameRoom> Table = new();
+
+    static GameRoom()
+    {
+        // 진입/이탈은 SessionID 만 필요(룸은 이미 확정)하므로 body(msg)는 쓰지 않는다.
+        Table.Register<OIEnterReq>((int)EMessageID.OiEnterReq, (room, pkt, msg) => room.OnEnter(pkt.SessionID));
+        Table.Register<OILeaveReq>((int)EMessageID.OiLeaveReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
+    }
 
     public GameRoom(RoomID roomID)
     {
@@ -53,7 +66,8 @@ public sealed class GameRoom
 
             try
             {
-                HandlePacket(packet);
+                if (!Table.Dispatch(this, packet))
+                    Log.Debug("Unhandled room packet RoomID={RID} PacketID={PID}", ID, packet.PacketID);
             }
             catch (Exception ex)
             {
@@ -98,7 +112,7 @@ public sealed class GameRoom
     }
 
     // 이동(server-authoritative) — 검증 통과 시 position 갱신.
-    // 실제 패킷 핸들러(HandlePacket)가 proto 추가 후 이 경로로 들어온다. 현재는 호출 지점 골격.
+    // proto 추가 후 이동 패킷을 Table.Register 로 배선하면 이 경로로 들어온다. 현재는 호출 지점 골격.
     public void MoveCharacter(long sessionID, Position target)
     {
         if (!_bySession.TryGetValue(sessionID, out var character))
@@ -106,27 +120,6 @@ public sealed class GameRoom
 
         // TODO: server-authoritative 이동 검증(속도/충돌/이동 가능 영역). 통과 시에만 갱신.
         character.Position = target;
-    }
-
-    // Inbox drain(Work phase)에서 패킷 1건을 packetID 별로 분기. 룸 내부 상태 mutate 는 여기서만.
-    // 진입/이탈은 SessionID 만 필요(룸은 이미 확정)하므로 body 파싱 없이 처리한다.
-    // 게임플레이(이동/스킬/공격)는 proto 추가 시 여기에 분기 → MoveCharacter 등 권위 처리 후 Broadcast.
-    public void HandlePacket(in PacketMessage packet)
-    {
-        switch (packet.PacketID)
-        {
-            case (int)EMessageID.OiEnterReq:
-                OnEnter(packet.SessionID);
-                break;
-
-            case (int)EMessageID.OiLeaveReq:
-                RemoveCharacter(packet.SessionID);
-                break;
-
-            default:
-                Log.Debug("Unhandled room packet RoomID={RID} PacketID={PID}", ID, packet.PacketID);
-                break;
-        }
     }
 
     // 진입 처리 — Character 생성 성공 시 클라(ICEnterNoti)와 OutGame(IOEnterAck)에 결과를 통지한다.

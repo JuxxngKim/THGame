@@ -3,6 +3,7 @@ using Serilog;
 using Th;
 using TH.Common;
 using TH.Common.Network;
+using TH.Server.Common;
 using TH.Server.Logic;
 
 namespace TH.Server.Game;
@@ -25,39 +26,17 @@ public sealed class Player : ISessionWorker
 
     // ====================== 패킷 핸들러 테이블 (static 공유) ======================
 
-    // packetID → (player, payload) dispatch 델리게이트. static 생성자에서만 채우고 이후 읽기 전용.
-    private static readonly Dictionary<int, Action<Player, ReadOnlyMemory<byte>>> Handlers = new();
+    // packetID → dispatch 델리게이트(공통 테이블). static 생성자에서만 채우고 이후 읽기 전용.
+    private static readonly PacketHandlerTable<Player> Table = new();
 
     static Player()
     {
         // 로그인 패킷(COLoginReq/DOLoginAck)은 더 이상 Player 가 처리하지 않는다.
         // COLoginReq → LoginSession, DOLoginAck → OutGameLogicEventor(Prepare)에서 처리.
-        Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, m) => p.OnCOGetPlayerReq(m));
-        Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, m) => p.OnCOEnterReq(m));
-        Register<IOEnterAck>((int)EMessageID.IoEnterAck, (p, m) => p.OnIOEnterAck(m));
-    }
-
-    // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관.
-    private static void Register<T>(int packetID, Action<Player, T> handler)
-        where T : class, IMessage<T>, new()
-    {
-        var parser = new MessageParser<T>(() => new T());
-
-        Handlers[packetID] = (player, payload) =>
-        {
-            T msg;
-            try
-            {
-                msg = parser.ParseFrom(payload.Span);
-            }
-            catch (InvalidProtocolBufferException ex)
-            {
-                Log.Warning(ex, "Player packet parse failed SessionID={ID} PacketID={PID}", player.SessionID, packetID);
-                return;
-            }
-
-            handler(player, msg);
-        };
+        // 핸들러 본문은 msg 만 쓰므로 pkt 는 무시한다.
+        Table.Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, pkt, m) => p.OnCOGetPlayerReq(m));
+        Table.Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, pkt, m) => p.OnCOEnterReq(m));
+        Table.Register<IOEnterAck>((int)EMessageID.IoEnterAck, (p, pkt, m) => p.OnIOEnterAck(m));
     }
 
     // ====================== worker phase 진입점 ======================
@@ -71,15 +50,10 @@ public sealed class Player : ISessionWorker
         // 1) 입력 패킷 처리 (도착 순서 보존). 한 패킷의 실패가 다음 패킷을 막지 않도록 패킷마다 try/catch.
         foreach (var pkt in packets)
         {
-            if (!Handlers.TryGetValue(pkt.PacketID, out var invoke))
-            {
-                Log.Debug("Unregistered player packet dropped SessionID={ID} PacketID={PID}", SessionID, pkt.PacketID);
-                continue;
-            }
-
             try
             {
-                invoke(this, pkt.Payload);
+                if (!Table.Dispatch(this, pkt))
+                    Log.Debug("Unregistered player packet dropped SessionID={ID} PacketID={PID}", SessionID, pkt.PacketID);
             }
             catch (Exception ex)
             {

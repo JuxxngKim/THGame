@@ -1,6 +1,6 @@
-﻿using Google.Protobuf;
-using Serilog;
+﻿using Serilog;
 using Th;
+using TH.Server.Common;
 using TH.Server.Data;
 
 namespace TH.Server.Logic;
@@ -26,34 +26,12 @@ public sealed class LoginSession : ISessionWorker
 
     // ====================== 패킷 핸들러 테이블 (static 공유) ======================
 
-    private static readonly Dictionary<int, Action<LoginSession, ReadOnlyMemory<byte>>> Handlers = new();
+    private static readonly PacketHandlerTable<LoginSession> Table = new();
 
     static LoginSession()
     {
-        Register<COLoginReq>((int)EMessageID.CoLoginReq, (s, m) => s.OnCOLoginReq(m));
-    }
-
-    private static void Register<T>(int packetID, Action<LoginSession, T> handler)
-        where T : class, IMessage<T>, new()
-    {
-        var parser = new MessageParser<T>(() => new T());
-
-        Handlers[packetID] = (session, payload) =>
-        {
-            T msg;
-            try
-            {
-                msg = parser.ParseFrom(payload.Span);
-            }
-            catch (InvalidProtocolBufferException ex)
-            {
-                Log.Warning(ex, "LoginSession packet parse failed SessionID={ID} PacketID={PID}",
-                    session.SessionID, packetID);
-                return;
-            }
-
-            handler(session, msg);
-        };
+        // 핸들러 본문은 msg 만 쓰므로 pkt 는 무시한다.
+        Table.Register<COLoginReq>((int)EMessageID.CoLoginReq, (s, pkt, m) => s.OnCOLoginReq(m));
     }
 
     // ====================== 생성자 ======================
@@ -73,12 +51,9 @@ public sealed class LoginSession : ISessionWorker
 
         foreach (var pkt in packets)
         {
-            if (!Handlers.TryGetValue(pkt.PacketID, out var invoke))
-                continue;
-
             try
             {
-                invoke(this, pkt.Payload);
+                Table.Dispatch(this, pkt);
             }
             catch (Exception ex)
             {
