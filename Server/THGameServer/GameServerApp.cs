@@ -58,11 +58,13 @@ public sealed class GameServerApp
                     // payload는 ReadOnlySpan<byte> 슬라이스 — 즉시 ToArray로 복사 (Span 캡처 금지).
                     var copy = payload.ToArray();
 
-                    // messageID 대역으로 OutGame / InGame 을 분배. InGame 대역(50000~59999)은 룸 시뮬로.
-                    if (InGameMessage.IsInGame(packetID))
-                        InGameService.Instance.EnqueuePacket(s.SessionID, packetID, copy);
-                    else
+                    // messageID 대역으로 OutGame / InGame 을 분배. CO_CLIENT_OUTGAME 대역 끝(19999)
+                    // 이하면 OutGame — CO 클라 대역(10000~19999)뿐 아니라 공통 NET 대역(NetAliveReq 등)도
+                    // 여기 포함시켜 OutGame 핸들러로 보낸다. 그 위(InGame 대역 50000~)는 룸 시뮬로.
+                    if (packetID <= (int)EMessageID.CoClientOutgameEnd)
                         OutGameService.Instance.EnqueuePacket(s.SessionID, packetID, copy);
+                    else
+                        InGameService.Instance.EnqueuePacket(s.SessionID, packetID, copy);
                 };
             };
 
