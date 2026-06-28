@@ -116,9 +116,10 @@ public sealed class DBService : Singleton<DBService>
         {
             MessageID               = EMessageID.DoLoginAck,
             PID                     = msg.PID,
-            AccountID               = 0,
+            // stub — 실제 DB 연동 전까지 sessionID 를 그대로 식별값으로 사용(세션별 구분/디버깅 용이).
+            AccountID               = sessionID,
             GameDbID                = 0,
-            PlayerName              = string.Empty,
+            PlayerName              = $"player_{sessionID}",
             IsReconnect             = msg.IsReconnect,
             ChannelID               = 0,
             FreeNicknameChangeCount = 0,
