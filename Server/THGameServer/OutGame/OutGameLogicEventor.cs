@@ -44,9 +44,14 @@ public sealed class OutGameLogicEventor : LogicEventor
         // 로그인 타임아웃은 Event(tickMs) 의 monotonic 시간축(TickMillis)으로 비교하므로 같은 축으로 초기화.
         _nextLoginTimeoutCheck     = TimeManager.Instance.TickMillis() + LoginTimeoutCheckMs;
 
-        // NetDisconnect: Prepare 와 Arrange 양쪽 phase 에서 분기 처리.
+        // NetDisconnect(Prepare) — Player 면 제거 보류(DB 왕복 후 정리), LoginSession/미등록이면 즉시 제거.
         RegisterHandler<NetDisconnect>((int)EMessageID.NetDisconnect,
-            OnNetDisconnect, ELogicEvent.Prepare | ELogicEvent.Arrange);
+            OnNetDisconnect, ELogicEvent.Prepare);
+
+        // DOExitGameSessionAck(Arrange) — 세션 종료 저장 완료. 이 시점에 archive 에서 Player 를 제거하고
+        // InGame 캐릭터를 정리한다. (Player 의 ack 로그는 같은 tick 의 Work 에서 먼저 찍힌다.)
+        RegisterHandler<DOExitGameSessionAck>((int)EMessageID.DoExitGameSessionAck,
+            OnDOExitGameSessionAck, ELogicEvent.Arrange);
 
         RegisterHandler<NetAliveReq>((int)EMessageID.NetAliveReq,
             OnAliveReq, ELogicEvent.Arrange);
@@ -129,17 +134,35 @@ public sealed class OutGameLogicEventor : LogicEventor
 
     private void OnNetDisconnect(long sessionID, NetDisconnect msg, byte flag)
     {
-        if (IsPrepareEvent(flag))
+        _ = msg;
+        _ = flag;
+
+        // Player 단계: 제거를 보류한다. Player.OnNetDisconnect(Work)가 DB 세션 종료 저장(ODExitGameSessionReq)
+        // 을 시작하고, 완료(DOExitGameSessionAck)의 Arrange 에서 비로소 archive 를 제거한다.
+        if (_archive.Find<Player>(sessionID) is not null)
         {
-            // LoginSession / Player 어느 단계든 타입 무관하게 단일 Remove 로 정리된다.
-            if (_archive.Remove(sessionID))
-                Log.Debug("Worker removed on disconnect SessionID={ID}", sessionID);
+            Log.Debug("Disconnect — defer Player removal until ExitGameSession ack SessionID={ID}", sessionID);
+            return;
         }
-        else if (IsArrangeEvent(flag))
-        {
-            // TODO: InField 단계 정리 (게임 상태 cleanup)
-            Log.Debug("Session {ID} disconnect (Arrange)", sessionID);
-        }
+
+        // LoginSession(로그인 미완료) 또는 미등록 세션: 저장할 게임 세션이 없으므로 즉시 제거.
+        if (_archive.Remove(sessionID))
+            Log.Debug("Worker removed on disconnect SessionID={ID}", sessionID);
+    }
+
+    // 세션 종료 저장 완료 ack(Arrange) — archive 에서 Player 를 제거하고 InGame 에 OIExitGameSessionReq 를
+    // 보내 필드 캐릭터를 정리한다. Arrange 는 Work 이후의 단일 tick 스레드라 Work 의 Values 순회와 분리되어
+    // 제거가 안전하다(PlayerArchive 규약 유지).
+    private void OnDOExitGameSessionAck(long sessionID, DOExitGameSessionAck msg, byte flag)
+    {
+        _ = msg;
+        _ = flag;
+
+        if (_archive.Remove(sessionID))
+            Log.Debug("Worker removed after ExitGameSession ack SessionID={ID}", sessionID);
+
+        InGameService.Instance.EnqueuePacket(
+            sessionID, (int)EMessageID.OiExitGameSessionReq, new OIExitGameSessionReq().ToByteArray());
     }
 
     private void OnAliveReq(long sessionID, NetAliveReq msg, byte flag)

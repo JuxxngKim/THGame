@@ -104,8 +104,12 @@ public sealed class OutGameService : Singleton<OutGameService>
         var grouped = new Dictionary<long, List<PacketMessage>>();
         foreach (var p in raw)
         {
-            // 끊긴 세션 패킷은 드롭. 단 NetDisconnect 합성 패킷은 세션 제거 후 들어오므로 항상 통과.
+            // 끊긴 세션 패킷은 드롭. 단 세션 종료 흐름의 두 패킷은 세션이 죽은 뒤 도착하므로 항상 통과시킨다:
+            //  - NetDisconnect: 종료 트리거(합성 패킷, 세션 제거 후 주입)
+            //  - DOExitGameSessionAck: DB 왕복 응답(disconnect 후 Data 계층에서 복귀)
+            // 통과시키지 않으면 Player 의 ack 처리와 Eventor 의 archive 제거가 누락되어 archive 가 누수된다.
             if (p.PacketID != (int)Th.EMessageID.NetDisconnect &&
+                p.PacketID != (int)Th.EMessageID.DoExitGameSessionAck &&
                 !NetworkManager.Instance.IsSessionAlive(p.SessionID))
                 continue;
 

@@ -68,6 +68,7 @@ public sealed class DBService : Singleton<DBService>
     private void RegisterHandlers()
     {
         RegisterHandler<ODLoginReq>((int)EMessageID.OdLoginReq, OnODLoginReq);
+        RegisterHandler<ODExitGameSessionReq>((int)EMessageID.OdExitGameSessionReq, OnODExitGameSessionReq);
         // 나머지 OD 핸들러는 proto 패킷 추가 시 동일 패턴으로 후속 추가.
     }
 
@@ -132,5 +133,20 @@ public sealed class DBService : Singleton<DBService>
         OutGameService.Instance.EnqueuePacket(sessionID, (int)EMessageID.DoLoginAck, ack.ToByteArray());
 
         Log.Debug("DBService OD_LOGIN_REQ handled SessionID={ID} PID={PID}", sessionID, msg.PID);
+    }
+
+    // DBSession(실제 DB) 연동 전 stub — ODExitGameSessionReq 를 받아 곧바로 DOExitGameSessionAck 로 응답한다.
+    // TODO: DB 연동 시 여기서 세션 종료 저장(플레이타임/마지막 위치/세션 로그 등)을 수행한 뒤 ack 를 보낸다.
+    private void OnODExitGameSessionReq(long sessionID, ODExitGameSessionReq msg)
+    {
+        var ack = new DOExitGameSessionAck
+        {
+            MessageID = EMessageID.DoExitGameSessionAck,
+        };
+
+        OutGameService.Instance.EnqueuePacket(sessionID, (int)EMessageID.DoExitGameSessionAck, ack.ToByteArray());
+
+        Log.Debug("DBService OD_EXIT_GAME_SESSION_REQ handled SessionID={ID} AccountID={AID} PID={PID}",
+            sessionID, msg.AccountID, msg.PID);
     }
 }

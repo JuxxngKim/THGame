@@ -68,17 +68,15 @@ public sealed class GameServerApp
                 };
             };
 
-            // 세션 종료를 NetDisconnect 합성 패킷으로 변환해 PacketQueue 에 주입.
-            // → tick 스레드의 Eventor.Prepare / Arrange phase 가 일관된 흐름으로 정리.
+            // 세션 종료를 NetDisconnect 합성 패킷으로 변환해 OutGame PacketQueue 에 주입.
+            // → OutGame tick 의 Player(Work)가 DB 세션 종료 저장(ODExitGameSessionReq)을 시작하고,
+            //   완료(DOExitGameSessionAck)의 Arrange 에서 archive 제거 + InGame 캐릭터 정리(OIExitGameSessionReq)
+            //   까지 일관된 흐름으로 처리한다. InGame 캐릭터 제거는 이 ExitGameSession 경로로 일원화되므로
+            //   여기서 OILeaveReq 를 직접 주입하지 않는다.
             NetworkManager.Instance.OnSessionDisconnected += session =>
             {
                 OutGameService.Instance.EnqueuePacket(
                     session.SessionID, (int)EMessageID.NetDisconnect, Array.Empty<byte>());
-
-                // 필드에 있던 세션이면 룸에서도 이탈시킨다. OILeaveReq 합성 패킷으로 주입(위 NetDisconnect 와
-                // 동형). 어느 룸에도 없는 세션이면 InGame Prepare 의 OnLeave 에서 no-op.
-                InGameService.Instance.EnqueuePacket(
-                    session.SessionID, (int)EMessageID.OiLeaveReq, Array.Empty<byte>());
             };
 
             return true;

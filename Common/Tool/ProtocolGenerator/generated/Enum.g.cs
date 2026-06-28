@@ -25,20 +25,22 @@ namespace Th {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CgplbnVtLnByb3RvEgJ0aCorChBFUHJvdG9jb2xWZXJzaW9uEhcKE1JFX1BS",
-            "T1RPQ09MX1ZFUlNJT04QBCqDBAoKRU1lc3NhZ2VJRBISCg5ORVRfRElTQ09O",
+            "T1RPQ09MX1ZFUlNJT04QBCrjBAoKRU1lc3NhZ2VJRBISCg5ORVRfRElTQ09O",
             "TkVDVBBlEhEKDU5FVF9BTElWRV9SRVEQZhIRCg1ORVRfQUxJVkVfQUNLEGcS",
             "HAoXQ09fQ0xJRU5UX09VVEdBTUVfQkVHSU4QkE4SEQoMQ09fTE9HSU5fUkVR",
             "EJJOEhEKDE9DX0xPR0lOX0FDSxCTThIWChFDT19HRVRfUExBWUVSX1JFURDX",
             "TxIRCgxDT19FTlRFUl9SRVEQ2E8SGwoVQ09fQ0xJRU5UX09VVEdBTUVfRU5E",
             "EJ+cARIgChpPRF9PVVRHQU1FX0RCU0VSVklDRV9CRUdJThCEnQESEgoMT0Rf",
-            "TE9HSU5fUkVREIWdARISCgxET19MT0dJTl9BQ0sQhp0BEh4KGE9EX09VVEdB",
-            "TUVfREJTRVJWSUNFX0VORBDPhgMSHQoXT0lfT1VUR0FNRV9JTkdBTUVfQkVH",
-            "SU4Q0IYDEhIKDE9JX0VOVEVSX1JFURDRhgMSEgoMT0lfTEVBVkVfUkVRENKG",
-            "AxISCgxJT19FTlRFUl9BQ0sQtYcDEhsKFU9JX09VVEdBTUVfSU5HQU1FX0VO",
-            "RBDf1AMSHAoWSUNfSU5HQU1FX0NMSUVOVF9CRUdJThDg1AMSEwoNSUNfRU5U",
-            "RVJfTk9USRDh1AMSGgoUSUNfSU5HQU1FX0NMSUVOVF9FTkQQ76IEKj0KCUVF",
-            "cnJvck1zZxINCglFX1NVQ0NFU1MQABINCglFX1VOS05PV04QARISCg5FX0lO",
-            "VkFMSURfREFUQRBk"));
+            "TE9HSU5fUkVREIWdARISCgxET19MT0dJTl9BQ0sQhp0BEh4KGE9EX0VYSVRf",
+            "R0FNRV9TRVNTSU9OX1JFURCHnQESHgoYRE9fRVhJVF9HQU1FX1NFU1NJT05f",
+            "QUNLEIidARIeChhPRF9PVVRHQU1FX0RCU0VSVklDRV9FTkQQz4YDEh0KF09J",
+            "X09VVEdBTUVfSU5HQU1FX0JFR0lOENCGAxISCgxPSV9FTlRFUl9SRVEQ0YYD",
+            "EhIKDE9JX0xFQVZFX1JFURDShgMSHgoYT0lfRVhJVF9HQU1FX1NFU1NJT05f",
+            "UkVRENOGAxISCgxJT19FTlRFUl9BQ0sQtYcDEhsKFU9JX09VVEdBTUVfSU5H",
+            "QU1FX0VORBDf1AMSHAoWSUNfSU5HQU1FX0NMSUVOVF9CRUdJThDg1AMSEwoN",
+            "SUNfRU5URVJfTk9USRDh1AMSGgoUSUNfSU5HQU1FX0NMSUVOVF9FTkQQ76IE",
+            "Kj0KCUVFcnJvck1zZxINCglFX1NVQ0NFU1MQABINCglFX1VOS05PV04QARIS",
+            "Cg5FX0lOVkFMSURfREFUQRBk"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Th.EProtocolVersion), typeof(global::Th.EMessageID), typeof(global::Th.EErrorMsg), }, null, null));
@@ -76,6 +78,8 @@ namespace Th {
     [pbr::OriginalName("OD_OUTGAME_DBSERVICE_BEGIN")] OdOutgameDbserviceBegin = 20100,
     [pbr::OriginalName("OD_LOGIN_REQ")] OdLoginReq = 20101,
     [pbr::OriginalName("DO_LOGIN_ACK")] DoLoginAck = 20102,
+    [pbr::OriginalName("OD_EXIT_GAME_SESSION_REQ")] OdExitGameSessionReq = 20103,
+    [pbr::OriginalName("DO_EXIT_GAME_SESSION_ACK")] DoExitGameSessionAck = 20104,
     [pbr::OriginalName("OD_OUTGAME_DBSERVICE_END")] OdOutgameDbserviceEnd = 49999,
     /// <summary>
     ////outgame &lt;-> ingame (cross-domain, 서버 내부 전용)
@@ -83,6 +87,7 @@ namespace Th {
     [pbr::OriginalName("OI_OUTGAME_INGAME_BEGIN")] OiOutgameIngameBegin = 50000,
     [pbr::OriginalName("OI_ENTER_REQ")] OiEnterReq = 50001,
     [pbr::OriginalName("OI_LEAVE_REQ")] OiLeaveReq = 50002,
+    [pbr::OriginalName("OI_EXIT_GAME_SESSION_REQ")] OiExitGameSessionReq = 50003,
     [pbr::OriginalName("IO_ENTER_ACK")] IoEnterAck = 50101,
     [pbr::OriginalName("OI_OUTGAME_INGAME_END")] OiOutgameIngameEnd = 59999,
     /// <summary>

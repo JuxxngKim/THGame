@@ -37,17 +37,26 @@ namespace Th {
             "Tmlja25hbWVDaGFuZ2VDb3VudBgHIAIoBRIUCgxJc05ld0FjY291bnQYCCAC",
             "KAgSIQoKVXBkYXRlVGltZRgJIAIoCzINLnRoLk1EYXRlVGltZRISCgpMYW5n",
             "dWFnZUlEGAogAigFEhUKDVRvdGFsUGxheVRpbWUYCyACKAUSFQoNQXV0aGVu",
-            "dGljYXRlZBgMIAIoCBIKCgJJUBgOIAEoCSJNCgpPSUVudGVyUmVxEi8KCU1l",
-            "c3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6DE9JX0VOVEVSX1JFURIO",
-            "CgZSb29tSUQYASACKAMiPQoKT0lMZWF2ZVJlcRIvCglNZXNzYWdlSUQYYyAB",
-            "KA4yDi50aC5FTWVzc2FnZUlEOgxPSV9MRUFWRV9SRVEiTQoKSU9FbnRlckFj",
-            "axIvCglNZXNzYWdlSUQYYyABKA4yDi50aC5FTWVzc2FnZUlEOgxJT19FTlRF",
-            "Ul9BQ0sSDgoGUm9vbUlEGAEgAigD"));
+            "dGljYXRlZBgMIAIoCBIKCgJJUBgOIAEoCSJzChRPREV4aXRHYW1lU2Vzc2lv",
+            "blJlcRI7CglNZXNzYWdlSUQYYyABKA4yDi50aC5FTWVzc2FnZUlEOhhPRF9F",
+            "WElUX0dBTUVfU0VTU0lPTl9SRVESEQoJQWNjb3VudElEGAEgAigDEgsKA1BJ",
+            "RBgCIAIoCSJTChRET0V4aXRHYW1lU2Vzc2lvbkFjaxI7CglNZXNzYWdlSUQY",
+            "YyABKA4yDi50aC5FTWVzc2FnZUlEOhhET19FWElUX0dBTUVfU0VTU0lPTl9B",
+            "Q0siUwoUT0lFeGl0R2FtZVNlc3Npb25SZXESOwoJTWVzc2FnZUlEGGMgASgO",
+            "Mg4udGguRU1lc3NhZ2VJRDoYT0lfRVhJVF9HQU1FX1NFU1NJT05fUkVRIk0K",
+            "Ck9JRW50ZXJSZXESLwoJTWVzc2FnZUlEGGMgASgOMg4udGguRU1lc3NhZ2VJ",
+            "RDoMT0lfRU5URVJfUkVREg4KBlJvb21JRBgBIAIoAyI9CgpPSUxlYXZlUmVx",
+            "Ei8KCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVNZXNzYWdlSUQ6DE9JX0xFQVZF",
+            "X1JFUSJNCgpJT0VudGVyQWNrEi8KCU1lc3NhZ2VJRBhjIAEoDjIOLnRoLkVN",
+            "ZXNzYWdlSUQ6DElPX0VOVEVSX0FDSxIOCgZSb29tSUQYASACKAM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Th.EnumReflection.Descriptor, global::Th.ProtocolReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.ODLoginReq), global::Th.ODLoginReq.Parser, new[]{ "MessageID", "PID", "LogKey", "UpdateDate", "IsReconnect", "ServerID", "LanguageID", "AppVersion", "IP" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.DOLoginAck), global::Th.DOLoginAck.Parser, new[]{ "MessageID", "PID", "AccountID", "GameDbID", "PlayerName", "IsReconnect", "ChannelID", "FreeNicknameChangeCount", "IsNewAccount", "UpdateTime", "LanguageID", "TotalPlayTime", "Authenticated", "IP" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.ODExitGameSessionReq), global::Th.ODExitGameSessionReq.Parser, new[]{ "MessageID", "AccountID", "PID" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.DOExitGameSessionAck), global::Th.DOExitGameSessionAck.Parser, new[]{ "MessageID" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Th.OIExitGameSessionReq), global::Th.OIExitGameSessionReq.Parser, new[]{ "MessageID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.OIEnterReq), global::Th.OIEnterReq.Parser, new[]{ "MessageID", "RoomID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.OILeaveReq), global::Th.OILeaveReq.Parser, new[]{ "MessageID" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Th.IOEnterAck), global::Th.IOEnterAck.Parser, new[]{ "MessageID", "RoomID" }, null, null, null, null)
@@ -1447,6 +1456,673 @@ namespace Th {
   }
 
   /// <summary>
+  /// outgame -> db: 게임 세션 종료 저장 요청. SessionID 는 PacketMessage 가 운반.
+  /// </summary>
+  public sealed partial class ODExitGameSessionReq : pb::IMessage<ODExitGameSessionReq>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ODExitGameSessionReq> _parser = new pb::MessageParser<ODExitGameSessionReq>(() => new ODExitGameSessionReq());
+    private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ODExitGameSessionReq> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ODExitGameSessionReq() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ODExitGameSessionReq(ODExitGameSessionReq other) : this() {
+      _hasBits0 = other._hasBits0;
+      messageID_ = other.messageID_;
+      accountID_ = other.accountID_;
+      pID_ = other.pID_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ODExitGameSessionReq Clone() {
+      return new ODExitGameSessionReq(this);
+    }
+
+    /// <summary>Field number for the "MessageID" field.</summary>
+    public const int MessageIDFieldNumber = 99;
+    private readonly static global::Th.EMessageID MessageIDDefaultValue = global::Th.EMessageID.OdExitGameSessionReq;
+
+    private global::Th.EMessageID messageID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Th.EMessageID MessageID {
+      get { if ((_hasBits0 & 2) != 0) { return messageID_; } else { return MessageIDDefaultValue; } }
+      set {
+        _hasBits0 |= 2;
+        messageID_ = value;
+      }
+    }
+    /// <summary>Gets whether the "MessageID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasMessageID {
+      get { return (_hasBits0 & 2) != 0; }
+    }
+    /// <summary>Clears the value of the "MessageID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearMessageID() {
+      _hasBits0 &= ~2;
+    }
+
+    /// <summary>Field number for the "AccountID" field.</summary>
+    public const int AccountIDFieldNumber = 1;
+    private readonly static long AccountIDDefaultValue = 0L;
+
+    private long accountID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long AccountID {
+      get { if ((_hasBits0 & 1) != 0) { return accountID_; } else { return AccountIDDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        accountID_ = value;
+      }
+    }
+    /// <summary>Gets whether the "AccountID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasAccountID {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "AccountID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearAccountID() {
+      _hasBits0 &= ~1;
+    }
+
+    /// <summary>Field number for the "PID" field.</summary>
+    public const int PIDFieldNumber = 2;
+    private readonly static string PIDDefaultValue = "";
+
+    private string pID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string PID {
+      get { return pID_ ?? PIDDefaultValue; }
+      set {
+        pID_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+    /// <summary>Gets whether the "PID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasPID {
+      get { return pID_ != null; }
+    }
+    /// <summary>Clears the value of the "PID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearPID() {
+      pID_ = null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ODExitGameSessionReq);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ODExitGameSessionReq other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MessageID != other.MessageID) return false;
+      if (AccountID != other.AccountID) return false;
+      if (PID != other.PID) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (HasMessageID) hash ^= MessageID.GetHashCode();
+      if (HasAccountID) hash ^= AccountID.GetHashCode();
+      if (HasPID) hash ^= PID.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (HasAccountID) {
+        output.WriteRawTag(8);
+        output.WriteInt64(AccountID);
+      }
+      if (HasPID) {
+        output.WriteRawTag(18);
+        output.WriteString(PID);
+      }
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasAccountID) {
+        output.WriteRawTag(8);
+        output.WriteInt64(AccountID);
+      }
+      if (HasPID) {
+        output.WriteRawTag(18);
+        output.WriteString(PID);
+      }
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (HasMessageID) {
+        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) MessageID);
+      }
+      if (HasAccountID) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AccountID);
+      }
+      if (HasPID) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PID);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ODExitGameSessionReq other) {
+      if (other == null) {
+        return;
+      }
+      if (other.HasMessageID) {
+        MessageID = other.MessageID;
+      }
+      if (other.HasAccountID) {
+        AccountID = other.AccountID;
+      }
+      if (other.HasPID) {
+        PID = other.PID;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            AccountID = input.ReadInt64();
+            break;
+          }
+          case 18: {
+            PID = input.ReadString();
+            break;
+          }
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            AccountID = input.ReadInt64();
+            break;
+          }
+          case 18: {
+            PID = input.ReadString();
+            break;
+          }
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// db -> outgame: 세션 종료 저장 완료 ack.
+  /// </summary>
+  public sealed partial class DOExitGameSessionAck : pb::IMessage<DOExitGameSessionAck>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DOExitGameSessionAck> _parser = new pb::MessageParser<DOExitGameSessionAck>(() => new DOExitGameSessionAck());
+    private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<DOExitGameSessionAck> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public DOExitGameSessionAck() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public DOExitGameSessionAck(DOExitGameSessionAck other) : this() {
+      _hasBits0 = other._hasBits0;
+      messageID_ = other.messageID_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public DOExitGameSessionAck Clone() {
+      return new DOExitGameSessionAck(this);
+    }
+
+    /// <summary>Field number for the "MessageID" field.</summary>
+    public const int MessageIDFieldNumber = 99;
+    private readonly static global::Th.EMessageID MessageIDDefaultValue = global::Th.EMessageID.DoExitGameSessionAck;
+
+    private global::Th.EMessageID messageID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Th.EMessageID MessageID {
+      get { if ((_hasBits0 & 1) != 0) { return messageID_; } else { return MessageIDDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        messageID_ = value;
+      }
+    }
+    /// <summary>Gets whether the "MessageID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasMessageID {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "MessageID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearMessageID() {
+      _hasBits0 &= ~1;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as DOExitGameSessionAck);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(DOExitGameSessionAck other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MessageID != other.MessageID) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (HasMessageID) hash ^= MessageID.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (HasMessageID) {
+        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(DOExitGameSessionAck other) {
+      if (other == null) {
+        return;
+      }
+      if (other.HasMessageID) {
+        MessageID = other.MessageID;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// outgame -> ingame: 세션 종료 → 캐릭터 제거 요청. SessionID 는 PacketMessage 가 운반하므로 body 없음.
+  /// </summary>
+  public sealed partial class OIExitGameSessionReq : pb::IMessage<OIExitGameSessionReq>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<OIExitGameSessionReq> _parser = new pb::MessageParser<OIExitGameSessionReq>(() => new OIExitGameSessionReq());
+    private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<OIExitGameSessionReq> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OIExitGameSessionReq() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OIExitGameSessionReq(OIExitGameSessionReq other) : this() {
+      _hasBits0 = other._hasBits0;
+      messageID_ = other.messageID_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OIExitGameSessionReq Clone() {
+      return new OIExitGameSessionReq(this);
+    }
+
+    /// <summary>Field number for the "MessageID" field.</summary>
+    public const int MessageIDFieldNumber = 99;
+    private readonly static global::Th.EMessageID MessageIDDefaultValue = global::Th.EMessageID.OiExitGameSessionReq;
+
+    private global::Th.EMessageID messageID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Th.EMessageID MessageID {
+      get { if ((_hasBits0 & 1) != 0) { return messageID_; } else { return MessageIDDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        messageID_ = value;
+      }
+    }
+    /// <summary>Gets whether the "MessageID" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool HasMessageID {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "MessageID" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearMessageID() {
+      _hasBits0 &= ~1;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as OIExitGameSessionReq);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(OIExitGameSessionReq other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MessageID != other.MessageID) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (HasMessageID) hash ^= MessageID.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasMessageID) {
+        output.WriteRawTag(152, 6);
+        output.WriteEnum((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (HasMessageID) {
+        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) MessageID);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(OIExitGameSessionReq other) {
+      if (other == null) {
+        return;
+      }
+      if (other.HasMessageID) {
+        MessageID = other.MessageID;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 792: {
+            MessageID = (global::Th.EMessageID) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
   /// outgame -> ingame: 필드(룸) 진입 요청. SessionID 는 PacketMessage 가 운반하므로 body 엔 RoomID 만.
   /// </summary>
   public sealed partial class OIEnterReq : pb::IMessage<OIEnterReq>
@@ -1462,7 +2138,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1701,7 +2377,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[3]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1891,7 +2567,7 @@ namespace Th {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[4]; }
+      get { return global::Th.SprotocolReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

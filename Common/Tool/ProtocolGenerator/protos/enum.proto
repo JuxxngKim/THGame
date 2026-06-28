@@ -29,6 +29,8 @@ enum EMessageID
 
 	OD_LOGIN_REQ								= 20101;
 	DO_LOGIN_ACK								= 20102;
+	OD_EXIT_GAME_SESSION_REQ					= 20103;
+	DO_EXIT_GAME_SESSION_ACK					= 20104;
 
 	OD_OUTGAME_DBSERVICE_END					= 49999;
 
@@ -37,6 +39,7 @@ enum EMessageID
 
 	OI_ENTER_REQ								= 50001;
 	OI_LEAVE_REQ								= 50002;
+	OI_EXIT_GAME_SESSION_REQ					= 50003;
 
 	IO_ENTER_ACK								= 50101;
 

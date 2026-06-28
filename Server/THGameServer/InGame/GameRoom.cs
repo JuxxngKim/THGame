@@ -37,6 +37,7 @@ public sealed class GameRoom
         // 진입/이탈은 SessionID 만 필요(룸은 이미 확정)하므로 body(msg)는 쓰지 않는다.
         Table.Register<OIEnterReq>((int)EMessageID.OiEnterReq, (room, pkt, msg) => room.OnEnter(pkt.SessionID));
         Table.Register<OILeaveReq>((int)EMessageID.OiLeaveReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
+        Table.Register<OIExitGameSessionReq>((int)EMessageID.OiExitGameSessionReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
     }
 
     public GameRoom(RoomID roomID)

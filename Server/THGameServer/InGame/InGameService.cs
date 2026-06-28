@@ -39,6 +39,7 @@ public sealed class InGameService : Singleton<InGameService>
         // 필요하므로 룸이 아니라 여기 Prepare 에서 처리하고, 룸 내부(Character) 변경만 룸 Inbox 로 위임한다.
         Register<OIEnterReq>((int)EMessageID.OiEnterReq, OnEnter);
         Register<OILeaveReq>((int)EMessageID.OiLeaveReq, OnLeave);
+        Register<OIExitGameSessionReq>((int)EMessageID.OiExitGameSessionReq, OnExitGameSession);
     }
 
     // ====================== 외부 진입점 (멀티스레드 안전) ======================
@@ -88,6 +89,19 @@ public sealed class InGameService : Singleton<InGameService>
     // 이탈 — SessionRoomMap 에서 현재 룸을 찾아 제거. 세션이 어느 룸에도 없으면 no-op
     // (이미 이탈했거나 진입 전 disconnect). Character 제거는 룸 Inbox 로 위임.
     private void OnLeave(PacketMessage packet, OILeaveReq msg)
+    {
+        _ = msg;
+        if (!_sessionRoomMap.TryGet(packet.SessionID, out var roomID))
+            return;
+
+        _sessionRoomMap.Remove(packet.SessionID);
+        _repo.Find(roomID)?.Inbox.Enqueue(packet);
+    }
+
+    // 세션 종료 — disconnect 의 DB 왕복(ODExitGameSessionReq/DOExitGameSessionAck) 후 OutGame Arrange 가
+    // 보낸다. OnLeave 와 동일하게 SessionRoomMap 에서 룸을 찾아 제거하고 Character 제거는 룸 Inbox 로 위임.
+    // 어느 룸에도 없으면 no-op(필드 진입 전 종료).
+    private void OnExitGameSession(PacketMessage packet, OIExitGameSessionReq msg)
     {
         _ = msg;
         if (!_sessionRoomMap.TryGet(packet.SessionID, out var roomID))

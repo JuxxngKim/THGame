@@ -37,6 +37,27 @@ message DOLoginAck
 	optional string				IP						= 14;
 }
 
+// outgame -> db: 게임 세션 종료 저장 요청. SessionID 는 PacketMessage 가 운반.
+message ODExitGameSessionReq
+{
+	optional EMessageID			MessageID			= 99	[default = OD_EXIT_GAME_SESSION_REQ];
+
+	required int64				AccountID			= 1;
+	required string				PID					= 2;
+}
+
+// db -> outgame: 세션 종료 저장 완료 ack.
+message DOExitGameSessionAck
+{
+	optional EMessageID			MessageID			= 99	[default = DO_EXIT_GAME_SESSION_ACK];
+}
+
+// outgame -> ingame: 세션 종료 → 캐릭터 제거 요청. SessionID 는 PacketMessage 가 운반하므로 body 없음.
+message OIExitGameSessionReq
+{
+	optional EMessageID			MessageID			= 99	[default = OI_EXIT_GAME_SESSION_REQ];
+}
+
 // outgame -> ingame: 필드(룸) 진입 요청. SessionID 는 PacketMessage 가 운반하므로 body 엔 RoomID 만.
 message OIEnterReq
 {

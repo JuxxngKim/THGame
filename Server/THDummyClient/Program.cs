@@ -43,7 +43,6 @@ internal static class Program
                 CurrentVersion = 1,
                 PID            = "dummy_pid",
                 AuthToken      = "dummy_token",
-                PlatformType   = EPlatformType.None,
                 LanguageID     = 1,
                 IsReconnect    = false,
             };

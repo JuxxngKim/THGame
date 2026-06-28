@@ -4,6 +4,7 @@ using Th;
 using TH.Common;
 using TH.Common.Network;
 using TH.Server.Common;
+using TH.Server.Data;
 using TH.Server.Logic;
 
 namespace TH.Server.Game;
@@ -37,6 +38,11 @@ public sealed class Player : ISessionWorker
         Table.Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, pkt, m) => p.OnCOGetPlayerReq(m));
         Table.Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, pkt, m) => p.OnCOEnterReq(m));
         Table.Register<IOEnterAck>((int)EMessageID.IoEnterAck, (p, pkt, m) => p.OnIOEnterAck(m));
+
+        // 세션 종료 흐름 — NetDisconnect 로 DB 세션 종료 저장을 시작하고, DOExitGameSessionAck 로 완료를 받는다.
+        // 핸들러 본문은 인스턴스 상태(State/AccountID/PID)만 쓰므로 pkt/msg 는 무시한다.
+        Table.Register<NetDisconnect>((int)EMessageID.NetDisconnect, (p, pkt, m) => p.OnNetDisconnect());
+        Table.Register<DOExitGameSessionAck>((int)EMessageID.DoExitGameSessionAck, (p, pkt, m) => p.OnDOExitGameSessionAck());
     }
 
     // ====================== worker phase 진입점 ======================
@@ -112,5 +118,35 @@ public sealed class Player : ISessionWorker
 
         State = EPlayerState.InField;
         Log.Debug("Enter confirmed SessionID={ID} RoomID={RID}", SessionID, msg.RoomID);
+    }
+
+    // 세션 종료(disconnect) — NetDisconnect 를 Work phase 에서 받아 DB 세션 종료 저장을 시작한다.
+    // 실제 archive 제거와 InGame 캐릭터 제거는 DOExitGameSessionAck 의 Arrange(Eventor)가 수행 —
+    // 여기서는 DB 왕복만 트리거하고 상태를 Disconnecting 으로 표시한다.
+    private void OnNetDisconnect()
+    {
+        // 멱등 — Session.OnDisconnected 는 세션당 1회 보장이지만, 혹시 중복 NetDisconnect 가 들어와도
+        // ODExitGameSessionReq 를 재송신하지 않도록 상태로 가드한다.
+        if (State == EPlayerState.Disconnecting)
+            return;
+
+        State = EPlayerState.Disconnecting;
+
+        var req = new ODExitGameSessionReq
+        {
+            MessageID = EMessageID.OdExitGameSessionReq,
+            AccountID = AccountID,
+            PID       = PID,
+        };
+        DBService.Instance.Send(SessionID, (int)EMessageID.OdExitGameSessionReq, req);
+
+        Log.Debug("ExitGameSession requested SessionID={ID} PID={PID}", SessionID, PID);
+    }
+
+    // 세션 종료 저장 완료 ack — 여기서는 로그만 남긴다. archive 제거 + OIExitGameSessionReq(InGame 캐릭터
+    // 제거)는 같은 tick 의 Arrange(OutGameLogicEventor.OnDOExitGameSessionAck)가 수행한다.
+    private void OnDOExitGameSessionAck()
+    {
+        Log.Information("ExitGameSession ack SessionID={ID} PID={PID}", SessionID, PID);
     }
 }
