@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ENABLE_LSP_TOOL": "1"
+  },
   "permissions": {
     "allow": [
       "PowerShell(Get-ChildItem *)",
@@ -28,5 +31,8 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "csharp-lsp@claude-plugins-official": true
   }
 }
