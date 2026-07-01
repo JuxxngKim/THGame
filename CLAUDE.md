@@ -51,7 +51,11 @@ This applies to all explanations, comments, commit messages, code reviews, and a
 - `Server/THServerCommon/` — 서버 공통 인프라 + Protocol 링크 (Library, namespace `TH.Common`)
 - `Server/bin/config/` — 런타임 설정 (`profile.ini`, `config.{Env}.ini`)
 - `Common/Tool/ProtocolGenerator/generated/` — protobuf 생성 코드 (THServerCommon이 링크 컴파일)
-- `Client/` — UE5 클라이언트
+- `Client/THClient/` — UE5 클라이언트 (Unreal Engine **5.8**)
+  - `.uproject`: `Client/THClient/THClient.uproject`, C++ 런타임 모듈 `THClient` (의존: `EnhancedInput`)
+  - 소스: `Client/THClient/Source/THClient/`, 설정: `Client/THClient/Config/Default*.ini`
+  - 빌드/실행: UE 에디터로 `.uproject` 열기, 또는 UBT/`UnrealBuildTool`로 `THClientEditor`(에디터)·`THClient`(런타임) 타깃 빌드
+  - **프로토콜 공유는 아직 코드 레벨로 미구성**: `ProtocolGenerator/compile.bat` 은 `--csharp_out` 만 생성한다. 클라가 서버 proto 를 쓰는 방식은 아직 결정되지 않았다(seam).
 
 **서버 Tick 아키텍처**: 독립된 두 tick 서비스가 있다 —
 **OutGame**(`OutGame/`, 300ms, Event→Prepare→Work→Arrange, 세션 워커 단위(`Player`+`LoginSession`)
@@ -74,6 +78,7 @@ grep 유지.
 - Only modify `protocol.proto` and `sprotocol.proto` for proto file changes
 - `Common/Tool/ProtocolGenerator/generated/*.g.cs` 는 생성물이므로 **직접 수정 금지**
 - All new files MUST be created with **UTF-8 with BOM** encoding
+  - 단, UE 가 **자동 생성·관리하는 파일은 직접 편집 대상이 아니다**: `.uproject`, `Client/THClient/Config/*.ini`, `Intermediate/`, `Saved/`, `DerivedDataCache/`, 생성된 `.sln`/`.slnx`. 편집이 꼭 필요하면 원본 인코딩·포맷을 그대로 보존한다.
 - 코드 주석은 **한글**로 작성 (0항과 일관). 단 SAEA / ArrayPool / IOCP 같은 표준 용어는 영어 그대로 사용
 
 ---
@@ -145,7 +150,12 @@ For multi-step tasks, present a brief plan first:
 
 ## 5. Server Coding Conventions
 
-현재 서버 코드에서 일관되게 강제되고 있는 규칙. 신규 코드도 동일하게 따른다.
+**적용 범위: 이 §5 의 규칙은 전부 서버(C#/.NET, `Server/`) 전용이다.** file-scoped namespace,
+`Singleton<T>`, `TimeManager`, `ConfigManager`, Serilog, Network 불변식 등은 **UE 클라이언트
+(C++, `Client/`) 에는 적용되지 않는다.** 클라 C++ 는 Unreal 관례(네이밍 prefix, `UCLASS`/`UPROPERTY`,
+GC, `.Build.cs` 의존성 등)를 따른다 — 클라 컨벤션은 개발이 본격화되면 별도 절로 추가한다.
+
+현재 서버 코드에서 일관되게 강제되고 있는 규칙. 신규 서버 코드도 동일하게 따른다.
 
 ### 5.1. File / Namespace
 
