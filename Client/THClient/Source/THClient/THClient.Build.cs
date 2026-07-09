@@ -10,7 +10,8 @@ public class THClient : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		// THProtocol: protobuf 생성 코드 모듈 (THClient 공개 헤더에서 pb 타입을 노출하게 되면 Public 으로 승격)
+		PrivateDependencyModuleNames.AddRange(new string[] { "THProtocol" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
