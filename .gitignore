@@ -71,3 +71,32 @@ x86/
 
 # Publish Web Output
 *.[Pp]ublish.xml
+
+### Unity (Client/THClient)
+# 엔진 생성 캐시/임시/로그 (재생성 가능)
+Client/THClient/[Ll]ibrary/
+Client/THClient/[Tt]emp/
+Client/THClient/[Oo]bj/
+Client/THClient/[Ll]ogs/
+Client/THClient/[Uu]ser[Ss]ettings/
+Client/THClient/[Bb]uild/
+Client/THClient/[Bb]uilds/
+Client/THClient/[Mm]emoryCaptures/
+Client/THClient/[Rr]ecordings/
+
+# IDE 생성 솔루션/프로젝트 (Unity 가 매번 재생성)
+Client/THClient/*.csproj
+Client/THClient/*.sln
+Client/THClient/*.slnx
+Client/THClient/.idea/
+Client/THClient/.vsconfig
+
+# 크래시/빌드 산출물
+Client/THClient/sysinfo.txt
+Client/THClient/*.apk
+Client/THClient/*.aab
+Client/THClient/*.unitypackage
+Client/THClient/crashlytics-build.properties
+
+# 위 NuGet 규칙(**/[Pp]ackages/*)이 Unity 의 Packages/manifest.json 을 무시하므로 예외 처리
+!Client/THClient/[Pp]ackages/*
