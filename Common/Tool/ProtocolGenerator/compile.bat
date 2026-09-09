@@ -25,25 +25,4 @@ if not %errorlevel% == 0 (
 )
 echo C# generation completed: %OUTPUT_DIR%
 
-REM C++ generation for UE client. sprotocol.proto is server-internal, excluded.
-REM NOTE: protoc.exe / libprotobuf (Client ThirdParty) / generated code are version-locked (3.21.12).
-REM       Always upgrade them together.
-SET CPP_OUTPUT_DIR=%BASE_DIR%..\..\..\Client\THClient\Source\THProtocol\Public\Generated
-
-if not exist "%CPP_OUTPUT_DIR%" (
-    echo Creating output directory: %CPP_OUTPUT_DIR%
-    mkdir "%CPP_OUTPUT_DIR%"
-)
-
-"%PROTOC_CMD%" -I="%PROTO_DIR%" --cpp_out="%CPP_OUTPUT_DIR%" "%PROTO_DIR%\enum.proto" "%PROTO_DIR%\protocol.proto"
-if not %errorlevel% == 0 (
-    echo C++ protoc failed with error code %errorlevel%
-    exit /b %errorlevel%
-)
-
-REM Rename .pb.cc to .pb.cpp so UnrealBuildTool picks them up
-for %%f in ("%CPP_OUTPUT_DIR%\*.pb.cc") do move /Y "%%f" "%%~dpnf.cpp" >nul
-
-echo C++ generation completed: %CPP_OUTPUT_DIR%
-
 REM pause

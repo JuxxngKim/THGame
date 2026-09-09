@@ -52,7 +52,8 @@ This applies to all explanations, comments, commit messages, code reviews, and a
 - `Server/bin/config/` — 런타임 설정 (`profile.ini`, `config.{Env}.ini`)
 - `Common/Tool/ProtocolGenerator/generated/` — protobuf 생성 코드 (THServerCommon이 링크 컴파일)
 - **클라이언트**: 현재 main 에는 없다. 기존 UE5(5.8) 클라이언트는 `archive/ue5-client` 브랜치에 보존되어 있으며,
-  Unity 로 재작성 예정이다. Unity 프로젝트 경로·프로토콜 공유 방식(`compile.bat` 은 현재 `--csharp_out` 만 생성)은 아직 미정(seam).
+  Unity 로 재작성 예정이다. `compile.bat` 은 서버용 `--csharp_out` 만 생성한다(UE 용 `--cpp_out` 블록은 제거됨).
+  Unity 프로젝트 경로·클라 측 생성 코드 배치 방식은 아직 미정(seam).
 
 **서버 Tick 아키텍처**: 독립된 두 tick 서비스가 있다 —
 **OutGame**(`OutGame/`, 300ms, Event→Prepare→Work→Arrange, 세션 워커 단위(`Player`+`LoginSession`)
