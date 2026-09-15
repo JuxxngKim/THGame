@@ -62,8 +62,8 @@ public sealed class NetworkManager : Singleton<NetworkManager>
     {
         if (_sessions.TryGetValue(sessionID, out var s))
             s.Close(notify: true);
-        // OnSessionDisconnected는 직접 발화하지 않음.
-        // Session.OnDisconnected → OnSessionDisconnectedInternal 경로로 자연 발화.
+        // OnSessionDisconnected는 여기서 직접 호출하지 않는다.
+        // Session.OnDisconnected → OnSessionDisconnectedInternal 경로로만 알린다.
     }
 
     private void OnNewSession(Session session)

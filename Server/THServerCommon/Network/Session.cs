@@ -31,8 +31,8 @@ public sealed class Session
 
     public delegate void PacketHandler(Session session, int packetID, ReadOnlySpan<byte> payload);
 
-    // ⚠️ payload는 내부 수신 버퍼의 슬라이스다. 핸들러는 동기적으로 즉시 디코드해야 하며,
-    // span/슬라이스를 캡처/보관해선 안 된다. 다음 수신 사이클에서 덮어쓰여진다.
+    // ⚠️ payload는 내부 수신 버퍼의 슬라이스다. 핸들러는 그 자리에서 즉시 디코드해야 하며,
+    // span을 잡아두거나 보관하면 안 된다. 다음 수신 때 덮어쓰인다.
     public PacketHandler? OnPacketReceived;
     public Action<Session>? OnDisconnected;
 
@@ -149,9 +149,9 @@ public sealed class Session
             int payloadOffset = consumed + PacketHeader.HeaderSize;
             int payloadLength = length - PacketHeader.HeaderSize;
 
-            // ⚠️ IO 스레드에서 호출됨. 핸들러는 즉시 반환해야 하며(블로킹 금지),
-            // payload span을 캡처/보관하지 말 것. 다음 수신 사이클에서 _recvBuffer가 덮어쓰여진다.
-            // 추후 로직 스레드 디스패처 도입 시 큐 enqueue + 복사로 교체 예정.
+            // ⚠️ IO 스레드에서 호출된다. 핸들러는 즉시 반환해야 하며(블로킹 금지),
+            // payload span을 잡아두거나 보관하면 안 된다. 다음 수신 때 _recvBuffer가 덮어쓰인다.
+            // 로직 스레드로 넘기려면 핸들러 안에서 복사한 뒤 큐에 넣는다(GameServerApp 참조).
             var payload = new ReadOnlySpan<byte>(_recvBuffer, payloadOffset, payloadLength);
             try
             {
@@ -191,7 +191,7 @@ public sealed class Session
             return;
         }
 
-        // 1) 백프레셔 선제 체크 (Rent 전)
+        // 1) 백프레셔를 먼저 확인한다(Rent 전). 순서를 바꾸면 안 된다.
         long after = Interlocked.Add(ref _pendingSendBytes, totalLength);
         if (after > MaxPendingSendBytes)
         {
@@ -208,7 +208,7 @@ public sealed class Session
 
         _sendQueue.Enqueue(buffer);
 
-        // 3) enqueue 후 _closed 재확인 (race로 인한 ArrayPool 누수 차단)
+        // 3) 큐에 넣은 뒤 _closed를 다시 확인한다. Close와의 race로 ArrayPool 버퍼가 새는 것을 막는다.
         if (Volatile.Read(ref _closed) == 1)
         {
             DrainSendQueue();
@@ -316,9 +316,9 @@ public sealed class Session
         return true;
     }
 
-    // payload보다 큰 Rent 버퍼를 받기 때문에 실제 사용 길이를 별도로 알 수 없다.
-    // SendLoop에서 dequeue 직후 _sendSaea.SetBuffer로 length를 명시하므로
-    // 이 함수는 buffer 전체 길이가 아닌 "총 패킷 길이"를 헤더에서 읽어와 반환한다.
+    // Rent한 버퍼는 payload보다 클 수 있어 실제 사용 길이를 따로 알 수 없다.
+    // 그래서 buffer 전체 길이가 아니라 헤더에 적힌 패킷 길이를 읽어 반환한다.
+    // SendLoop는 이 값을 _sendSaea.SetBuffer의 length로 쓴다.
     private static int GetUsedLength(byte[] buffer)
     {
         PacketHeader.TryRead(buffer, out int length, out _);
@@ -359,8 +359,8 @@ public sealed class Session
             _socket = null;
         }
 
-        // SAEA Dispose 생략: Socket.Close 후 in-flight 콜백이 OperationAborted로
-        // 도착하는 race를 회피. GC가 회수.
+        // SAEA는 Dispose하지 않는다. Socket.Close 뒤에도 in-flight 콜백이 OperationAborted로
+        // 도착할 수 있어 그 race를 피한다. GC가 회수한다.
 
         DrainSendQueue();
     }

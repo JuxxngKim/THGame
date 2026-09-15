@@ -12,11 +12,11 @@ public readonly record struct THDateTime(
     /// <summary>해당 날짜의 요일.</summary>
     public DayOfWeek DayOfWeek => new DateTime(Year, Month, Day).DayOfWeek;
 
-    /// <summary>KST 기준 DateTime 반환 (DateTimeKind.Unspecified).</summary>
+    /// <summary>KST 기준 DateTime을 반환한다(DateTimeKind.Unspecified).</summary>
     public DateTime ToDateTime() =>
         new(Year, Month, Day, Hour, Minute, Second, Millisecond, DateTimeKind.Unspecified);
 
-    /// <summary>offset +09:00 명시된 DateTimeOffset 반환.</summary>
+    /// <summary>offset +09:00을 붙인 DateTimeOffset을 반환한다.</summary>
     public DateTimeOffset ToDateTimeOffset() =>
         new(Year, Month, Day, Hour, Minute, Second, Millisecond, TimeSpan.FromHours(9));
 

@@ -1,6 +1,6 @@
 ﻿namespace TH.Server.Logic;
 
-// List<PacketMessage>에 struct로 저장 — 박싱 없음, 복사 비용 무시 가능.
+// List<PacketMessage>에 struct로 저장한다. 박싱이 없고 복사 비용은 무시할 수준.
 public readonly struct PacketMessage
 {
     public long SessionID { get; }

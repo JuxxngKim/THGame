@@ -8,8 +8,8 @@ using TH.Common.Time;
 
 namespace TH.Server.Logic;
 
-// OutGame(로그인/세션 관리) 도메인 전용 Eventor.
-// C++ OutGameLogicEventor 미러. Player / PlayerArchive 등 도메인 자료구조는 후속 PR.
+// OutGame(로그인/세션 관리) 도메인 Eventor. PlayerArchive를 소유하고 로그인 핸드셰이크와 세션 종료 흐름을 담당한다.
+// phase별 핸들러 배치와 흐름은 docs/server-logic-architecture.md §2.
 public sealed class OutGameLogicEventor : LogicEventor
 {
     private const long ServerInfoSyncMs    = 5_000;
@@ -17,7 +17,7 @@ public sealed class OutGameLogicEventor : LogicEventor
     private const long ServerAliveSyncMs   = 1_000;
     private const long PlayerCountSyncMs   = 5_000;
 
-    // 로그인 세션 타임아웃 — DOLoginAck 가 이 시간 내에 도착하지 않으면 세션을 정리한다.
+    // 로그인 세션 타임아웃. DOLoginAck가 이 시간 안에 오지 않으면 세션을 정리한다.
     private const long LoginTimeoutMs        = 10_000;
     private const long LoginTimeoutCheckMs   = 1_000;
 
@@ -27,11 +27,11 @@ public sealed class OutGameLogicEventor : LogicEventor
     private long _nextServerAliveSyncTime;
     private long _nextLoginTimeoutCheck;
 
-    // ISessionWorker(Player + LoginSession) 집합 — 이 eventor 가 소유(composition).
-    // 등록/제거/조회 등 lifecycle 은 전부 여기(Prepare/Event, 단일 tick 스레드)를 통한다.
+    // ISessionWorker(Player + LoginSession) 집합. 이 Eventor가 소유한다.
+    // 등록/제거/조회는 전부 단일 tick 스레드(Prepare/Event/Arrange)에서만 한다.
     private readonly PlayerArchive _archive = new();
 
-    // worker phase 병렬 실행기(stateless) — 순회 대상은 Work 에서 _archive.Values 로 전달한다.
+    // Work phase 병렬 실행기(상태 없음). 순회 대상은 Work에서 _archive.Values로 넘긴다.
     private readonly PlayerWorkExecutor _workExecutor = new();
 
     public OutGameLogicEventor()
@@ -41,32 +41,32 @@ public sealed class OutGameLogicEventor : LogicEventor
         _lastBiCurrentUserSyncTime = now;
         _nextPlayerCountSyncTime   = now + PlayerCountSyncMs;
         _nextServerAliveSyncTime   = now + ServerAliveSyncMs;
-        // 로그인 타임아웃은 Event(tickMs) 의 monotonic 시간축(TickMillis)으로 비교하므로 같은 축으로 초기화.
+        // 로그인 타임아웃은 Event(tickMs)의 monotonic 시간 기준(TickMillis)으로 비교하므로 같은 기준으로 초기화한다.
         _nextLoginTimeoutCheck     = TimeManager.Instance.TickMillis() + LoginTimeoutCheckMs;
 
-        // NetDisconnect(Prepare) — Player 면 제거 보류(DB 왕복 후 정리), LoginSession/미등록이면 즉시 제거.
+        // NetDisconnect(Prepare). Player면 제거를 미루고(DB 왕복 후 정리), LoginSession이나 미등록이면 즉시 제거한다.
         RegisterHandler<NetDisconnect>((int)EMessageID.NetDisconnect,
             OnNetDisconnect, ELogicEvent.Prepare);
 
-        // DOExitGameSessionAck(Arrange) — 세션 종료 저장 완료. 이 시점에 archive 에서 Player 를 제거하고
-        // InGame 캐릭터를 정리한다. (Player 의 ack 로그는 같은 tick 의 Work 에서 먼저 찍힌다.)
+        // DOExitGameSessionAck(Arrange). 세션 종료 저장이 끝난 시점에 archive에서 Player를 제거하고 InGame 캐릭터를 정리한다.
+        // Player의 ack 로그는 같은 tick의 Work에서 먼저 찍힌다.
         RegisterHandler<DOExitGameSessionAck>((int)EMessageID.DoExitGameSessionAck,
             OnDOExitGameSessionAck, ELogicEvent.Arrange);
 
         RegisterHandler<NetAliveReq>((int)EMessageID.NetAliveReq,
             OnAliveReq, ELogicEvent.Arrange);
 
-        // COLoginReq(Prepare) — Player 대신 LoginSession 을 생성·등록한다. 실제 ODLoginReq 송신은
-        // 같은 tick 의 Work phase 에서 LoginSession.Execute 가 수행한다.
+        // COLoginReq(Prepare). Player 대신 LoginSession을 생성·등록한다.
+        // ODLoginReq 송신은 같은 tick의 Work phase에서 LoginSession.Execute가 한다.
         RegisterHandler<COLoginReq>((int)EMessageID.CoLoginReq,
             OnCOLoginReq, ELogicEvent.Prepare);
 
-        // DOLoginAck(Prepare) — DB 인증 성공 응답. 이 시점에 비로소 Player 를 생성한다.
-        // Player 생성(archive 변경)은 tick 스레드(Prepare)에서만 일어나야 하므로 Work 가 아닌 Prepare 에서 처리.
+        // DOLoginAck(Prepare). DB 인증 성공 응답이며 이 시점에 Player를 생성한다.
+        // archive 변경은 tick 스레드에서만 해야 하므로 Work가 아닌 Prepare에서 처리한다.
         RegisterHandler<DOLoginAck>((int)EMessageID.DoLoginAck,
             OnDOLoginAck, ELogicEvent.Prepare);
 
-        // Player 단위 패킷(COGetPlayerReq 등)은 Player.Execute 안에서 처리 — 등록은 Player static 테이블.
+        // Player 단위 패킷(COGetPlayerReq 등)은 Player.Execute에서 처리한다. 등록은 Player의 static 테이블.
     }
 
     public override void Event(long tickMs)
@@ -102,8 +102,8 @@ public sealed class OutGameLogicEventor : LogicEventor
         }
     }
 
-    // 만료(타임아웃) 로그인 세션 정리 — Event phase(단일 tick 스레드)에서만 호출.
-    // 만료 세션은 archive 에서 제거하고 해당 네트워크 세션도 종료한다.
+    // 타임아웃된 로그인 세션 정리. Event phase(단일 tick 스레드)에서만 호출한다.
+    // 만료 세션은 archive에서 제거하고 네트워크 세션도 닫는다.
     private void RemoveExpiredLogins(long now, long timeoutMs)
     {
         if (_archive.Count == 0) return;
@@ -126,7 +126,7 @@ public sealed class OutGameLogicEventor : LogicEventor
         }
     }
 
-    // worker phase — 병렬 실행은 PlayerWorkExecutor 가 담당. 순회 대상(archive)은 여기서 넘긴다.
+    // Work phase. 병렬 실행은 PlayerWorkExecutor가 담당하고, 순회 대상(archive)은 여기서 넘긴다.
     public override void Work(long tickMs, Dictionary<long, List<PacketMessage>> sessionPackets)
         => _workExecutor.Run(tickMs, _archive.Values, sessionPackets);
 
@@ -137,22 +137,21 @@ public sealed class OutGameLogicEventor : LogicEventor
         _ = msg;
         _ = flag;
 
-        // Player 단계: 제거를 보류한다. Player.OnNetDisconnect(Work)가 DB 세션 종료 저장(ODExitGameSessionReq)
-        // 을 시작하고, 완료(DOExitGameSessionAck)의 Arrange 에서 비로소 archive 를 제거한다.
+        // Player면 제거를 미룬다. Player.OnNetDisconnect(Work)가 DB 세션 종료 저장(ODExitGameSessionReq)을 시작하고,
+        // 완료 응답(DOExitGameSessionAck)의 Arrange에서 archive를 제거한다.
         if (_archive.Find<Player>(sessionID) is not null)
         {
             Log.Debug("Disconnect — defer Player removal until ExitGameSession ack SessionID={ID}", sessionID);
             return;
         }
 
-        // LoginSession(로그인 미완료) 또는 미등록 세션: 저장할 게임 세션이 없으므로 즉시 제거.
+        // LoginSession(로그인 미완료)이나 미등록 세션은 저장할 게임 세션이 없으므로 즉시 제거한다.
         if (_archive.Remove(sessionID))
             Log.Debug("Worker removed on disconnect SessionID={ID}", sessionID);
     }
 
-    // 세션 종료 저장 완료 ack(Arrange) — archive 에서 Player 를 제거하고 InGame 에 OIExitGameSessionReq 를
-    // 보내 필드 캐릭터를 정리한다. Arrange 는 Work 이후의 단일 tick 스레드라 Work 의 Values 순회와 분리되어
-    // 제거가 안전하다(PlayerArchive 규약 유지).
+    // 세션 종료 저장 완료 ack(Arrange). archive에서 Player를 제거하고 InGame에 OIExitGameSessionReq를 보내 필드 캐릭터를 정리한다.
+    // Arrange는 Work 이후의 단일 tick 스레드라 Work의 Values 순회와 겹치지 않아 제거가 안전하다.
     private void OnDOExitGameSessionAck(long sessionID, DOExitGameSessionAck msg, byte flag)
     {
         _ = msg;
@@ -171,12 +170,11 @@ public sealed class OutGameLogicEventor : LogicEventor
         SendTo(sessionID, (int)EMessageID.NetAliveAck, new NetAliveAck());
     }
 
-    // COLoginReq 의 Prepare phase 담당부 — LoginSession 을 생성·등록한다.
-    // 데이터 필드(PID 등)를 msg 에서 채워두고, ODLoginReq 송신은 같은 tick 의
-    // Work phase 에서 LoginSession.Execute(packets)→OnCOLoginReq 핸들러가 수행한다.
+    // COLoginReq의 Prepare 처리 부분. LoginSession을 생성·등록하고 데이터 필드(PID 등)를 msg에서 채운다.
+    // ODLoginReq 송신은 같은 tick의 Work phase에서 LoginSession.OnCOLoginReq가 한다.
     private void OnCOLoginReq(long sessionID, COLoginReq msg, byte flag)
     {
-        // 멱등성: 인증 대기 중(LoginSession)이거나 이미 로그인된(Player) 세션의 중복 COLoginReq 차단.
+        // 인증 대기 중(LoginSession)이거나 이미 로그인된(Player) 세션의 중복 COLoginReq는 막는다.
         if (_archive.Find<LoginSession>(sessionID) is not null || _archive.Find<Player>(sessionID) is not null)
         {
             Log.Warning("COLoginReq duplicated SessionID={ID} PID={PID}", sessionID, msg.PID);
@@ -200,14 +198,14 @@ public sealed class OutGameLogicEventor : LogicEventor
         Log.Information("COLoginReq accepted SessionID={ID} PID={PID}", sessionID, msg.PID);
     }
 
-    // DOLoginAck 의 Prepare phase 담당부 — DB 인증 성공 시 비로소 Player 를 생성한다.
-    // LoginSession 을 제거하고 그 자리에 Player 를 등록한 뒤, 클라이언트에 OCLoginAck 로 응답한다.
+    // DOLoginAck의 Prepare 처리 부분. DB 인증이 성공한 이 시점에 Player를 생성한다.
+    // LoginSession을 제거하고 그 자리에 Player를 등록한 뒤 클라이언트에 OCLoginAck로 응답한다.
     private void OnDOLoginAck(long sessionID, DOLoginAck msg, byte flag)
     {
         var login = _archive.Find<LoginSession>(sessionID);
         if (login is null)
         {
-            // 타임아웃 등으로 이미 제거된 세션 — 무시.
+            // 타임아웃 등으로 이미 제거된 세션이면 무시한다.
             Log.Debug("DOLoginAck for unknown LoginSession SessionID={ID}", sessionID);
             return;
         }

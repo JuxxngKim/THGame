@@ -6,22 +6,20 @@ using TH.Server.Logic;
 
 namespace TH.Server.Data;
 
-// OD*(OutGame→Data) 요청을 받아 DO*(Data→OutGame) 로 응답하는 Data(DB) 계층 서비스.
-// 모듈러 샤딩: 고정 N 개 worker, sessionID % N 라우팅 → 같은 유저는 항상 같은 worker(단일 스레드 FIFO)
-// 가 처리하므로 "유저별 요청 순서" 가 보장된다.
-// 응답(DO)은 PacketQueue 로 되돌려, 다음 tick 의 기존 dispatch 흐름(단일 tick 스레드)에서 안전하게 수신된다.
-//
-// 동시성: Send 는 Player(worker 스레드) / Eventor(tick 스레드) 양쪽에서 호출되나 BlockingCollection 적재라 안전.
-//         worker 스레드는 PacketQueue.Enqueue(lock 보호)만 호출하고 전역 / 타 Player 상태를 직접 변경하지 않는다.
-//         핸들러 테이블은 생성자에서만 채우고 이후 읽기 전용 → 병렬 dispatch 안전.
+// Data(DB) 계층 서비스. OD 요청(OutGame → Data)을 받아 DO 응답(Data → OutGame)을 돌려준다.
+// 샤딩: sessionID % N으로 worker를 고른다. 같은 유저는 항상 같은 worker(단일 스레드 FIFO)가 처리하므로
+// 유저별 요청 순서가 보장된다. 응답은 PacketQueue에 넣어 다음 tick의 dispatch 흐름에서 받는다.
+// 동시성: Send는 worker 스레드와 tick 스레드 양쪽에서 불리지만 BlockingCollection에 넣기만 하므로 안전하다.
+// worker 스레드는 PacketQueue.Enqueue(lock 보호)만 호출하고 다른 상태는 건드리지 않는다.
+// 핸들러 테이블은 생성자에서만 채우고 이후 읽기 전용이다. 로그인 흐름은 docs/server-logic-architecture.md §2.5 참조.
 public sealed class DBService : Singleton<DBService>
 {
-    // worker(=샤드) 수. 후속: [DBService] WorkerCount 로 config 화.
+    // worker(샤드) 수. TODO: config([ThreadCount] DB)에서 읽도록 변경.
     private const int WorkerCount = 4;
 
     private DBWorker[] _workers = Array.Empty<DBWorker>();
 
-    // packetID → (sessionID, payload) dispatch 델리게이트. 생성자에서만 채우고 이후 읽기 전용.
+    // packetID별 dispatch 델리게이트(sessionID, payload). 생성자에서만 채우고 이후 읽기 전용.
     private readonly Dictionary<int, Action<long, ReadOnlyMemory<byte>>> _handlers = new();
 
     private DBService()
@@ -49,8 +47,8 @@ public sealed class DBService : Singleton<DBService>
         Log.Information("DBService shutdown");
     }
 
-    // OD 요청 송신 진입점 — Player(worker) / Eventor(tick) 가 호출.
-    // sessionID 로 샤드를 정해 해당 worker mailbox 로 적재 (같은 세션 = 같은 worker = 순서 보장).
+    // OD 요청을 보내는 진입점. Player(worker 스레드)와 Eventor(tick 스레드)가 호출한다.
+    // sessionID로 샤드를 정해 해당 worker의 mailbox에 넣는다. 같은 세션은 같은 worker로 가므로 순서가 보장된다.
     public void Send(long sessionID, int packetID, IMessage msg)
     {
         if (_workers.Length == 0)
@@ -69,10 +67,9 @@ public sealed class DBService : Singleton<DBService>
     {
         RegisterHandler<ODLoginReq>((int)EMessageID.OdLoginReq, OnODLoginReq);
         RegisterHandler<ODExitGameSessionReq>((int)EMessageID.OdExitGameSessionReq, OnODExitGameSessionReq);
-        // 나머지 OD 핸들러는 proto 패킷 추가 시 동일 패턴으로 후속 추가.
     }
 
-    // 핸들러 등록 — 패킷별 ParseFrom 을 한 번만 수행하는 dispatch 델리게이트를 만들어 보관. (LogicEventor.RegisterHandler 미러)
+    // 핸들러 등록. 패킷별 ParseFrom을 한 번만 하는 dispatch 델리게이트를 만들어 둔다. LogicEventor.RegisterHandler와 같은 구조.
     private void RegisterHandler<T>(int packetID, Action<long, T> handler)
         where T : class, IMessage<T>, new()
     {
@@ -95,7 +92,7 @@ public sealed class DBService : Singleton<DBService>
         };
     }
 
-    // worker 스레드가 호출 — 자기 mailbox 의 요청 1건을 핸들러로 dispatch. 미등록 패킷은 drop.
+    // worker 스레드가 호출한다. 자기 mailbox의 요청 1건을 핸들러로 dispatch한다. 미등록 패킷은 버린다.
     private void Dispatch(PacketMessage req)
     {
         if (!_handlers.TryGetValue(req.PacketID, out var invoke))
@@ -109,14 +106,14 @@ public sealed class DBService : Singleton<DBService>
 
     // ====================== OD 핸들러 ======================
 
-    // DBSession(실제 DB) 연동 전 stub — ODLoginReq 를 받아 기본값 DOLoginAck 를 만들어 응답.
+    // 실제 DB 연동 전 stub. ODLoginReq를 받아 기본값 DOLoginAck로 응답한다.
     private void OnODLoginReq(long sessionID, ODLoginReq msg)
     {
         var ack = new DOLoginAck
         {
             MessageID               = EMessageID.DoLoginAck,
             PID                     = msg.PID,
-            // stub — 실제 DB 연동 전까지 sessionID 를 그대로 식별값으로 사용(세션별 구분/디버깅 용이).
+            // stub. DB 연동 전까지 sessionID를 그대로 AccountID로 쓴다(세션별 구분·디버깅 편의).
             AccountID               = sessionID,
             GameDbID                = 0,
             PlayerName              = $"player_{sessionID}",
@@ -130,14 +127,14 @@ public sealed class DBService : Singleton<DBService>
             Authenticated           = true,
         };
 
-        // DO 응답을 PacketQueue 로 되돌린다 → 다음 tick 에 기존 dispatch 가 수신측 핸들러로 전달.
+        // DO 응답을 PacketQueue에 넣는다. 다음 tick의 dispatch가 수신측 핸들러로 전달한다.
         OutGameService.Instance.EnqueuePacket(sessionID, (int)EMessageID.DoLoginAck, ack.ToByteArray());
 
         Log.Debug("DBService OD_LOGIN_REQ handled SessionID={ID} PID={PID}", sessionID, msg.PID);
     }
 
-    // DBSession(실제 DB) 연동 전 stub — ODExitGameSessionReq 를 받아 곧바로 DOExitGameSessionAck 로 응답한다.
-    // TODO: DB 연동 시 여기서 세션 종료 저장(플레이타임/마지막 위치/세션 로그 등)을 수행한 뒤 ack 를 보낸다.
+    // 실제 DB 연동 전 stub. ODExitGameSessionReq를 받아 곧바로 DOExitGameSessionAck로 응답한다.
+    // TODO: DB 연동 시 세션 종료 정보(플레이타임, 마지막 위치, 세션 로그)를 저장한 뒤 ack를 보낸다.
     private void OnODExitGameSessionReq(long sessionID, ODExitGameSessionReq msg)
     {
         var ack = new DOExitGameSessionAck

@@ -5,11 +5,10 @@ using TH.Common.Network;
 
 namespace TH.DummyClient;
 
-// 다중 세션 E2E 부하/시퀀스 테스트용 순수 TCP 더미 클라이언트.
-// N개 세션을 동시에 생성해 각 세션이 [COLoginReq → OCLoginAck → COEnterReq → ICEnterNoti]
-// 전체 진입 시퀀스를 거친 뒤 holdMs 만큼 유지하다가 소켓을 닫아
-// 서버의 세션 종료 정리(NetDisconnect 경로)까지 트리거한다.
-// 프레이밍은 서버와 동일한 PacketHeader(8바이트: length LE + packetID LE)를 그대로 재사용한다.
+// 다중 세션 E2E 테스트용 TCP 더미 클라이언트.
+// N개 세션이 각자 COLoginReq → OCLoginAck → COEnterReq → ICEnterNoti 순서를 거친 뒤 holdMs 동안 유지하고 소켓을 닫는다.
+// 소켓을 닫으면 서버의 세션 종료 정리(NetDisconnect 경로)까지 확인할 수 있다.
+// 프레이밍은 서버의 PacketHeader(8바이트: length LE + packetID LE)를 그대로 쓴다.
 internal static class Program
 {
     private const string DefaultHost = "127.0.0.1";
@@ -19,14 +18,14 @@ internal static class Program
     private const int RecvTimeoutMs = 5000;
     private const int EnterStageID = 1;
 
-    // 세션이 멈춘 단계 — 실패 분류용.
+    // 세션이 멈춘 단계. 실패 분류용.
     private enum Stage { Connect, Login, Enter, Done }
 
     private sealed record SessionResult(int Index, bool Success, Stage FailedAt, string? Error);
 
     private static async Task<int> Main(string[] args)
     {
-        // 위치 인자: [count] [host:port] [holdMs]. 첫 인자가 정수면 count 로 해석한다.
+        // 위치 인자: [count] [host:port] [holdMs]. 첫 인자가 정수면 count로 본다.
         int count = DefaultCount;
         string host = DefaultHost;
         int port = DefaultPort;
@@ -34,7 +33,7 @@ internal static class Program
 
         int argIndex = 0;
 
-        // arg0: count (정수일 때만). 정수가 아니면 count 생략으로 보고 host:port 파싱으로 넘어간다.
+        // arg0: count(정수일 때만). 정수가 아니면 count가 생략된 것으로 보고 host:port 파싱으로 넘어간다.
         if (argIndex < args.Length && int.TryParse(args[argIndex], out int parsedCount))
         {
             if (parsedCount > 0)
@@ -68,7 +67,7 @@ internal static class Program
 
         var startedAt = DateTime.UtcNow;
 
-        // N개 세션을 동시에 띄운다. async IO 라 세션당 스레드를 점유하지 않는다.
+        // N개 세션을 동시에 띄운다. async IO라 세션마다 스레드를 잡지 않는다.
         var tasks = new Task<SessionResult>[count];
         for (int i = 0; i < count; i++)
         {
@@ -101,7 +100,7 @@ internal static class Program
         return failed == 0 ? 0 : 1;
     }
 
-    // 한 세션의 전체 시퀀스. 실패 시 멈춘 단계를 SessionResult 에 담아 반환한다(throw 하지 않음).
+    // 한 세션의 전체 순서. 실패하면 멈춘 단계를 SessionResult에 담아 반환한다(throw하지 않음).
     private static async Task<SessionResult> RunSessionAsync(int index, string host, int port, int holdMs)
     {
         var stage = Stage.Connect;
@@ -114,7 +113,7 @@ internal static class Program
             client.NoDelay = true;
             var stream = client.GetStream();
 
-            // 1) 로그인 — required 필드 전부 채움(AuthToken 은 서버가 검증하지 않음).
+            // 1) 로그인. required 필드를 모두 채운다(AuthToken은 서버가 검증하지 않음).
             stage = Stage.Login;
             var loginReq = new COLoginReq
             {
@@ -134,7 +133,7 @@ internal static class Program
             var ack = OCLoginAck.Parser.ParseFrom(loginPayload);
             Console.WriteLine($"[s{index}] login ok AccountID={ack.AccountID} Name='{ack.AccountName}'");
 
-            // 2) 필드 진입 — COEnterReq → ICEnterNoti.
+            // 2) 필드 진입. COEnterReq → ICEnterNoti.
             stage = Stage.Enter;
             var enterReq = new COEnterReq
             {
@@ -150,12 +149,12 @@ internal static class Program
             var noti = ICEnterNoti.Parser.ParseFrom(enterPayload);
             Console.WriteLine($"[s{index}] enter ok pos=({noti.Position.X},{noti.Position.Y},{noti.Position.Z})");
 
-            // 3) 진입 완료 후 holdMs 만큼 연결 유지 — 동시 세션 유지 상황 재현.
+            // 3) 진입 후 holdMs 동안 연결을 유지한다. 동시 세션이 머무는 상황을 재현한다.
             stage = Stage.Done;
             if (holdMs > 0)
                 await Task.Delay(holdMs);
 
-            // 4) using dispose 로 소켓 close → 서버 NetDisconnect 정리 트리거.
+            // 4) using dispose로 소켓이 닫히면 서버의 NetDisconnect 정리가 시작된다.
             Console.WriteLine($"[s{index}] closing");
             return new SessionResult(index, true, Stage.Done, null);
         }
@@ -171,7 +170,7 @@ internal static class Program
         return new SessionResult(index, false, stage, error);
     }
 
-    // payload = protobuf 직렬화 결과. [length LE][packetID LE][payload] 한 덩어리로 송신.
+    // payload는 protobuf 직렬화 결과. [length LE][packetID LE][payload]를 한 덩어리로 보낸다.
     private static async Task SendPacketAsync(NetworkStream stream, int packetID, IMessage msg)
     {
         byte[] payload = msg.ToByteArray();
@@ -183,7 +182,7 @@ internal static class Program
         await stream.FlushAsync();
     }
 
-    // 8바이트 헤더를 먼저 읽어 총길이를 알아낸 뒤, 나머지 payload 를 모두 채워 반환.
+    // 8바이트 헤더를 먼저 읽어 전체 길이를 알아낸 뒤, 나머지 payload를 모두 읽어 반환한다.
     private static async Task<(int packetID, byte[] payload)> ReceivePacketAsync(NetworkStream stream)
     {
         byte[] header = await ReadExactAsync(stream, PacketHeader.HeaderSize);
@@ -197,8 +196,8 @@ internal static class Program
         return (packetID, payload);
     }
 
-    // count 바이트를 모두 읽을 때까지 비동기 대기. 연결 종료(0바이트) 시 예외.
-    // 동기 ReadTimeout 은 async 에 적용되지 않으므로 CancellationToken 으로 수신 타임아웃을 건다.
+    // count 바이트를 모두 읽을 때까지 비동기로 기다린다. 연결이 끊기면(0바이트) 예외.
+    // 동기 ReadTimeout은 async에 적용되지 않으므로 CancellationToken으로 수신 타임아웃을 건다.
     private static async Task<byte[]> ReadExactAsync(NetworkStream stream, int count)
     {
         byte[] buffer = new byte[count];

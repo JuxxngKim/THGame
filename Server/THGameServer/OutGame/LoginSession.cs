@@ -5,11 +5,10 @@ using TH.Server.Data;
 
 namespace TH.Server.Logic;
 
-// DB 인증이 끝나기 전의 임시 로그인 컨텍스트. Player 보다 먼저, 인증 성공(DOLoginAck) 전까지만 존재한다.
-// COLoginReq(Prepare)에서 생성·등록(+ 데이터 필드 초기화)되고,
-// Work phase 의 Execute 가 COLoginReq 패킷을 핸들러 테이블로 dispatch 해 ODLoginReq 를 Data 계층으로 송신한다.
-// 인증 성공 시 OutGameLogicEventor(Prepare)가 이 세션을 제거하고 그 자리에 Player 를 생성한다.
-// OutGameLogicEventor 가 소유하는 PlayerArchive(ISessionWorker 컬렉션)에 Player 와 함께 보관된다.
+// DB 인증이 끝나기 전까지만 존재하는 임시 로그인 세션. Player보다 먼저 만들어진다.
+// Prepare에서 생성·등록되고, Work phase의 Execute가 COLoginReq를 받아 ODLoginReq를 Data 계층으로 보낸다.
+// 인증 성공(DOLoginAck) 시 OutGameLogicEventor가 이 세션을 제거하고 그 자리에 Player를 만든다.
+// 로그인 핸드셰이크 전체 흐름은 docs/server-logic-architecture.md §2.5.
 public sealed class LoginSession : ISessionWorker
 {
     public long SessionID { get; }
@@ -18,10 +17,10 @@ public sealed class LoginSession : ISessionWorker
     public bool IsReconnect { get; set; }
     public int LanguageID { get; set; }
 
-    // 타임아웃 판정용 생성 시각(TickMillis). Eventor 가 주기적으로 검사해 만료 세션을 정리한다.
+    // 타임아웃 판정용 생성 시각(TickMillis). Eventor가 주기적으로 검사해 만료된 세션을 정리한다.
     public long CreatedAt { get; }
 
-    // ODLoginReq 중복 송신 방지 — 동일 세션에서 COLoginReq 가 재전송되어도 발송은 최초 1회만.
+    // ODLoginReq 중복 송신 방지. 같은 세션이 COLoginReq를 다시 보내도 처음 한 번만 보낸다.
     private bool _requested;
 
     // ====================== 패킷 핸들러 테이블 (static 공유) ======================
@@ -30,7 +29,7 @@ public sealed class LoginSession : ISessionWorker
 
     static LoginSession()
     {
-        // 핸들러 본문은 msg 만 쓰므로 pkt 는 무시한다.
+        // 핸들러 본문은 msg만 쓰므로 pkt는 무시한다.
         Table.Register<COLoginReq>((int)EMessageID.CoLoginReq, (s, pkt, m) => s.OnCOLoginReq(m));
     }
 
@@ -42,9 +41,9 @@ public sealed class LoginSession : ISessionWorker
         CreatedAt = createdAt;
     }
 
-    // ====================== worker phase 진입점 (ISessionWorker) ======================
+    // ====================== Work phase 진입점 (ISessionWorker) ======================
 
-    // Player.Execute 와 동일한 패턴 — 그 tick 에 도착한 패킷을 핸들러 테이블로 dispatch 한다.
+    // Player.Execute와 같은 패턴. 이 tick에 도착한 패킷을 핸들러 테이블로 dispatch한다.
     public void Execute(long tickMs, List<PacketMessage> packets)
     {
         _ = tickMs;
@@ -65,12 +64,12 @@ public sealed class LoginSession : ISessionWorker
 
     // ====================== 메시지 핸들러 ======================
 
-    // COLoginReq — Prepare 에서 이미 데이터 필드가 채워진 상태로 호출된다.
-    // 최초 1회만 ODLoginReq 를 Data 계층으로 송신한다.
-    // 응답 DOLoginAck 는 PacketQueue 로 복귀해 다음 tick 의 Eventor.Prepare(OnDOLoginAck)가 처리한다.
+    // COLoginReq 처리. 데이터 필드는 Prepare에서 이미 채워진 상태로 호출된다.
+    // ODLoginReq는 처음 한 번만 Data 계층으로 보낸다.
+    // 응답 DOLoginAck는 PacketQueue로 돌아와 다음 tick의 Eventor.Prepare(OnDOLoginAck)가 처리한다.
     private void OnCOLoginReq(COLoginReq msg)
     {
-        _ = msg; // 필드는 Prepare 에서 이미 this.* 에 설정됨.
+        _ = msg; // 필드는 Prepare에서 이미 this.*에 설정됨.
         if (_requested) return;
         _requested = true;
 

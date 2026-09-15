@@ -29,13 +29,13 @@ public sealed class GameServerApp
             Log.Information("GameServer started (Env={Env}, ID={ID})",
                 ConfigManager.Instance.Env, ConfigManager.Instance.ID);
 
-            // OutGameService 초기화 시점에 OutGameLogicEventor 가 생성되며 핸들러가 모두 등록된다.
+            // OutGameService 초기화 시점에 OutGameLogicEventor가 만들어지며 핸들러가 모두 등록된다.
             OutGameService.Instance.Init();
 
-            // InGameService — 룸(필드) 시뮬레이션. OutGameService 와 독립된 자체 100ms tick 스레드.
+            // InGameService: 룸(필드) 시뮬레이션. OutGameService와 독립된 자체 100ms tick 스레드.
             InGameService.Instance.Init();
 
-            // Data(DB) 계층 — AD* 요청을 받아 DA* 로 응답. worker(샤드) 스레드 기동.
+            // Data(DB) 계층: OD* 요청을 받아 DO*로 응답한다. worker(샤드) 스레드를 띄운다.
             DBService.Instance.Init();
 
             var section  = $"Game.{ConfigManager.Instance.ID}";
@@ -49,18 +49,18 @@ public sealed class GameServerApp
             if (!NetworkManager.Instance.Init(endPoint))
                 return false;
 
-            // Listener.ProcessAcceptResult는 OnSessionConnected 발화 후 BeginReceive를 호출하므로
-            // OnPacketReceived 설정 시점에는 아직 수신이 시작되지 않았다 (race 없음).
+            // Listener.ProcessAcceptResult는 OnSessionConnected를 호출한 뒤 BeginReceive를 부르므로
+            // OnPacketReceived를 설정하는 시점에는 아직 수신이 시작되지 않았다(race 없음).
             NetworkManager.Instance.OnSessionConnected += session =>
             {
                 session.OnPacketReceived = (s, packetID, payload) =>
                 {
-                    // payload는 ReadOnlySpan<byte> 슬라이스 — 즉시 ToArray로 복사 (Span 캡처 금지).
+                    // payload는 수신 버퍼의 ReadOnlySpan<byte> 슬라이스라 즉시 ToArray로 복사한다(Span 캡처 금지).
                     var copy = payload.ToArray();
 
-                    // messageID 대역으로 OutGame / InGame 을 분배. CO_CLIENT_OUTGAME 대역 끝(19999)
-                    // 이하면 OutGame — CO 클라 대역(10000~19999)뿐 아니라 공통 NET 대역(NetAliveReq 등)도
-                    // 여기 포함시켜 OutGame 핸들러로 보낸다. 그 위(InGame 대역 50000~)는 룸 시뮬로.
+                    // messageID 대역으로 OutGame / InGame을 나눈다. 19999(CO_CLIENT_OUTGAME 끝) 이하면 OutGame.
+                    // CO 클라 대역(10000~19999)뿐 아니라 공통 NET 대역(NetAliveReq 등)도 OutGame으로 보낸다.
+                    // 그 위(InGame 대역 50000~)는 룸 시뮬레이션으로.
                     if (packetID <= (int)EMessageID.CoClientOutgameEnd)
                         OutGameService.Instance.EnqueuePacket(s.SessionID, packetID, copy);
                     else
@@ -68,11 +68,10 @@ public sealed class GameServerApp
                 };
             };
 
-            // 세션 종료를 NetDisconnect 합성 패킷으로 변환해 OutGame PacketQueue 에 주입.
-            // → OutGame tick 의 Player(Work)가 DB 세션 종료 저장(ODExitGameSessionReq)을 시작하고,
-            //   완료(DOExitGameSessionAck)의 Arrange 에서 archive 제거 + InGame 캐릭터 정리(OIExitGameSessionReq)
-            //   까지 일관된 흐름으로 처리한다. InGame 캐릭터 제거는 이 ExitGameSession 경로로 일원화되므로
-            //   여기서 OILeaveReq 를 직접 주입하지 않는다.
+            // 세션 종료를 NetDisconnect 패킷으로 만들어 OutGame PacketQueue에 넣는다.
+            // 이후 흐름: Player(Work)가 DB 세션 종료 저장(ODExitGameSessionReq)을 시작하고,
+            // 완료(DOExitGameSessionAck)를 받은 Arrange에서 archive 제거와 InGame 캐릭터 정리(OIExitGameSessionReq)까지 처리한다.
+            // InGame 캐릭터 제거는 이 ExitGameSession 경로 하나로 통일했으므로 여기서 OILeaveReq를 따로 넣지 않는다.
             NetworkManager.Instance.OnSessionDisconnected += session =>
             {
                 OutGameService.Instance.EnqueuePacket(

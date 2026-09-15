@@ -8,6 +8,6 @@ public interface ITimeProvider
     /// <summary>UTC 현재 시각. 저장/직렬화/로깅용.</summary>
     DateTime UtcNow();
 
-    /// <summary>1970-01-01 UTC 이후 경과 ms. 단조 증가 보장 아님 (NTP 동기화 영향).</summary>
+    /// <summary>1970-01-01 UTC 이후 경과 ms. NTP 동기화로 뒤로 갈 수 있어 monotonic이 아니다.</summary>
     long UnixMillis();
 }

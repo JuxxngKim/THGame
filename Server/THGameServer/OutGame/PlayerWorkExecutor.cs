@@ -2,23 +2,17 @@
 
 namespace TH.Server.Logic;
 
-// worker phase 병렬 실행기. 상태를 갖지 않는 순수 실행기다 — ISessionWorker 집합(PlayerArchive)은
-// 호출자(OutGameLogicEventor)가 소유하고, Run 시점에 IReadOnlyCollection 으로 전달받는다.
-// (인스턴스를 유지하는 이유: 향후 partitioner 튜닝/워커 스케줄 옵션 등 실행 정책 확장 여지를 남김.)
-//
-// 동시성 규약 (아키텍처 문서 §4 유지):
-//  - Run 의 순회/Execute 는 Work phase 에서만 호출된다.
-//  - archive 변경(등록/제거)은 소유자(Eventor)의 Prepare/Event phase 에서만 일어나 Work 와 시간적으로
-//    분리되므로, 컬렉션을 reference 로 전달받아 lock 없이 순회해도 안전하다(IReadOnlyCollection 으로
-//    변경 불가 계약을 명시).
+// Work phase 병렬 실행기. 상태가 없고, 순회 대상(PlayerArchive)은 호출자가 소유해 Run 시점에 넘겨받는다.
+// 인스턴스로 두는 이유는 partitioner 튜닝 같은 실행 정책을 나중에 붙일 자리를 남기기 위함.
+// Run은 Work phase에서만 호출되고, archive 변경은 Prepare/Event에서만 일어나 시간이 겹치지 않는다.
+// 그래서 lock 없이 순회해도 안전하다. 동시성 규약은 docs/server-logic-architecture.md §4.
 public sealed class PlayerWorkExecutor
 {
-    // worker phase 에서 패킷이 없는 워커에 넘길 공유 빈 리스트 (Execute 가 수정하지 않으므로 안전).
+    // 패킷이 없는 워커에 넘기는 공유 빈 리스트. Execute가 수정하지 않으므로 안전하다.
     private static readonly List<PacketMessage> EmptyPackets = new();
 
-    // Parallel.ForEach 로 모든 ISessionWorker(LoginSession + Player)를 한 번에 순회한다.
-    // Parallel.ForEach 가 동기 반환할 때까지 블로킹되므로 모든 워커 처리가 끝나기 전에는
-    // Arrange 가 호출되지 않는다 (barrier 보장).
+    // Parallel.ForEach로 모든 ISessionWorker(LoginSession + Player)를 한 번에 순회한다.
+    // Parallel.ForEach는 전부 끝날 때까지 블로킹되므로 워커 처리가 끝나기 전에는 Arrange가 호출되지 않는다(barrier).
     public void Run(long tickMs, IReadOnlyCollection<ISessionWorker> workers,
         Dictionary<long, List<PacketMessage>> sessionPackets)
     {

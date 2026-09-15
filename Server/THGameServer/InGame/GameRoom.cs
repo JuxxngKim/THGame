@@ -8,22 +8,20 @@ using TH.Server.Game;
 
 namespace TH.Server.Logic;
 
-// 격리 단위 룸("맵 = 룸"). 포탈로 끊긴 독립 시뮬레이션 공간.
+// 독립 시뮬레이션 단위인 룸("맵 = 룸"). 구조는 docs/server-logic-architecture.md §6.4 참조.
 //
-// 동시성 규약 (가장 중요):
-//  - Inbox 는 외부(Prepare 단일 스레드)가 enqueue, 룸 Work 스레드가 drain 하는 교차 전달용이라
-//    ConcurrentQueue. 담기는 단위는 원시 패킷(PacketMessage) — 진입/이탈/게임플레이가 모두 패킷이다.
-//  - 룸 내부 상태(Character 컬렉션, Position 등)는 Work phase 에서 이 룸을 잡은 워커 스레드 1개만
-//    mutate 한다 → single-writer 이므로 무락. 외부의 상태 변경 요청은 반드시 Inbox 패킷으로 전달.
-//    (SessionRoomMap/RoomRepository 같은 공유 상태 변경은 룸이 아니라 Prepare 가 담당.)
+// 동시성 규약:
+//  - Inbox는 Prepare(단일 스레드)가 넣고 룸 Work 스레드가 꺼내는 스레드 간 전달 큐라 ConcurrentQueue를 쓴다.
+//  - 룸 내부 상태(Character, Position 등)는 Work 단계에서 이 룸을 맡은 워커 스레드 하나만 바꾼다(single-writer, lock 없음).
+//    밖에서 상태를 바꾸려면 반드시 Inbox 패킷으로 보낸다. 공유 상태(SessionRoomMap/RoomRepository)는 Prepare가 담당한다.
 public sealed class GameRoom
 {
     public RoomID ID { get; }
 
-    // 룸 inbox — 진입/이탈/게임플레이 패킷이 PacketMessage 로 들어온다. 교차 스레드라 Concurrent.
+    // 룸 inbox. 입장/퇴장/게임플레이 패킷이 PacketMessage로 들어온다. 스레드 간 전달이라 Concurrent.
     public ConcurrentQueue<PacketMessage> Inbox { get; } = new();
 
-    // 인원 캡 전제 — 처음엔 List 로 시작. 전원 순회/브로드캐스트가 주 연산이라 List 가 적합.
+    // 인원 상한이 있다는 전제로 List를 쓴다. 주 연산이 전원 순회/브로드캐스트라 List가 맞다.
     private readonly List<Character> _characters = new();
     private readonly Dictionary<long, Character> _bySession = new();
 
@@ -34,7 +32,7 @@ public sealed class GameRoom
 
     static GameRoom()
     {
-        // 진입/이탈은 SessionID 만 필요(룸은 이미 확정)하므로 body(msg)는 쓰지 않는다.
+        // 입장/퇴장은 SessionID만 필요하므로(룸은 이미 정해짐) body(msg)는 쓰지 않는다.
         Table.Register<OIEnterReq>((int)EMessageID.OiEnterReq, (room, pkt, msg) => room.OnEnter(pkt.SessionID));
         Table.Register<OILeaveReq>((int)EMessageID.OiLeaveReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
         Table.Register<OIExitGameSessionReq>((int)EMessageID.OiExitGameSessionReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
@@ -45,18 +43,16 @@ public sealed class GameRoom
         ID = roomID;
     }
 
-    // 룸 1틱 — Work phase 에서 이 룸을 잡은 워커 스레드 1개가 단독 실행. dtMs 는 항상 고정(100ms).
+    // 룸 1틱. Work 단계에서 이 룸을 맡은 워커 스레드 하나만 실행한다. dtMs는 지난 tick 이후 실제 경과 시간(가변).
     public void Tick(long dtMs)
     {
         DrainInbox();
         Simulate(dtMs);
     }
 
-    // Inbox 단일 컨슈머 drain. "큐가 빌 때까지"가 아니라 drain 시작 시점의 Count 만큼만 처리한다:
-    //  - 이번 틱 처리 중 룸이 self-enqueue 한 패킷은 같은 틱에 재처리되지 않고 다음 틱으로 이월된다
-    //    ("다음 틱" 시맨틱 보장 + self-enqueue 무한 drain 방지).
-    //  - 안전 근거: 외부(Prepare)의 enqueue 는 Work 시작 전에 끝나고, Work 중에는 이 워커 1개만
-    //    enqueue 한다(single-producer-during-work) → 시작 시 Count 가 정확하다.
+    // Inbox drain(소비자 1개). "큐가 빌 때까지"가 아니라 시작 시점의 Count만큼만 처리한다.
+    //  - 이번 틱 처리 중 룸이 스스로 넣은 패킷은 다음 틱으로 넘긴다. "다음 틱" 의미를 지키고 무한 drain을 막기 위해서다.
+    //  - Count를 믿을 수 있는 이유: Prepare의 enqueue는 Work 시작 전에 끝나고, Work 중에는 이 워커 하나만 넣는다.
     private void DrainInbox()
     {
         int count = Inbox.Count;
@@ -77,15 +73,15 @@ public sealed class GameRoom
         }
     }
 
-    // 룸 시뮬레이션 1스텝 — 전투/이동 적분 등. 현재는 골격(인프라 우선).
+    // 룸 시뮬레이션 1스텝(전투/이동 계산 등). 현재는 골격만 있다.
     private void Simulate(long dtMs)
     {
         _ = dtMs;
     }
 
-    // ====================== 룸 내부 mutate (Work 스레드 단독) ======================
+    // ====================== 룸 내부 상태 변경 (Work 스레드 단독) ======================
 
-    // 진입 — Character 생성/등록. 중복(이미 룸에 있음)이면 null 을 반환해 호출부가 통지를 건너뛰게 한다.
+    // 입장. Character를 만들어 등록한다. 이미 룸에 있으면 null을 반환해 호출부가 알림을 건너뛰게 한다.
     public Character? AddCharacter(long sessionID)
     {
         if (_bySession.ContainsKey(sessionID))
@@ -102,7 +98,7 @@ public sealed class GameRoom
         return character;
     }
 
-    // 이탈 — Character 제거.
+    // 퇴장. Character를 제거한다.
     public void RemoveCharacter(long sessionID)
     {
         if (!_bySession.Remove(sessionID, out var character))
@@ -112,25 +108,25 @@ public sealed class GameRoom
         Log.Debug("Character left RoomID={RID} SessionID={SID}", ID, sessionID);
     }
 
-    // 이동(server-authoritative) — 검증 통과 시 position 갱신.
-    // proto 추가 후 이동 패킷을 Table.Register 로 배선하면 이 경로로 들어온다. 현재는 호출 지점 골격.
+    // 이동(server-authoritative). 검증을 통과하면 position을 갱신한다.
+    // proto 추가 후 이동 패킷을 Table.Register로 등록하면 이 경로로 들어온다. 현재는 호출 지점만 있다.
     public void MoveCharacter(long sessionID, Position target)
     {
         if (!_bySession.TryGetValue(sessionID, out var character))
             return;
 
-        // TODO: server-authoritative 이동 검증(속도/충돌/이동 가능 영역). 통과 시에만 갱신.
+        // TODO: server-authoritative 이동 검증(속도/충돌/이동 가능 영역). 통과할 때만 갱신.
         character.Position = target;
     }
 
-    // 진입 처리 — Character 생성 성공 시 클라(ICEnterNoti)와 OutGame(IOEnterAck)에 결과를 통지한다.
+    // 입장 처리. Character 생성에 성공하면 클라(ICEnterNoti)와 OutGame(IOEnterAck)에 결과를 알린다.
     private void OnEnter(long sessionID)
     {
         var character = AddCharacter(sessionID);
         if (character is null)
             return;
 
-        // 클라에 스폰 정보 직접 통지(InGame → Client). 룸 Work 스레드에서 직접 송신 — Session.Send 는 스레드 안전.
+        // 클라에 스폰 정보를 직접 알린다(InGame → Client). 룸 Work 스레드에서 바로 보내도 Session.Send는 스레드 안전하다.
         var noti = new ICEnterNoti
         {
             SessionID = sessionID,
@@ -138,12 +134,12 @@ public sealed class GameRoom
         };
         NetworkManager.Instance.FindSession(sessionID)?.Send((int)EMessageID.IcEnterNoti, noti.ToByteArray());
 
-        // OutGame 에 입장 확정 ack(InGame → OutGame). State=InField 전이는 OutGame Player 가 수행.
+        // OutGame에 입장 확정 ack(InGame → OutGame). State를 InField로 바꾸는 건 OutGame Player가 한다.
         var ack = new IOEnterAck { RoomID = ID.Value };
         OutGameService.Instance.EnqueuePacket(sessionID, (int)EMessageID.IoEnterAck, ack.ToByteArray());
     }
 
-    // 룸 이벤트 전파 — 룸 전원에게 송신.
+    // 룸 전원에게 송신.
     public void Broadcast(int packetID, byte[] payload)
     {
         for (int i = 0; i < _characters.Count; i++)

@@ -112,6 +112,6 @@ public sealed class Listener
             try { socket.Close(); } catch { }
         }
 
-        // _acceptSaea Dispose 생략 (Session과 동일 race 이유, 일관성)
+        // _acceptSaea는 Dispose하지 않는다. Session과 같은 race 이유이며 처리 방식을 맞춘다.
     }
 }
