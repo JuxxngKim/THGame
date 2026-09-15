@@ -79,6 +79,14 @@ grep 유지.
   - 단, 엔진/IDE 가 **자동 생성·관리하는 파일은 직접 편집 대상이 아니다** (생성된 `.sln`/`.slnx`, 향후 Unity 의 `ProjectSettings/`·`*.meta` 등). 편집이 꼭 필요하면 원본 인코딩·포맷을 그대로 보존한다.
 - 코드 주석은 **한글**로 작성 (0항과 일관). 단 SAEA / ArrayPool / IOCP 같은 표준 용어는 영어 그대로 사용
 
+### 2.1. 🚨 Git 커밋/푸시 금지 (Strictly Enforced)
+
+- **커밋과 푸시는 사용자가 Fork 등 Git 클라이언트로 직접 한다.** Claude 는 `git commit` / `git push` / `git stash` / `git reset` / `git checkout -- <file>` 등 **작업 트리·인덱스·히스토리를 바꾸는 git 명령을 절대 실행하지 않는다.**
+- 허용: `git status` / `git diff` / `git log` / `git show` / `git ls-files` / `git fetch` 같은 **읽기 전용** 명령만.
+- 파일 수정이 끝나면 **변경 파일 목록과 제안 커밋 메시지**를 답변에 적어 사용자가 커밋할 수 있게 한다. `git add` 도 하지 않는다.
+- 사용자가 명시적으로 "커밋해" 라고 해도 **먼저 이 규칙을 상기시키고 확인을 받은 뒤**에만 실행한다.
+- 이유: 커밋 단위·메시지·타이밍은 사용자가 결정한다. 서브에이전트가 `git stash` 를 실행해 다른 작업과 충돌한 사례(2026-09-15) 이후 강제.
+
 ---
 
 ## 3. 🚨 DB Access Rules (Strictly Enforced, No Exceptions)
