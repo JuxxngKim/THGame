@@ -1,6 +1,7 @@
 ﻿# THGame 개발 로드맵
 
-> 작성일: 2026-09-15. 하루 1시간 작업 전제, 총 약 45세션(주 5회 기준 9~10주).
+> 작성일: 2026-09-15. 하루 1시간 작업 전제, 총 약 46세션(주 5회 기준 9~10주).
+> 세션 2는 dll 버전 조합 추적 비용 때문에 2a/2b로 나눔 (1시간 초과 판단).
 > 세션 완료 시 체크박스를 채우고, 맨 아래 **다음 세션** 절을 갱신한다.
 
 ## 목표
@@ -21,7 +22,7 @@
 - 서버: 로그인 → 입장(`ICEnterNoti`)까지 동작. `GameRoom.MoveCharacter`·`Broadcast` 존재하나 클라 대면 이동 패킷 없음.
 - DB: `Data/DBService.cs` stub. `config.local.ini`의 `[DB] Membership`은 MSSQL 형식, `CLAUDE.md` §3도 MSSQL MCP 기준 → MySQL 전환 시 둘 다 갱신.
 - 인프라: Dockerfile / k8s 매니페스트 / CI 없음 (`.github/workflows/` 빈 폴더).
-- Unity: `Client/THClient`, 6000.3.23f1 + URP 17.3 생성 완료, 미커밋. `.gitignore` Unity 규칙 적용 완료.
+- Unity: `Client/THClient`, 6000.3.23f1 + URP 17.3 생성 완료, `265cc28`에 커밋됨(템플릿 `TutorialInfo/`·`Readme.asset` 포함 상태). `.gitignore` Unity 규칙 적용 완료.
 - UE5 클라: `archive/ue5-client` 브랜치에 보존.
 
 ---
@@ -31,8 +32,9 @@
 | 완료 | # | 작업 | 검증 |
 |:---:|---|---|---|
 | [ ] | 1 | `Assets/TutorialInfo/`·`Readme.asset` 삭제(에디터에서), Unity 프로젝트 커밋, `CLAUDE.md` Unity 절 추가 | push 후 clone에서 Unity가 열림 |
-| [ ] | 2 | `compile.bat`에 Unity용 `--csharp_out` 추가(→ `Assets/Scripts/Protocol/Generated/`), `TH.Protocol.asmdef`, Google.Protobuf(netstandard2.1, 서버와 동일 3.34.1) + 의존 dll(`System.Runtime.CompilerServices.Unsafe`, `System.Memory`, `System.Buffers`)을 `Assets/Plugins/`에 배치 | Unity 컴파일 통과, `COLoginReq` 타입 참조 가능 |
-| [ ] | 3 | `link.xml`(IL2CPP 스트리핑 대비), Protobuf 직렬화 단위 테스트 1개(Unity Test Framework) | 테스트 통과 |
+| [ ] | 2a | `compile.bat`에 Unity용 `--csharp_out` 추가(→ `Assets/Scripts/Protocol/Generated/`), 생성 코드 배치, `TH.Protocol.asmdef` | Unity 콘솔에 Google.Protobuf 누락 에러만 남음 |
+| [ ] | 2b | Google.Protobuf(netstandard2.1, 서버와 동일 3.34.1) + 의존 dll(`System.Runtime.CompilerServices.Unsafe`, `System.Memory`, `System.Buffers`)을 `Assets/Plugins/`에 배치, `link.xml`(IL2CPP 스트리핑 대비) | Unity 컴파일 통과, `COLoginReq` 타입 참조 가능 |
+| [ ] | 3 | Protobuf 직렬화 단위 테스트 1개(Unity Test Framework). 30분 분량이라 남는 시간은 세션 4 준비 | 테스트 통과 |
 | [ ] | 4 | `PacketHeader` 복제(8바이트: int32 length LE + int32 packetID LE) + `TcpConnection` 수신 스레드 → `ConcurrentQueue` | 서버 접속 후 소켓 열림 로그 |
 | [ ] | 5 | 송신 경로 + `PacketDispatcher`(메인 스레드 `Update`에서 큐 분배, `Dictionary<int, Action<byte[]>>` 핸들러 테이블) | 서버 `NetDisconnect` 로그로 왕복 확인 |
 | [ ] | 6 | `Close()` 단일 종료 경로, `OnDisconnected` 정확히 1회 보장(CAS), 에디터 Play 종료 시 소켓 정리 | 서버 로그에 세션 정리 1회만 기록 |
