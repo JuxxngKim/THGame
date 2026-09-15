@@ -51,9 +51,17 @@ This applies to all explanations, comments, commit messages, code reviews, and a
 - `Server/THServerCommon/` — 서버 공통 인프라 + Protocol 링크 (Library, namespace `TH.Common`)
 - `Server/bin/config/` — 런타임 설정 (`profile.ini`, `config.{Env}.ini`)
 - `Common/Tool/ProtocolGenerator/generated/` — protobuf 생성 코드 (THServerCommon이 링크 컴파일)
-- **클라이언트**: 현재 main 에는 없다. 기존 UE5(5.8) 클라이언트는 `archive/ue5-client` 브랜치에 보존되어 있으며,
-  Unity 로 재작성 예정이다. `compile.bat` 은 서버용 `--csharp_out` 만 생성한다(UE 용 `--cpp_out` 블록은 제거됨).
-  Unity 프로젝트 경로·클라 측 생성 코드 배치 방식은 아직 미정(seam).
+- `Client/THClient/` — **Unity 클라이언트** (Unity **6000.3.23f1**, URP 17.3, Input System 1.20). 상세는 아래 "Unity 클라이언트" 참조.
+  - 기존 UE5(5.8) 클라이언트는 `archive/ue5-client` 브랜치에 보존. main 에는 없다.
+
+**Unity 클라이언트** (`Client/THClient/`):
+- 열기: Unity Hub 에서 `Client/THClient` 폴더를 프로젝트로 추가. 빌드는 에디터 File → Build Profiles.
+- 관리 대상: `Assets/`, `Packages/manifest.json`·`packages-lock.json`, `ProjectSettings/`. `.meta` 는 짝이 되는 에셋과 **항상 함께** 커밋.
+- 비관리(`.gitignore`): `Library/`, `Temp/`, `Logs/`, `UserSettings/`, `obj/`, `*.csproj`, `*.sln(x)`.
+- 렌더 구성: URP 3D + 2D 스프라이트(2.5D). 카메라 Perspective, 캐릭터 스프라이트는 빌보드.
+- **프로토콜 공유(예정)**: `compile.bat` 에 Unity 용 `--csharp_out` 을 추가해 `Assets/Scripts/Protocol/Generated/` 에 생성물 두 벌 커밋. Google.Protobuf 는 서버와 같은 버전(3.34.1)의 netstandard2.1 dll 을 `Assets/Plugins/` 에 배치. 현재는 `compile.bat` 이 서버용 `--csharp_out` 만 생성한다.
+- **네트워크(예정)**: `THServerCommon` 은 net10.0 이라 참조 불가. `PacketHeader`(8바이트 LE) 는 클라에 복제. 수신 스레드 → `ConcurrentQueue` → 메인 스레드 `Update` dispatch 단일 경로.
+- 클라 C# 컨벤션(asmdef 단위, 네이밍 등)은 코드가 생기는 시점에 별도 절로 추가. 진행 순서는 `docs/roadmap.md`.
 
 **서버 Tick 아키텍처**: 독립된 두 tick 서비스가 있다 —
 **OutGame**(`OutGame/`, 300ms, Event→Prepare→Work→Arrange, 세션 워커 단위(`Player`+`LoginSession`)
@@ -76,7 +84,7 @@ grep 유지.
 - Only modify `protocol.proto` and `sprotocol.proto` for proto file changes
 - `Common/Tool/ProtocolGenerator/generated/*.g.cs` 는 생성물이므로 **직접 수정 금지**
 - All new files MUST be created with **UTF-8 with BOM** encoding
-  - 단, 엔진/IDE 가 **자동 생성·관리하는 파일은 직접 편집 대상이 아니다** (생성된 `.sln`/`.slnx`, 향후 Unity 의 `ProjectSettings/`·`*.meta` 등). 편집이 꼭 필요하면 원본 인코딩·포맷을 그대로 보존한다.
+  - 단, 엔진/IDE 가 **자동 생성·관리하는 파일은 직접 편집 대상이 아니다** (생성된 `.sln`/`.slnx`, Unity 의 `ProjectSettings/`·`*.meta`·`Packages/*.json`). 편집이 꼭 필요하면 원본 인코딩·포맷을 그대로 보존한다.
 - 코드 주석은 **한글**로 작성 (0항과 일관). 단 SAEA / ArrayPool / IOCP 같은 표준 용어는 영어 그대로 사용
 
 ### 2.1. 🚨 Git 커밋/푸시 금지 (Strictly Enforced)
@@ -158,7 +166,7 @@ For multi-step tasks, present a brief plan first:
 
 **적용 범위: 이 §5 의 규칙은 전부 서버(C#/.NET, `Server/`) 전용이다.** file-scoped namespace,
 `Singleton<T>`, `TimeManager`, `ConfigManager`, Serilog, Network 불변식 등은 **클라이언트에는 적용되지
-않는다.** 클라(Unity 예정) 컨벤션은 개발이 본격화되면 별도 절로 추가한다.
+않는다.** Unity 클라이언트 개요는 1항, 클라 C# 컨벤션은 개발이 본격화되면 별도 절로 추가한다.
 
 현재 서버 코드에서 일관되게 강제되고 있는 규칙. 신규 서버 코드도 동일하게 따른다.
 
