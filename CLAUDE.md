@@ -77,9 +77,9 @@ This applies to all explanations, comments, commit messages, code reviews, and a
 **서버 Tick 아키텍처**: 독립된 두 tick 서비스가 있다 —
 **OutGame**(`OutGame/`, 300ms, Event→Prepare→Work→Arrange, 세션 워커 단위(`Player`+`LoginSession`)
 worker phase 병렬)와 **InGame**(`InGame/`, 100ms, 룸 단위 병렬 — "맵=룸" 필드 시뮬). 두 서비스는
-동형이며 더블버퍼 PacketQueue·phase 모델을 공유한다. 로그인은 별도 **Data(DB) 계층**(`Data/`, 샤딩된
-worker 스레드)과 `ODLoginReq`/`DOLoginAck` 왕복으로 인증한다. tick 루프, 로그인 핸드셰이크, 패킷 핸들러
-등록, 룸/스케줄러 교체 경계는 [`docs/server-logic-architecture.md`](docs/server-logic-architecture.md) 참조.
+같은 구조이며 더블버퍼 PacketQueue·phase 모델을 공유한다. 로그인은 별도 **Data(DB) 계층**(`Data/`, 샤딩된
+worker 스레드)과 `ODLoginReq`/`DOLoginAck` 왕복으로 인증한다. tick 루프, 로그인 핸드셰이크, 세션 종료 흐름,
+패킷 핸들러 등록, 패킷 대역 라우팅은 [`docs/server-logic-architecture.md`](docs/server-logic-architecture.md) 참조.
 서버 로직(`Server/THGameServer/OutGame`·`InGame`·`Game`·`Data`)을 다룰 때 먼저 읽을 것.
 
 **코드 탐색 (LSP)**: C# LSP(`csharp-ls`)가 구성되어 있다. 심볼·정의·참조를 찾을 때는
