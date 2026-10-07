@@ -25,7 +25,7 @@ namespace Th {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CgplbnVtLnByb3RvEgJ0aCorChBFUHJvdG9jb2xWZXJzaW9uEhcKE1JFX1BS",
-            "T1RPQ09MX1ZFUlNJT04QBCrjBAoKRU1lc3NhZ2VJRBISCg5ORVRfRElTQ09O",
+            "T1RPQ09MX1ZFUlNJT04QBCqdBQoKRU1lc3NhZ2VJRBISCg5ORVRfRElTQ09O",
             "TkVDVBBlEhEKDU5FVF9BTElWRV9SRVEQZhIRCg1ORVRfQUxJVkVfQUNLEGcS",
             "HAoXQ09fQ0xJRU5UX09VVEdBTUVfQkVHSU4QkE4SEQoMQ09fTE9HSU5fUkVR",
             "EJJOEhEKDE9DX0xPR0lOX0FDSxCTThIWChFDT19HRVRfUExBWUVSX1JFURDX",
@@ -39,8 +39,9 @@ namespace Th {
             "UkVRENOGAxISCgxJT19FTlRFUl9BQ0sQtYcDEhsKFU9JX09VVEdBTUVfSU5H",
             "QU1FX0VORBDf1AMSHAoWSUNfSU5HQU1FX0NMSUVOVF9CRUdJThDg1AMSEwoN",
             "SUNfRU5URVJfTk9USRDh1AMSGgoUSUNfSU5HQU1FX0NMSUVOVF9FTkQQ76IE",
-            "Kj0KCUVFcnJvck1zZxINCglFX1NVQ0NFU1MQABINCglFX1VOS05PV04QARIS",
-            "Cg5FX0lOVkFMSURfREFUQRBk"));
+            "EhwKFkNJX0NMSUVOVF9JTkdBTUVfQkVHSU4Q8KIEEhoKFENJX0NMSUVOVF9J",
+            "TkdBTUVfRU5EEP/wBCo9CglFRXJyb3JNc2cSDQoJRV9TVUNDRVNTEAASDQoJ",
+            "RV9VTktOT1dOEAESEgoORV9JTlZBTElEX0RBVEEQZA=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Th.EProtocolVersion), typeof(global::Th.EMessageID), typeof(global::Th.EErrorMsg), }, null, null));
@@ -64,7 +65,7 @@ namespace Th {
     [pbr::OriginalName("NET_ALIVE_REQ")] NetAliveReq = 102,
     [pbr::OriginalName("NET_ALIVE_ACK")] NetAliveAck = 103,
     /// <summary>
-    ////clent &lt;-> outgame
+    ///&#x2F;clent &lt;-> outgame
     /// </summary>
     [pbr::OriginalName("CO_CLIENT_OUTGAME_BEGIN")] CoClientOutgameBegin = 10000,
     [pbr::OriginalName("CO_LOGIN_REQ")] CoLoginReq = 10002,
@@ -73,7 +74,7 @@ namespace Th {
     [pbr::OriginalName("CO_ENTER_REQ")] CoEnterReq = 10200,
     [pbr::OriginalName("CO_CLIENT_OUTGAME_END")] CoClientOutgameEnd = 19999,
     /// <summary>
-    ////outgame &lt;-> db
+    ///&#x2F;outgame &lt;-> db
     /// </summary>
     [pbr::OriginalName("OD_OUTGAME_DBSERVICE_BEGIN")] OdOutgameDbserviceBegin = 20100,
     [pbr::OriginalName("OD_LOGIN_REQ")] OdLoginReq = 20101,
@@ -82,7 +83,7 @@ namespace Th {
     [pbr::OriginalName("DO_EXIT_GAME_SESSION_ACK")] DoExitGameSessionAck = 20104,
     [pbr::OriginalName("OD_OUTGAME_DBSERVICE_END")] OdOutgameDbserviceEnd = 49999,
     /// <summary>
-    ////outgame &lt;-> ingame (cross-domain, 서버 내부 전용)
+    ///&#x2F;outgame &lt;-> ingame (cross-domain, 서버 내부 전용)
     /// </summary>
     [pbr::OriginalName("OI_OUTGAME_INGAME_BEGIN")] OiOutgameIngameBegin = 50000,
     [pbr::OriginalName("OI_ENTER_REQ")] OiEnterReq = 50001,
@@ -91,11 +92,16 @@ namespace Th {
     [pbr::OriginalName("IO_ENTER_ACK")] IoEnterAck = 50101,
     [pbr::OriginalName("OI_OUTGAME_INGAME_END")] OiOutgameIngameEnd = 59999,
     /// <summary>
-    ////ingame -> client (클라 대면)
+    ///&#x2F;ingame -> client (클라 대면)
     /// </summary>
     [pbr::OriginalName("IC_INGAME_CLIENT_BEGIN")] IcIngameClientBegin = 60000,
     [pbr::OriginalName("IC_ENTER_NOTI")] IcEnterNoti = 60001,
     [pbr::OriginalName("IC_INGAME_CLIENT_END")] IcIngameClientEnd = 69999,
+    /// <summary>
+    ///&#x2F;client -> ingame (클라 대면)
+    /// </summary>
+    [pbr::OriginalName("CI_CLIENT_INGAME_BEGIN")] CiClientIngameBegin = 70000,
+    [pbr::OriginalName("CI_CLIENT_INGAME_END")] CiClientIngameEnd = 79999,
   }
 
   public enum EErrorMsg {

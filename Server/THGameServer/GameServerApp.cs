@@ -3,6 +3,7 @@ using Th;
 using TH.Common.Config;
 using TH.Common.Network;
 using TH.Common.Time;
+using TH.Server.Common;
 using TH.Server.Data;
 using TH.Server.Logging;
 using TH.Server.Logic;
@@ -55,16 +56,15 @@ public sealed class GameServerApp
             {
                 session.OnPacketReceived = (s, packetID, payload) =>
                 {
+                    // 클라가 보낼 수 있는 패킷만 대역별로 나눠 받고 나머지는 버린다(허용 목록).
+                    // NetDisconnect나 OD/DO·OI/IO 같은 서버 내부 패킷을 클라가 보내면 로그인·상태 검사를 건너뛸 수 있기 때문이다.
                     // payload는 수신 버퍼의 ReadOnlySpan<byte> 슬라이스라 즉시 ToArray로 복사한다(Span 캡처 금지).
-                    var copy = payload.ToArray();
-
-                    // messageID 대역으로 OutGame / InGame을 나눈다. 19999(CO_CLIENT_OUTGAME 끝) 이하면 OutGame.
-                    // CO 클라 대역(10000~19999)뿐 아니라 공통 NET 대역(NetAliveReq 등)도 OutGame으로 보낸다.
-                    // 그 위(InGame 대역 50000~)는 룸 시뮬레이션으로.
-                    if (packetID <= (int)EMessageID.CoClientOutgameEnd)
-                        OutGameService.Instance.EnqueuePacket(s.SessionID, packetID, copy);
+                    if (PacketBand.IsClientToOutGame(packetID))
+                        OutGameService.Instance.EnqueuePacket(s.SessionID, packetID, payload.ToArray());
+                    else if (PacketBand.IsClientToInGame(packetID))
+                        InGameService.Instance.EnqueuePacket(s.SessionID, packetID, payload.ToArray());
                     else
-                        InGameService.Instance.EnqueuePacket(s.SessionID, packetID, copy);
+                        Log.Warning("Rejected non-client packet SessionID={ID} PacketID={PID}", s.SessionID, packetID);
                 };
             };
 

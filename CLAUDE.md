@@ -37,6 +37,17 @@ C# .NET 기반 라이브 서비스까지, 대규모 동시접속(CCU) 환경에�
 
 This applies to all explanations, comments, commit messages, code reviews, and any text output directed to the user. Code itself (variable names, function names, etc.) follows the coding style guide.
 
+### 0.1. 한국인 개발자가 바로 읽히는 한국어로 쓴다
+
+채팅 답변, 코드 주석, 커밋 메시지, 문서 모두에 적용한다. 기준은 "옆자리 한국인 동료에게 말로 설명하듯이"다.
+
+- **영어 문서를 직역한 한자어를 쓰지 않는다.** 쉬운 말로 바꾼다.
+  - 발화 → 호출/발생, 적재 → (큐에) 넣기, 배선 → 연결/등록, 이월 → 다음 tick 으로 넘김, 무락 → lock 없이, 합성 패킷 → 서버가 만든 패킷
+- **업계 표준 용어는 영어 그대로 둔다.** dispatch, enqueue, drain, tick, phase, race condition, single-writer, deadlock 등. 억지로 번역하지 않는다.
+- **한 문장에 한 가지만 말한다.** 문장이 길어지면 나눈다. 명사를 길게 이어 붙이지 않는다.
+- **결론과 이유를 먼저 쓴다.** 배경 설명은 그 뒤에 필요한 만큼만.
+- 처음 나오는 약어나 프로젝트 고유 용어(OD/DO, OI/IC, Eventor 등)는 한 번 풀어서 설명한다.
+
 ---
 
 ## 1. Build Method and Project Structure
@@ -81,7 +92,7 @@ grep 유지.
 
 ## 2. General Precautions
 
-- Only modify `protocol.proto` and `sprotocol.proto` for proto file changes
+- Only modify `enum.proto`, `protocol.proto` and `sprotocol.proto` for proto file changes
 - `Common/Tool/ProtocolGenerator/generated/*.g.cs` 는 생성물이므로 **직접 수정 금지**
 - All new files MUST be created with **UTF-8 with BOM** encoding
   - 단, 엔진/IDE 가 **자동 생성·관리하는 파일은 직접 편집 대상이 아니다** (생성된 `.sln`/`.slnx`, Unity 의 `ProjectSettings/`·`*.meta`·`Packages/*.json`). 편집이 꼭 필요하면 원본 인코딩·포맷을 그대로 보존한다.

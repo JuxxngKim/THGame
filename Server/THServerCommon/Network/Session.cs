@@ -31,7 +31,7 @@ public sealed class Session
 
     public delegate void PacketHandler(Session session, int packetID, ReadOnlySpan<byte> payload);
 
-    // ⚠️ payload는 내부 수신 버퍼의 슬라이스다. 핸들러는 그 자리에서 즉시 디코드해야 하며,
+    // payload는 내부 수신 버퍼의 슬라이스다. 핸들러는 그 자리에서 즉시 디코드해야 하며,
     // span을 잡아두거나 보관하면 안 된다. 다음 수신 때 덮어쓰인다.
     public PacketHandler? OnPacketReceived;
     public Action<Session>? OnDisconnected;
@@ -149,7 +149,7 @@ public sealed class Session
             int payloadOffset = consumed + PacketHeader.HeaderSize;
             int payloadLength = length - PacketHeader.HeaderSize;
 
-            // ⚠️ IO 스레드에서 호출된다. 핸들러는 즉시 반환해야 하며(블로킹 금지),
+            // IO 스레드에서 호출된다. 핸들러는 즉시 반환해야 하며(블로킹 금지),
             // payload span을 잡아두거나 보관하면 안 된다. 다음 수신 때 _recvBuffer가 덮어쓰인다.
             // 로직 스레드로 넘기려면 핸들러 안에서 복사한 뒤 큐에 넣는다(GameServerApp 참조).
             var payload = new ReadOnlySpan<byte>(_recvBuffer, payloadOffset, payloadLength);

@@ -51,6 +51,11 @@ enum EMessageID
 	IC_ENTER_NOTI								= 60001;
 
 	IC_INGAME_CLIENT_END						= 69999;
+
+	///client -> ingame (클라 대면)
+	CI_CLIENT_INGAME_BEGIN						= 70000;
+
+	CI_CLIENT_INGAME_END						= 79999;
 }
 
 enum EErrorMsg
