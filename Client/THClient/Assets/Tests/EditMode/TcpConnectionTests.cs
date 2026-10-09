@@ -57,6 +57,39 @@ namespace TH.Tests
             }
         }
 
+        [Test]
+        public void Send_WritesHeaderAndPayload()
+        {
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            var connection = new TcpConnection();
+            try
+            {
+                connection.Connect("127.0.0.1", ((IPEndPoint)listener.LocalEndpoint).Port);
+                using (TcpClient server = listener.AcceptTcpClient())
+                {
+                    Assert.IsTrue(connection.Send(102, new byte[] { 9, 8, 7 }));
+
+                    // 서버 입장에서 헤더 8바이트 + payload 3바이트가 그대로 와야 한다.
+                    server.ReceiveTimeout = TimeoutMs;
+                    var bytes = new byte[PacketHeader.HeaderSize + 3];
+                    int read = 0;
+                    while (read < bytes.Length)
+                        read += server.GetStream().Read(bytes, read, bytes.Length - read);
+
+                    Assert.IsTrue(PacketHeader.TryRead(bytes, out int length, out int packetID));
+                    Assert.AreEqual(bytes.Length, length);
+                    Assert.AreEqual(102, packetID);
+                    CollectionAssert.AreEqual(new byte[] { 9, 8, 7 }, new ArraySegment<byte>(bytes, PacketHeader.HeaderSize, 3));
+                }
+            }
+            finally
+            {
+                connection.Close();
+                listener.Stop();
+            }
+        }
+
         private static bool WaitUntil(Func<bool> condition)
         {
             var stopwatch = Stopwatch.StartNew();

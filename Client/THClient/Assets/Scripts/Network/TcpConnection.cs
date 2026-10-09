@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
+using Google.Protobuf;
 
 namespace TH.Network
 {
@@ -9,13 +10,14 @@ namespace TH.Network
     // 메인 스레드는 TryDequeue 로 꺼내 처리한다(수신 스레드 → 큐 → 메인 스레드, 단일 경로).
     // 수신 스레드는 큐에 넣는 일만 한다. Unity API 는 메인 스레드에서만 부를 수 있기 때문이다.
     //
-    // 아직 없는 것: 송신(로드맵 세션 5), 종료를 정확히 1회 알리는 단일 종료 경로와 Play 종료 시 정리(세션 6).
+    // 아직 없는 것: 종료를 정확히 1회 알리는 단일 종료 경로와 Play 종료 시 정리(로드맵 세션 6).
     public sealed class TcpConnection
     {
         private const int ReceiveChunkSize = 8192;
 
         private readonly ConcurrentQueue<ReceivedPacket> _received = new ConcurrentQueue<ReceivedPacket>();
         private readonly Action<ReceivedPacket> _enqueue;
+        private readonly object _sendLock = new object();
         private Socket _socket;
         private Thread _receiveThread;
         private volatile bool _connected;
@@ -43,6 +45,46 @@ namespace TH.Network
             _receiveThread = new Thread(ReceiveLoop) { IsBackground = true, Name = "TH.Network.Receive" };
             _receiveThread.Start();
         }
+
+        // 패킷 하나를 보낸다. 헤더와 payload 를 한 버퍼로 묶어 한 번에 보낸다.
+        // 메인 스레드에서만 부른다고 가정한다. 그래도 여러 스레드가 부르면 패킷이 섞이지 않도록 lock 을 건다.
+        // 동기 송신이라 OS 송신 버퍼가 꽉 차면(서버가 못 읽는 상황) 호출한 스레드가 잠깐 막힐 수 있다.
+        // 연결이 끊겨 있거나 보내는 중에 끊기면 false.
+        public bool Send(int packetID, byte[] payload)
+        {
+            int total = PacketHeader.HeaderSize + payload.Length;
+            if (total > PacketAssembler.MaxPacketSize)
+                throw new ArgumentException($"Packet too large: {total} bytes (max {PacketAssembler.MaxPacketSize})");
+            if (!_connected)
+                return false;
+
+            var buffer = new byte[total];
+            PacketHeader.Write(buffer, total, packetID);
+            Buffer.BlockCopy(payload, 0, buffer, PacketHeader.HeaderSize, payload.Length);
+
+            try
+            {
+                lock (_sendLock)
+                {
+                    int sent = 0;
+                    while (sent < total)
+                        sent += _socket.Send(buffer, sent, total - sent, SocketFlags.None);
+                }
+                return true;
+            }
+            catch (SocketException)
+            {
+                Close();
+                return false;
+            }
+            catch (ObjectDisposedException)
+            {
+                Close();
+                return false;
+            }
+        }
+
+        public bool Send(int packetID, IMessage message) => Send(packetID, message.ToByteArray());
 
         // 메인 스레드에서 호출한다. 수신된 패킷을 도착 순서대로 하나씩 꺼낸다.
         public bool TryDequeue(out ReceivedPacket packet) => _received.TryDequeue(out packet);
