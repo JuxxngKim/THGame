@@ -70,7 +70,8 @@ This applies to all explanations, comments, commit messages, code reviews, and a
 - 관리 대상: `Assets/`, `Packages/manifest.json`·`packages-lock.json`, `ProjectSettings/`. `.meta` 는 짝이 되는 에셋과 **항상 함께** 커밋.
 - 비관리(`.gitignore`): `Library/`, `Temp/`, `Logs/`, `UserSettings/`, `obj/`, `*.csproj`, `*.sln(x)`.
 - 렌더 구성: URP 3D + 2D 스프라이트(2.5D). 카메라 Perspective, 캐릭터 스프라이트는 빌보드.
-- **프로토콜 공유(예정)**: `compile.bat` 에 Unity 용 `--csharp_out` 을 추가해 `Assets/Scripts/Protocol/Generated/` 에 생성물 두 벌 커밋. Google.Protobuf 는 서버와 같은 버전(3.34.1)의 netstandard2.1 dll 을 `Assets/Plugins/` 에 배치. 현재는 `compile.bat` 이 서버용 `--csharp_out` 만 생성한다.
+- **프로토콜 공유**: `compile.bat` 이 서버용과 Unity 용 생성물을 함께 만들고 두 벌 모두 커밋한다. Unity 용은 `Assets/Scripts/Protocol/Generated/` 에 `enum.proto`·`protocol.proto` 만 생성한다(`sprotocol.proto` 는 서버 내부 전용이라 제외). 어셈블리는 `Assets/Scripts/Protocol/TH.Protocol.asmdef`(UnityEngine 참조 없음).
+- **Google.Protobuf(예정)**: 서버와 같은 버전(3.34.1)의 netstandard2.1 dll 을 `Assets/Plugins/` 에 배치한다(로드맵 세션 2b). 그 전까지 Unity 콘솔에 Google.Protobuf 누락 에러가 나는 게 정상이다.
 - **네트워크(예정)**: `THServerCommon` 은 net10.0 이라 참조 불가. `PacketHeader`(8바이트 LE) 는 클라에 복제. 수신 스레드 → `ConcurrentQueue` → 메인 스레드 `Update` dispatch 단일 경로.
 - 클라 C# 컨벤션(asmdef 단위, 네이밍 등)은 코드가 생기는 시점에 별도 절로 추가. 진행 순서는 `docs/roadmap.md`.
 
@@ -93,7 +94,7 @@ grep 유지.
 ## 2. General Precautions
 
 - Only modify `enum.proto`, `protocol.proto` and `sprotocol.proto` for proto file changes
-- `Common/Tool/ProtocolGenerator/generated/*.g.cs` 는 생성물이므로 **직접 수정 금지**
+- `Common/Tool/ProtocolGenerator/generated/*.g.cs`, `Client/THClient/Assets/Scripts/Protocol/Generated/*.g.cs` 는 생성물이므로 **직접 수정 금지**
 - All new files MUST be created with **UTF-8 with BOM** encoding
   - 단, 엔진/IDE 가 **자동 생성·관리하는 파일은 직접 편집 대상이 아니다** (생성된 `.sln`/`.slnx`, Unity 의 `ProjectSettings/`·`*.meta`·`Packages/*.json`). 편집이 꼭 필요하면 원본 인코딩·포맷을 그대로 보존한다.
 - 코드 주석은 **한글**로 작성 (0항과 일관). 단 SAEA / ArrayPool / IOCP 같은 표준 용어는 영어 그대로 사용
