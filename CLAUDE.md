@@ -71,8 +71,12 @@ This applies to all explanations, comments, commit messages, code reviews, and a
 - 비관리(`.gitignore`): `Library/`, `Temp/`, `Logs/`, `UserSettings/`, `obj/`, `*.csproj`, `*.sln(x)`.
 - 렌더 구성: URP 3D + 2D 스프라이트(2.5D). 카메라 Perspective, 캐릭터 스프라이트는 빌보드.
 - **프로토콜 공유**: `compile.bat` 이 서버용과 Unity 용 생성물을 함께 만들고 두 벌 모두 커밋한다. Unity 용은 `Assets/Scripts/Protocol/Generated/` 에 `enum.proto`·`protocol.proto` 만 생성한다(`sprotocol.proto` 는 서버 내부 전용이라 제외). 어셈블리는 `Assets/Scripts/Protocol/TH.Protocol.asmdef`(UnityEngine 참조 없음).
-- **Google.Protobuf(예정)**: 서버와 같은 버전(3.34.1)의 netstandard2.1 dll 을 `Assets/Plugins/` 에 배치한다(로드맵 세션 2b). 그 전까지 Unity 콘솔에 Google.Protobuf 누락 에러가 나는 게 정상이다.
+- **Google.Protobuf**: 서버와 같은 3.34.1 의 **netstandard2.0** dll 을 `Assets/Plugins/` 에 둔다(3.34.1 에는 netstandard2.1 용이 없다). `System.Memory`·`System.Buffers` 는 Unity 런타임에 이미 있어서 넣지 않는다. IL2CPP 코드 제거 대비로 `Assets/Plugins/link.xml` 에서 `Google.Protobuf`·`TH.Protocol` 을 보존한다.
+  - **`System.Runtime.CompilerServices.Unsafe` 는 `com.unity.pipeline` 패키지에 들어 있는 것(4.0.4.0)을 같이 쓴다.** 이 패키지를 빼면 Unsafe 4.0.4.1(NuGet 4.5.3 의 netstandard2.0)을 `Assets/Plugins/` 에 넣어야 한다. 반대로 패키지가 있는 상태에서 Unsafe 를 또 넣으면 같은 이름의 어셈블리가 겹쳐 에러가 난다.
+- **에디터 자동화(`com.unity.pipeline`, 실험 패키지)**: 에디터가 켜져 있으면 Claude 가 HTTP 로 재컴파일(`recompile`), 콘솔 읽기(`get_console_logs`), 테스트(`run_tests`), C# 실행(`eval`)을 할 수 있다. 접속 정보(포트·토큰)는 `Library/Pipeline/.unity-pipeline-port`. 요청은 `POST http://127.0.0.1:<port>/api/exec` + `Authorization: Bearer <evalToken>`. 문서와 달리 실제로는 `0.0.0.0` 에서 대기하므로 외부 접속은 Windows 방화벽(현재 Public 차단, Domain 허용)과 토큰에 의존한다.
 - **네트워크(예정)**: `THServerCommon` 은 net10.0 이라 참조 불가. `PacketHeader`(8바이트 LE) 는 클라에 복제. 수신 스레드 → `ConcurrentQueue` → 메인 스레드 `Update` dispatch 단일 경로.
+- **테스트**: `Assets/Tests/EditMode/`(`TH.Tests.EditMode.asmdef`, Editor 전용, NUnit). 실행은 Test Runner 창이나 pipeline `run_tests`(`mode: editor`, `filter_type: assembly`).
+- **Unity 는 C# 9** 라서 서버 컨벤션의 file-scoped namespace(C# 10)를 쓸 수 없다. 클라 코드는 블록 형식 namespace 를 쓴다.
 - 클라 C# 컨벤션(asmdef 단위, 네이밍 등)은 코드가 생기는 시점에 별도 절로 추가. 진행 순서는 `docs/roadmap.md`.
 
 **서버 Tick 아키텍처**: 독립된 두 tick 서비스가 있다 —

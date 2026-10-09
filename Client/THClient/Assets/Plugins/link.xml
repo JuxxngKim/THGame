@@ -1,0 +1,7 @@
+﻿<linker>
+  <!-- IL2CPP 코드 제거(stripping)가 리플렉션으로만 쓰이는 코드를 잘라내지 않도록 보존한다. -->
+  <!-- Google.Protobuf: descriptor·reflection API가 리플렉션으로 타입과 속성을 찾는다. -->
+  <assembly fullname="Google.Protobuf" preserve="all"/>
+  <!-- TH.Protocol: 생성 코드의 descriptor 정보가 메시지 속성을 이름(문자열)으로 참조한다. -->
+  <assembly fullname="TH.Protocol" preserve="all"/>
+</linker>

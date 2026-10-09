@@ -53,5 +53,6 @@
       "Bash(rtk read *)",
       "Bash(rtk wc *)"
     ]
-  }
+  },
+  "outputStyle": "attention-span:Attention-kind"
 }

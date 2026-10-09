@@ -33,8 +33,8 @@
 |:---:|---|---|---|
 | [x] | 1 | `Assets/TutorialInfo/`·`Readme.asset` 삭제(에디터에서), Unity 프로젝트 커밋, `CLAUDE.md` Unity 절 추가 | push 후 clone에서 Unity가 열림 |
 | [x] | 2a | `compile.bat`에 Unity용 `--csharp_out` 추가(→ `Assets/Scripts/Protocol/Generated/`), 생성 코드 배치, `TH.Protocol.asmdef` | Unity 콘솔에 Google.Protobuf 누락 에러만 남음 |
-| [ ] | 2b | Google.Protobuf(netstandard2.1, 서버와 동일 3.34.1) + 의존 dll(`System.Runtime.CompilerServices.Unsafe`, `System.Memory`, `System.Buffers`)을 `Assets/Plugins/`에 배치, `link.xml`(IL2CPP 스트리핑 대비) | Unity 컴파일 통과, `COLoginReq` 타입 참조 가능 |
-| [ ] | 3 | Protobuf 직렬화 단위 테스트 1개(Unity Test Framework). 30분 분량이라 남는 시간은 세션 4 준비 | 테스트 통과 |
+| [x] | 2b | Google.Protobuf(서버와 동일 3.34.1, 2.1 용이 없어 **netstandard2.0**)를 `Assets/Plugins/`에 배치, `link.xml`(IL2CPP 스트리핑 대비). `System.Memory`·`System.Buffers` 는 Unity 런타임에 있어 생략, Unsafe 는 `com.unity.pipeline` 의 것을 같이 씀(CLAUDE.md 1항) | Unity 컴파일 통과, `COLoginReq` 타입 참조 가능 |
+| [x] | 3 | Protobuf 직렬화 단위 테스트 1개(Unity Test Framework). 30분 분량이라 남는 시간은 세션 4 준비 | 테스트 통과 |
 | [ ] | 4 | `PacketHeader` 복제(8바이트: int32 length LE + int32 packetID LE) + `TcpConnection` 수신 스레드 → `ConcurrentQueue` | 서버 접속 후 소켓 열림 로그 |
 | [ ] | 5 | 송신 경로 + `PacketDispatcher`(메인 스레드 `Update`에서 큐 분배, `Dictionary<int, Action<byte[]>>` 핸들러 테이블) | 서버 `NetDisconnect` 로그로 왕복 확인 |
 | [ ] | 6 | `Close()` 단일 종료 경로, `OnDisconnected` 정확히 1회 보장(CAS), 에디터 Play 종료 시 소켓 정리 | 서버 로그에 세션 정리 1회만 기록 |
@@ -138,4 +138,4 @@
 
 ## 다음 세션
 
-- [ ] **세션 2b**: 먼저 Google.Protobuf 3.34.1 nuspec 에서 netstandard2.1 용 lib 과 의존 패키지 버전 조합을 확인한다. 그다음 dll 들을 `Assets/Plugins/` 에 넣고 `link.xml` 추가. 완료 판정은 2a 에서 남은 Google 누락 에러(CS0400·CS0538)가 Unity 콘솔에서 모두 사라지는 것.
+- [ ] **세션 4**: 클라 네트워크 코드 시작. 먼저 asmdef 를 정한다(예: `Assets/Scripts/Network/TH.Network.asmdef`, `TH.Protocol` 참조). 그다음 `PacketHeader` 복제(8바이트: int32 length LE + int32 packetID LE, 서버 `THServerCommon/Network/PacketHeader.cs` 기준)와 `TcpConnection` 수신 스레드 → `ConcurrentQueue` 를 만든다. 헤더 쓰기/읽기는 세션 3 처럼 EditMode 테스트로 먼저 고정한다. Unity 는 C# 9 라서 file-scoped namespace 를 못 쓴다.
