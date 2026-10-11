@@ -13,7 +13,8 @@ namespace TH.Tests
         {
             var dispatcher = new PacketDispatcher();
             NetAliveAck received = null;
-            dispatcher.Register<NetAliveAck>((int)EMessageID.NetAliveAck, ack => received = ack);
+            // packetID 를 따로 넘기지 않는다. NetAliveAck 의 MessageID default(NET_ALIVE_ACK)로 등록돼야 한다.
+            dispatcher.Register<NetAliveAck>(ack => received = ack);
 
             var payload = new NetAliveAck { ResponseMS = 42 }.ToByteArray();
             dispatcher.Dispatch(new PacketMessage((int)EMessageID.NetAliveAck, payload));
@@ -40,7 +41,7 @@ namespace TH.Tests
             var dispatcher = new PacketDispatcher();
             int handled = 0;
             Exception error = null;
-            dispatcher.Register<NetAliveAck>((int)EMessageID.NetAliveAck, ack => handled++);
+            dispatcher.Register<NetAliveAck>(ack => handled++);
             dispatcher.OnError = (packet, ex) => error = ex;
 
             // 길이가 맞지 않는 varint 라서 파싱이 실패한다.
@@ -50,6 +51,23 @@ namespace TH.Tests
 
             dispatcher.Dispatch(new PacketMessage((int)EMessageID.NetAliveAck, new NetAliveAck().ToByteArray()));
             Assert.AreEqual(1, handled);
+        }
+
+        [Test]
+        public void Register_MessageWithoutMessageID_Throws()
+        {
+            // MPosition 은 다른 메시지 안에 들어가는 부품이라 MessageID 가 없다. 등록할 때 바로 알려야 한다.
+            var dispatcher = new PacketDispatcher();
+            Assert.Throws<InvalidOperationException>(() => dispatcher.Register<MPosition>(msg => { }));
+        }
+
+        [Test]
+        public void Register_SamePacketTwice_Throws()
+        {
+            // 덮어쓰면 먼저 등록한 핸들러가 조용히 사라지므로 예외로 알려야 한다.
+            var dispatcher = new PacketDispatcher();
+            dispatcher.Register<NetAliveAck>(ack => { });
+            Assert.Throws<InvalidOperationException>(() => dispatcher.Register<NetAliveAck>(ack => { }));
         }
     }
 }

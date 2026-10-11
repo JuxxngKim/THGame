@@ -141,5 +141,60 @@ namespace TH.Tests
             Assert.AreEqual(1, _notifyCount);
             Assert.AreEqual(EDisconnectReason.InvalidHeader, _reason);
         }
+
+        [Test]
+        public void CloseInsideHandler_DropsRemainingPackets()
+        {
+            // 세 패킷을 한 번에 보낸다. 루프백이라 한 번의 Receive 로 같이 들어와 큐에 연달아 들어간다.
+            var joined = new List<byte>();
+            joined.AddRange(PacketAssemblerTests.MakePacket(10001, new byte[] { 1 }));
+            joined.AddRange(PacketAssemblerTests.MakePacket(10002, new byte[] { 2 }));
+            joined.AddRange(PacketAssemblerTests.MakePacket(10003, new byte[] { 3 }));
+            _server.GetStream().Write(joined.ToArray(), 0, joined.Count);
+
+            // 첫 패킷의 핸들러가 Close 한다(예: 강제 퇴장 패킷). 그 뒤 패킷은 핸들러에 가면 안 된다.
+            var handled = new List<int>();
+            Assert.IsTrue(SessionTests.WaitUntil(() =>
+            {
+                _session.Poll(packet =>
+                {
+                    handled.Add(packet.PacketID);
+                    if (packet.PacketID == 10001)
+                        _session.Close();
+                });
+                return _notifyCount > 0;
+            }), "끊김 알림이 오지 않음");
+
+            CollectionAssert.AreEqual(new[] { 10001 }, handled);
+            Assert.AreEqual(1, _notifyCount);
+            Assert.AreEqual(EDisconnectReason.LocalClose, _reason);
+        }
+
+        [Test]
+        public void ReentrantPoll_NotifiesOnce()
+        {
+            byte[] packet = PacketAssemblerTests.MakePacket(10003, new byte[] { 1 });
+            _server.GetStream().Write(packet, 0, packet.Length);
+            _server.Close();
+            Assert.IsTrue(SessionTests.WaitUntil(() => !_session.IsConnected), "서버 종료를 감지하지 못함");
+
+            // 핸들러가 Poll 을 다시 부르는 경우. 안쪽 Poll 이 먼저 알리므로 바깥 Poll 은 다시 알리면 안 된다.
+            _session.Poll(outer => _session.Poll(inner => { }));
+
+            Assert.AreEqual(1, _notifyCount);
+        }
+
+        [Test]
+        public void CloseAll_ClosesOpenSession()
+        {
+            // 에디터 안전망(NetworkEditorCleanup)이 부르는 경로.
+            Session.CloseAll();
+            _session.Poll(packet => { });
+
+            Assert.AreEqual(1, _notifyCount);
+            Assert.AreEqual(EDisconnectReason.LocalClose, _reason);
+            _server.ReceiveTimeout = 2000;
+            Assert.AreEqual(0, _server.GetStream().Read(new byte[16], 0, 16));
+        }
     }
 }

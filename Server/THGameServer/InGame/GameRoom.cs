@@ -33,9 +33,9 @@ public sealed class GameRoom
     static GameRoom()
     {
         // 입장/퇴장은 SessionID만 필요하므로(룸은 이미 정해짐) body(msg)는 쓰지 않는다.
-        Dispatcher.Register<OIEnterReq>((int)EMessageID.OiEnterReq, (room, pkt, msg) => room.OnEnter(pkt.SessionID));
-        Dispatcher.Register<OILeaveReq>((int)EMessageID.OiLeaveReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
-        Dispatcher.Register<OIExitGameSessionReq>((int)EMessageID.OiExitGameSessionReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
+        Dispatcher.Register<OIEnterReq>((room, packet, _) => room.OnEnter(packet.SessionID));
+        Dispatcher.Register<OILeaveReq>((room, packet, _) => room.RemoveCharacter(packet.SessionID));
+        Dispatcher.Register<OIExitGameSessionReq>((room, packet, _) => room.RemoveCharacter(packet.SessionID));
     }
 
     public GameRoom(RoomID roomID)

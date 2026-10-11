@@ -15,7 +15,7 @@ namespace TH.Network
     // 알림: OnDisconnected 는 메인 스레드의 Poll 안에서만 정확히 1회 부른다. 끊기 전에 도착한 패킷이 알림보다 먼저 처리된다.
     //
     // 서버 Session 과 이름은 같지만 알림을 부르는 스레드가 다르다.
-    // 서버는 닫은 스레드(IO 스레드)에서 바로 부르고, 클라는 메인 스레드의 Poll 까지 미룬다.
+    // 서버는 Close 를 부른 스레드(IO·worker·tick 어느 것이든)에서 바로 부르고, 클라는 메인 스레드의 Poll 까지 미룬다.
     public sealed class Session
     {
         private const int ReceiveChunkSize = 8192;
@@ -48,6 +48,7 @@ namespace TH.Network
         public bool IsConnected => _socket != null && Volatile.Read(ref _closeReason) == 0;
 
         // 동기 접속. 실패하면 SocketException 을 던진다. 인스턴스 하나는 한 번만 접속한다.
+        // 접속을 기다리는 동안 다른 스레드가 Close 하면 예외 없이 돌아온다. 이때 IsConnected 는 false 다.
         // 주의: 접속이 끝날 때까지 호출한 스레드를 막는다. 원격 서버에 메인 스레드에서 붙으면 화면이 멈출 수 있다.
         public void Connect(string host, int port)
         {
@@ -65,9 +66,20 @@ namespace TH.Network
                 throw;
             }
 
-            _socket = socket;
+            // 접속을 기다리는 동안 다른 스레드가 Close(또는 CloseAll) 했을 수 있다.
+            // 그때 CloseWith 는 _socket 이 아직 null 이라 아무것도 닫지 못했으므로, 여기서 닫고 수신 스레드도 띄우지 않는다.
+            // CloseWith 도 lock(_live) 를 지난 뒤에 _socket 을 읽으므로, 이 lock 이 둘 중 한쪽이 반드시 소켓을 닫게 해 준다.
             lock (_live)
+            {
+                if (Volatile.Read(ref _closeReason) != 0)
+                {
+                    socket.Close();
+                    return;
+                }
+
+                _socket = socket;
                 _live.Add(this);
+            }
             _receiveThread = new Thread(ReceiveLoop) { IsBackground = true, Name = "TH.Network.Receive" };
             _receiveThread.Start();
         }
@@ -117,6 +129,7 @@ namespace TH.Network
         // 순서가 중요하다: 이유를 먼저 읽고 → 큐를 비우고 → 아까 읽은 이유가 있으면 알린다.
         // 수신 스레드는 마지막 패킷을 큐에 넣은 뒤에 CAS 하므로, 이유가 보였다면 그 전 패킷은 이미 큐에 있다.
         // 반대로 큐를 비운 뒤에 이유를 읽으면, 그 사이에 들어온 마지막 패킷이 알림 뒤로 밀리거나 버려진다.
+        // 단, 직접 Close() 한 뒤에는 큐에 남은 패킷을 처리하지 않고 버린다(핸들러 안에서 Close 한 경우 포함).
         // 처리한 패킷 수를 돌려준다.
         public int Poll(Action<PacketMessage> handle)
         {
@@ -127,11 +140,15 @@ namespace TH.Network
             int count = 0;
             while (_received.TryDequeue(out var packet))
             {
+                if (Volatile.Read(ref _closeReason) == (int)EDisconnectReason.LocalClose)
+                    break;
+
                 handle(packet);
                 count++;
             }
 
-            if (reason != EDisconnectReason.None)
+            // 핸들러가 Poll 을 다시 불러 그쪽에서 이미 알렸을 수 있다.
+            if (reason != EDisconnectReason.None && !_notified)
             {
                 _notified = true;
                 OnDisconnected?.Invoke(reason);
@@ -140,6 +157,7 @@ namespace TH.Network
         }
 
         // 연결을 닫는다. 여러 번 불러도, 다른 종료와 겹쳐도 안전하다. 알림은 다음 Poll 에서 LocalClose 로 간다.
+        // 이 뒤로는 큐에 남은 패킷을 핸들러에 넘기지 않는다.
         public void Close() => CloseWith(EDisconnectReason.LocalClose);
 
         // 열려 있는 연결을 모두 닫는다. 에디터 Play 종료·도메인 리로드 때 쓰는 안전망이다(NetworkEditorCleanup).

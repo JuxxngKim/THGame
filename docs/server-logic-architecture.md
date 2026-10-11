@@ -190,11 +190,19 @@ public void Run(long tickMs, IReadOnlyCollection<ISessionWorker> workers,
 `Player` 가 패킷 핸들러 테이블과 처리 본문을 모두 소유한다(per-entity tick update 패턴).
 
 - **핸들러 테이블은 static 공유** (`private static readonly PacketDispatcher<Player> Dispatcher`).
-  static 생성자에서 `Dispatcher.Register<T>(packetId, (p, pkt, m) => p.OnXxx(m))` 로 한 번 등록하고 모든 Player 가
+  static 생성자에서 `Dispatcher.Register<T>((player, msg) => player.OnXxx(msg))` 로 한 번 등록하고 모든 Player 가
   공유한다. `PacketDispatcher<TOwner>`(`Common/PacketDispatcher.cs`)는 `MessageParser<T>` 로 ParseFrom 을
   수행하는 dispatch 델리게이트를 만들어 보관한다. 파싱에 실패하면 Warning 로그 후 무시한다.
-  - 핸들러 인자: `p`(Player), `pkt`(`PacketMessage` — SessionID 등), `m`(파싱된 메시지). body 가 없는 패킷도
-    같은 `Register<T>` 로 등록한다.
+  - packetID 는 따로 넘기지 않는다. proto 에 적힌 `MessageID` 필드(번호 99)의 default 를 등록할 때 descriptor 에서 읽는다.
+    `MessageID` 가 없거나, `[default]` 가 없거나, default 이름이 메시지 이름과 맞지 않거나(`CO_ENTER_REQ` ↔ `COEnterReq`,
+    복붙 실수 방지), 같은 packetID 를 두 번 등록하면 예외가 난다.
+  - static 생성자는 원래 처음 쓸 때(첫 로그인·입장) 돈다. 그때 예외가 나면 `TypeInitializationException` 이 영구히 남아
+    모든 로그인이 멈추므로, `GameServerApp.InitPacketHandlers`(`Start` 에서 호출)가 `RuntimeHelpers.RunClassConstructor` 로 `LoginSession`·`Player`·`GameRoom` 을
+    미리 돌린다. 등록 실수는 서버 시작 실패로 드러난다. `PacketDispatcher` 를 가진 타입을 새로 만들면 이 목록에 추가한다.
+  - 이 규칙은 `PacketDispatcher` 등록에만 해당한다. 송신(`Send((int)EMessageID.X, ...)`)이나 `LogicEventor`·`InGameService`·`DBService`
+    등록은 여전히 packetID 를 직접 쓴다.
+  - 핸들러 인자: 주인(`player`/`loginSession`/`room`), 파싱된 메시지(`msg`). `PacketMessage`(SessionID 등)가 필요하면
+    3인자 `(room, packet, msg)` 로 등록한다(`GameRoom`). 쓰지 않는 인자는 `_` 로 둔다.
 - **`Execute(long tickMs, List<PacketMessage> packets)`** — worker phase 진입점:
   1. `packets` 를 **도착 순서대로** 순회하며 `Dispatcher.Dispatch` (순서 보존). 미등록 패킷은 Debug 로그 후 건너뛰고,
      핸들러 예외는 패킷마다 try/catch 로 격리한다.
@@ -203,8 +211,10 @@ public void Run(long tickMs, IReadOnlyCollection<ISessionWorker> workers,
 - **상태(`EPlayerState`)**: `LoggedIn` → `Entering`(입장 요청 후) → `InField`(입장 확정). 연결이 끊기면 `Disconnecting`.
 
 게임 패킷 핸들러 추가 방법:
-1. `enum.proto` 에 패킷 ID, `protocol.proto` 에 메시지를 추가하고 `compile.bat` 으로 재생성
-2. `Player` static 생성자에 `Dispatcher.Register<새패킷>((int)EMessageID.새패킷, (p, pkt, m) => p.On새패킷(m));` 추가
+1. `enum.proto` 에 패킷 ID, `protocol.proto` 에 메시지를 추가하고 `compile.bat` 으로 재생성.
+   메시지에는 `optional EMessageID MessageID = 99 [default = 새패킷_ID];` 를 꼭 넣는다(등록 때 packetID 를 여기서 읽는다).
+   메시지 이름은 enum 이름에서 `_` 를 빼고 대소문자만 다르게 짓는다(`CO_ENTER_REQ` → `COEnterReq`). 다르면 등록할 때 예외가 난다
+2. `Player` static 생성자에 `Dispatcher.Register<새패킷>((player, msg) => player.On새패킷(msg));` 추가
 3. `Player` 인스턴스 메서드 `private void On새패킷(새패킷 msg) { ... }` 구현
 4. 응답이 필요하면 `Send((int)EMessageID.응답, ack);`
 

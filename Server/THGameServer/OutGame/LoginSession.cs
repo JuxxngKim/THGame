@@ -29,8 +29,7 @@ public sealed class LoginSession : ISessionWorker
 
     static LoginSession()
     {
-        // 핸들러 본문은 msg만 쓰므로 pkt는 무시한다.
-        Dispatcher.Register<COLoginReq>((int)EMessageID.CoLoginReq, (s, pkt, m) => s.OnCOLoginReq(m));
+        Dispatcher.Register<COLoginReq>((loginSession, msg) => loginSession.OnCOLoginReq(msg));
     }
 
     // ====================== 생성자 ======================

@@ -33,15 +33,14 @@ public sealed class Player : ISessionWorker
     static Player()
     {
         // 로그인 패킷은 Player가 처리하지 않는다. COLoginReq는 LoginSession, DOLoginAck는 OutGameLogicEventor(Prepare)가 처리한다.
-        // 핸들러 본문은 msg만 쓰므로 pkt는 무시한다.
-        Dispatcher.Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, pkt, m) => p.OnCOGetPlayerReq(m));
-        Dispatcher.Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, pkt, m) => p.OnCOEnterReq(m));
-        Dispatcher.Register<IOEnterAck>((int)EMessageID.IoEnterAck, (p, pkt, m) => p.OnIOEnterAck(m));
+        Dispatcher.Register<COGetPlayerReq>((player, msg) => player.OnCOGetPlayerReq(msg));
+        Dispatcher.Register<COEnterReq>((player, msg) => player.OnCOEnterReq(msg));
+        Dispatcher.Register<IOEnterAck>((player, msg) => player.OnIOEnterAck(msg));
 
         // 세션 종료 흐름. NetDisconnect로 DB 세션 종료 저장을 시작하고 DOExitGameSessionAck로 완료를 받는다.
-        // 핸들러 본문은 인스턴스 상태(State/AccountID/PID)만 쓰므로 pkt/msg는 무시한다.
-        Dispatcher.Register<NetDisconnect>((int)EMessageID.NetDisconnect, (p, pkt, m) => p.OnNetDisconnect());
-        Dispatcher.Register<DOExitGameSessionAck>((int)EMessageID.DoExitGameSessionAck, (p, pkt, m) => p.OnDOExitGameSessionAck());
+        // 핸들러 본문은 인스턴스 상태(State/AccountID/PID)만 쓰므로 msg는 쓰지 않는다.
+        Dispatcher.Register<NetDisconnect>((player, _) => player.OnNetDisconnect());
+        Dispatcher.Register<DOExitGameSessionAck>((player, _) => player.OnDOExitGameSessionAck());
     }
 
     // ====================== worker phase 진입점 ======================

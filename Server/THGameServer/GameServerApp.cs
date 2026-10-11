@@ -1,10 +1,12 @@
-﻿using Serilog;
+﻿using System.Runtime.CompilerServices;
+using Serilog;
 using Th;
 using TH.Common.Config;
 using TH.Common.Network;
 using TH.Common.Time;
 using TH.Server.Common;
 using TH.Server.Data;
+using TH.Server.Game;
 using TH.Server.Logging;
 using TH.Server.Logic;
 
@@ -29,6 +31,8 @@ public sealed class GameServerApp
 
             Log.Information("GameServer started (Env={Env}, ID={ID})",
                 ConfigManager.Instance.Env, ConfigManager.Instance.ID);
+
+            InitPacketHandlers();
 
             // OutGameService 초기화 시점에 OutGameLogicEventor가 만들어지며 핸들러가 모두 등록된다.
             OutGameService.Instance.Init();
@@ -119,5 +123,16 @@ public sealed class GameServerApp
         DBService.Instance.Shutdown();
         ConfigManager.Instance.Shutdown();
         Log.CloseAndFlush();
+    }
+
+    // 패킷 핸들러 표(static 생성자)를 지금 만든다. 그냥 두면 첫 로그인·입장 때 만들어진다.
+    // 그때 등록 실수(MessageID default 누락·복붙·중복)로 예외가 나면 TypeInitializationException 이 영구히 남아
+    // 그 뒤 모든 로그인이 멈추는데, 서버는 겉보기에 정상이다. 여기서 터지면 Start 가 실패해 바로 드러난다.
+    // PacketDispatcher 를 가진 타입을 새로 만들면 여기에도 추가한다.
+    private static void InitPacketHandlers()
+    {
+        RuntimeHelpers.RunClassConstructor(typeof(LoginSession).TypeHandle);
+        RuntimeHelpers.RunClassConstructor(typeof(Player).TypeHandle);
+        RuntimeHelpers.RunClassConstructor(typeof(GameRoom).TypeHandle);
     }
 }
