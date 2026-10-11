@@ -6,12 +6,13 @@ namespace TH.Server.Common;
 
 // 패킷 dispatch 공통 테이블. Player / LoginSession / GameRoom이 각자 static 인스턴스를 가진다.
 // static 생성자에서만 Register로 채우고 이후 읽기 전용이라 lock 없이 공유한다.
+// 여기에 상태(큐, 카운터 등)를 넣지 않는다. 넣으면 여러 worker 스레드가 lock 없이 공유한다는 전제가 깨진다.
 //
 // 설계 이유:
 //  - "MessageParser 생성 + ParseFrom + 호출" 패턴이 세 곳에 중복돼 있던 것을 한 곳으로 모았다.
 //  - 핸들러에 PacketMessage도 함께 넘긴다. body가 없는 패킷(입장/퇴장)도 SessionID를 쓸 수 있어 Register<T> 하나로 통일된다.
 //  - 핸들러 예외는 호출부(Execute/DrainInbox의 try/catch)가 처리한다. 한 패킷 실패가 다음 패킷을 막지 않게 하기 위해서다.
-public sealed class PacketHandlerTable<TOwner>
+public sealed class PacketDispatcher<TOwner>
 {
     // packetID → (owner, packet) dispatch 델리게이트. Register 시점에 파싱 람다를 만들어 둔다.
     private readonly Dictionary<int, Action<TOwner, PacketMessage>> _handlers = new();

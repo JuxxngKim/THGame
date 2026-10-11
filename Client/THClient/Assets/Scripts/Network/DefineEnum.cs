@@ -3,7 +3,7 @@
     // 클라 전용 enum 모음. 서버 THServerCommon/DefineEnum.cs 와 같은 방식이다.
     // 서버와 같이 쓰는 enum 은 여기가 아니라 enum.proto 에 둔다.
 
-    // TcpConnection 이 끊긴 이유. 먼저 닫은 쪽의 이유 하나만 남는다.
+    // Session 이 끊긴 이유. 먼저 닫은 쪽의 이유 하나만 남는다.
     // 이 어셈블리는 UnityEngine 을 참조하지 않아 로그를 못 남기므로, OnDisconnected 를 받은 쪽이 이 값을 로그로 남긴다.
     public enum EDisconnectReason
     {

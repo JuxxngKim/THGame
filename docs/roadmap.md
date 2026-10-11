@@ -138,4 +138,4 @@
 
 ## 다음 세션
 
-- [ ] **세션 7**: Title 씬과 첫 MonoBehaviour. 이 컴포넌트가 `TcpConnection`·`PacketDispatcher` 를 가지고 `Update` 에서 `DispatchAll`, `OnDestroy` 에서 `Close` 한다(`NetworkEditorCleanup` 은 에디터 전용 안전망이라 빌드에서는 이 경로뿐). `OnDisconnected` 의 `EDisconnectReason` 은 여기서 `Debug.Log` 로 남긴다. 게임 코드 asmdef 를 정하면서 `DefineEnum.cs` 를 공용 어셈블리로 옮길지도 같이 정한다. 세션 6 결과: EditMode 테스트 17개 통과, Play 종료 시 서버에 `Session N disconnected` 1줄. 안전망이 없으면 Stop 뒤에도 연결이 남는 것(종료 때 도메인 리로드 없음)도 확인했다.
+- [ ] **세션 7**: Title 씬과 첫 MonoBehaviour. 이 컴포넌트가 `Session`·`PacketDispatcher` 를 가지고 `Update` 에서 `DispatchAll`, `OnDestroy` 에서 `Close` 한다(`NetworkEditorCleanup` 은 에디터 전용 안전망이라 빌드에서는 이 경로뿐). `OnDisconnected` 의 `EDisconnectReason` 은 여기서 `Debug.Log` 로 남긴다. 게임 코드 asmdef 를 정하면서 `DefineEnum.cs` 를 공용 어셈블리로 옮길지도 같이 정한다. 세션 6 결과: EditMode 테스트 17개 통과, Play 종료 시 서버에 `Session N disconnected` 1줄. 안전망이 없으면 Stop 뒤에도 연결이 남는 것(종료 때 도메인 리로드 없음)도 확인했다.

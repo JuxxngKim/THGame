@@ -28,14 +28,14 @@ public sealed class GameRoom
     // ====================== 패킷 핸들러 테이블 (static 공유) ======================
 
     // packetID → dispatch 델리게이트(공통 테이블). static 생성자에서만 채우고 이후 읽기 전용.
-    private static readonly PacketHandlerTable<GameRoom> Table = new();
+    private static readonly PacketDispatcher<GameRoom> Dispatcher = new();
 
     static GameRoom()
     {
         // 입장/퇴장은 SessionID만 필요하므로(룸은 이미 정해짐) body(msg)는 쓰지 않는다.
-        Table.Register<OIEnterReq>((int)EMessageID.OiEnterReq, (room, pkt, msg) => room.OnEnter(pkt.SessionID));
-        Table.Register<OILeaveReq>((int)EMessageID.OiLeaveReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
-        Table.Register<OIExitGameSessionReq>((int)EMessageID.OiExitGameSessionReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
+        Dispatcher.Register<OIEnterReq>((int)EMessageID.OiEnterReq, (room, pkt, msg) => room.OnEnter(pkt.SessionID));
+        Dispatcher.Register<OILeaveReq>((int)EMessageID.OiLeaveReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
+        Dispatcher.Register<OIExitGameSessionReq>((int)EMessageID.OiExitGameSessionReq, (room, pkt, msg) => room.RemoveCharacter(pkt.SessionID));
     }
 
     public GameRoom(RoomID roomID)
@@ -63,7 +63,7 @@ public sealed class GameRoom
 
             try
             {
-                if (!Table.Dispatch(this, packet))
+                if (!Dispatcher.Dispatch(this, packet))
                     Log.Debug("Unhandled room packet RoomID={RID} PacketID={PID}", ID, packet.PacketID);
             }
             catch (Exception ex)
@@ -109,7 +109,7 @@ public sealed class GameRoom
     }
 
     // 이동(server-authoritative). 검증을 통과하면 position을 갱신한다.
-    // proto 추가 후 이동 패킷을 Table.Register로 등록하면 이 경로로 들어온다. 현재는 호출 지점만 있다.
+    // proto 추가 후 이동 패킷을 Dispatcher.Register로 등록하면 이 경로로 들어온다. 현재는 호출 지점만 있다.
     public void MoveCharacter(long sessionID, Position target)
     {
         if (!_bySession.TryGetValue(sessionID, out var character))

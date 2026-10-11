@@ -17,7 +17,7 @@ namespace TH.Network
 
         // 받은 바이트를 이어 붙이고, 완성된 패킷마다 output 을 호출한다.
         // 길이가 잘못된 헤더를 만나면 false. 스트림이 깨진 것이므로 호출자는 연결을 끊어야 한다.
-        public bool Append(byte[] data, int offset, int count, Action<ReceivedPacket> output)
+        public bool Append(byte[] data, int offset, int count, Action<PacketMessage> output)
         {
             while (count > 0)
             {
@@ -34,7 +34,7 @@ namespace TH.Network
         }
 
         // 버퍼에서 완성된 패킷을 모두 꺼내고, 남은 조각은 버퍼 앞으로 당긴다.
-        private bool Drain(Action<ReceivedPacket> output)
+        private bool Drain(Action<PacketMessage> output)
         {
             int consumed = 0;
             while (PacketHeader.TryRead(new ReadOnlySpan<byte>(_buffer, consumed, _filled - consumed),
@@ -49,7 +49,7 @@ namespace TH.Network
                 int payloadLength = length - PacketHeader.HeaderSize;
                 byte[] payload = payloadLength == 0 ? Array.Empty<byte>() : new byte[payloadLength];
                 Buffer.BlockCopy(_buffer, consumed + PacketHeader.HeaderSize, payload, 0, payloadLength);
-                output(new ReceivedPacket(packetID, payload));
+                output(new PacketMessage(packetID, payload));
                 consumed += length;
             }
 

@@ -16,7 +16,7 @@ namespace TH.Tests
             dispatcher.Register<NetAliveAck>((int)EMessageID.NetAliveAck, ack => received = ack);
 
             var payload = new NetAliveAck { ResponseMS = 42 }.ToByteArray();
-            dispatcher.Dispatch(new ReceivedPacket((int)EMessageID.NetAliveAck, payload));
+            dispatcher.Dispatch(new PacketMessage((int)EMessageID.NetAliveAck, payload));
 
             Assert.IsNotNull(received);
             Assert.AreEqual(42, received.ResponseMS);
@@ -29,7 +29,7 @@ namespace TH.Tests
             int unhandledID = 0;
             dispatcher.OnUnhandled = packet => unhandledID = packet.PacketID;
 
-            dispatcher.Dispatch(new ReceivedPacket(60001, Array.Empty<byte>()));
+            dispatcher.Dispatch(new PacketMessage(60001, Array.Empty<byte>()));
 
             Assert.AreEqual(60001, unhandledID);
         }
@@ -44,11 +44,11 @@ namespace TH.Tests
             dispatcher.OnError = (packet, ex) => error = ex;
 
             // 길이가 맞지 않는 varint 라서 파싱이 실패한다.
-            dispatcher.Dispatch(new ReceivedPacket((int)EMessageID.NetAliveAck, new byte[] { 0xFF, 0xFF, 0xFF }));
+            dispatcher.Dispatch(new PacketMessage((int)EMessageID.NetAliveAck, new byte[] { 0xFF, 0xFF, 0xFF }));
             Assert.IsInstanceOf<InvalidProtocolBufferException>(error);
             Assert.AreEqual(0, handled);
 
-            dispatcher.Dispatch(new ReceivedPacket((int)EMessageID.NetAliveAck, new NetAliveAck().ToByteArray()));
+            dispatcher.Dispatch(new PacketMessage((int)EMessageID.NetAliveAck, new NetAliveAck().ToByteArray()));
             Assert.AreEqual(1, handled);
         }
     }

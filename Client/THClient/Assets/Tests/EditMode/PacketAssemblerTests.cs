@@ -13,7 +13,7 @@ namespace TH.Tests
         {
             byte[] packet = MakePacket(10002, new byte[] { 1, 2, 3, 4, 5 });
             var assembler = new PacketAssembler();
-            var output = new List<ReceivedPacket>();
+            var output = new List<PacketMessage>();
 
             // 헤더 중간(3바이트), 헤더 나머지 + payload 일부, 나머지 순서로 나눠 넣는다.
             Assert.IsTrue(assembler.Append(packet, 0, 3, output.Add));
@@ -37,7 +37,7 @@ namespace TH.Tests
             Buffer.BlockCopy(second, 0, joined, first.Length, second.Length);
 
             var assembler = new PacketAssembler();
-            var output = new List<ReceivedPacket>();
+            var output = new List<PacketMessage>();
             Assert.IsTrue(assembler.Append(joined, 0, joined.Length, output.Add));
 
             Assert.AreEqual(2, output.Count);
@@ -59,7 +59,7 @@ namespace TH.Tests
             Buffer.BlockCopy(second, 0, chunk1, first.Length, splitAt);
 
             var assembler = new PacketAssembler();
-            var output = new List<ReceivedPacket>();
+            var output = new List<PacketMessage>();
             Assert.IsTrue(assembler.Append(chunk1, 0, chunk1.Length, output.Add));
             Assert.AreEqual(1, output.Count);
 
@@ -77,7 +77,7 @@ namespace TH.Tests
             var header = new byte[PacketHeader.HeaderSize];
             PacketHeader.Write(header, length, 1);
 
-            var output = new List<ReceivedPacket>();
+            var output = new List<PacketMessage>();
             Assert.IsFalse(new PacketAssembler().Append(header, 0, header.Length, output.Add));
             Assert.AreEqual(0, output.Count);
         }

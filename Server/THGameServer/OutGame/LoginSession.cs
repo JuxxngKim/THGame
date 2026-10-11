@@ -25,12 +25,12 @@ public sealed class LoginSession : ISessionWorker
 
     // ====================== 패킷 핸들러 테이블 (static 공유) ======================
 
-    private static readonly PacketHandlerTable<LoginSession> Table = new();
+    private static readonly PacketDispatcher<LoginSession> Dispatcher = new();
 
     static LoginSession()
     {
         // 핸들러 본문은 msg만 쓰므로 pkt는 무시한다.
-        Table.Register<COLoginReq>((int)EMessageID.CoLoginReq, (s, pkt, m) => s.OnCOLoginReq(m));
+        Dispatcher.Register<COLoginReq>((int)EMessageID.CoLoginReq, (s, pkt, m) => s.OnCOLoginReq(m));
     }
 
     // ====================== 생성자 ======================
@@ -52,7 +52,7 @@ public sealed class LoginSession : ISessionWorker
         {
             try
             {
-                Table.Dispatch(this, pkt);
+                Dispatcher.Dispatch(this, pkt);
             }
             catch (Exception ex)
             {

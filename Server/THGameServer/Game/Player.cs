@@ -28,20 +28,20 @@ public sealed class Player : ISessionWorker
     // ====================== 패킷 핸들러 테이블 (static 공유) ======================
 
     // packetID → dispatch 델리게이트(공통 테이블). static 생성자에서만 채우고 이후 읽기 전용.
-    private static readonly PacketHandlerTable<Player> Table = new();
+    private static readonly PacketDispatcher<Player> Dispatcher = new();
 
     static Player()
     {
         // 로그인 패킷은 Player가 처리하지 않는다. COLoginReq는 LoginSession, DOLoginAck는 OutGameLogicEventor(Prepare)가 처리한다.
         // 핸들러 본문은 msg만 쓰므로 pkt는 무시한다.
-        Table.Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, pkt, m) => p.OnCOGetPlayerReq(m));
-        Table.Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, pkt, m) => p.OnCOEnterReq(m));
-        Table.Register<IOEnterAck>((int)EMessageID.IoEnterAck, (p, pkt, m) => p.OnIOEnterAck(m));
+        Dispatcher.Register<COGetPlayerReq>((int)EMessageID.CoGetPlayerReq, (p, pkt, m) => p.OnCOGetPlayerReq(m));
+        Dispatcher.Register<COEnterReq>((int)EMessageID.CoEnterReq, (p, pkt, m) => p.OnCOEnterReq(m));
+        Dispatcher.Register<IOEnterAck>((int)EMessageID.IoEnterAck, (p, pkt, m) => p.OnIOEnterAck(m));
 
         // 세션 종료 흐름. NetDisconnect로 DB 세션 종료 저장을 시작하고 DOExitGameSessionAck로 완료를 받는다.
         // 핸들러 본문은 인스턴스 상태(State/AccountID/PID)만 쓰므로 pkt/msg는 무시한다.
-        Table.Register<NetDisconnect>((int)EMessageID.NetDisconnect, (p, pkt, m) => p.OnNetDisconnect());
-        Table.Register<DOExitGameSessionAck>((int)EMessageID.DoExitGameSessionAck, (p, pkt, m) => p.OnDOExitGameSessionAck());
+        Dispatcher.Register<NetDisconnect>((int)EMessageID.NetDisconnect, (p, pkt, m) => p.OnNetDisconnect());
+        Dispatcher.Register<DOExitGameSessionAck>((int)EMessageID.DoExitGameSessionAck, (p, pkt, m) => p.OnDOExitGameSessionAck());
     }
 
     // ====================== worker phase 진입점 ======================
@@ -57,7 +57,7 @@ public sealed class Player : ISessionWorker
         {
             try
             {
-                if (!Table.Dispatch(this, pkt))
+                if (!Dispatcher.Dispatch(this, pkt))
                     Log.Debug("Unregistered player packet dropped SessionID={ID} PacketID={PID}", SessionID, pkt.PacketID);
             }
             catch (Exception ex)

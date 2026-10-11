@@ -13,15 +13,18 @@ namespace TH.Network
     //
     // 종료: Close, 수신 스레드 종료, Send 실패가 모두 CloseWith 하나로 모인다. CAS 로 처음 1회만 소켓을 닫고 이유를 남긴다.
     // 알림: OnDisconnected 는 메인 스레드의 Poll 안에서만 정확히 1회 부른다. 끊기 전에 도착한 패킷이 알림보다 먼저 처리된다.
-    public sealed class TcpConnection
+    //
+    // 서버 Session 과 이름은 같지만 알림을 부르는 스레드가 다르다.
+    // 서버는 닫은 스레드(IO 스레드)에서 바로 부르고, 클라는 메인 스레드의 Poll 까지 미룬다.
+    public sealed class Session
     {
         private const int ReceiveChunkSize = 8192;
 
         // 열려 있는 연결 목록. 에디터 Play 종료나 도메인 리로드 때 CloseAll 로 한꺼번에 닫는 안전망이다.
-        private static readonly HashSet<TcpConnection> _live = new HashSet<TcpConnection>();
+        private static readonly HashSet<Session> _live = new HashSet<Session>();
 
-        private readonly ConcurrentQueue<ReceivedPacket> _received = new ConcurrentQueue<ReceivedPacket>();
-        private readonly Action<ReceivedPacket> _enqueue;
+        private readonly ConcurrentQueue<PacketMessage> _received = new ConcurrentQueue<PacketMessage>();
+        private readonly Action<PacketMessage> _enqueue;
         private readonly object _sendLock = new object();
         private Socket _socket;
         private Thread _receiveThread;
@@ -36,7 +39,7 @@ namespace TH.Network
         // Poll 을 계속 부르는 동안에만 전달된다. 예를 들어 OnDestroy 에서 Close 하면 그 뒤로 Poll 이 없으니 알림도 없다.
         public Action<EDisconnectReason> OnDisconnected;
 
-        public TcpConnection()
+        public Session()
         {
             // 패킷마다 델리게이트를 새로 만들지 않도록 한 번만 만들어 둔다.
             _enqueue = _received.Enqueue;
@@ -49,7 +52,7 @@ namespace TH.Network
         public void Connect(string host, int port)
         {
             if (_socket != null || Volatile.Read(ref _closeReason) != 0)
-                throw new InvalidOperationException("TcpConnection is single-use. Create a new instance.");
+                throw new InvalidOperationException("Session is single-use. Create a new instance.");
 
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             try
@@ -115,7 +118,7 @@ namespace TH.Network
         // 수신 스레드는 마지막 패킷을 큐에 넣은 뒤에 CAS 하므로, 이유가 보였다면 그 전 패킷은 이미 큐에 있다.
         // 반대로 큐를 비운 뒤에 이유를 읽으면, 그 사이에 들어온 마지막 패킷이 알림 뒤로 밀리거나 버려진다.
         // 처리한 패킷 수를 돌려준다.
-        public int Poll(Action<ReceivedPacket> handle)
+        public int Poll(Action<PacketMessage> handle)
         {
             if (_notified)
                 return 0;
@@ -143,15 +146,15 @@ namespace TH.Network
         public static void CloseAll()
         {
             // CloseWith 가 목록에서 자신을 빼므로, 복사본을 만들어 lock 밖에서 닫는다.
-            TcpConnection[] snapshot;
+            Session[] snapshot;
             lock (_live)
             {
-                snapshot = new TcpConnection[_live.Count];
+                snapshot = new Session[_live.Count];
                 _live.CopyTo(snapshot);
             }
 
-            foreach (var connection in snapshot)
-                connection.Close();
+            foreach (var session in snapshot)
+                session.Close();
         }
 
         // 모든 종료 경로(Close, 수신 스레드 종료, Send 실패)가 여기로 온다. 어느 스레드에서 불려도 처음 1회만 정리한다.

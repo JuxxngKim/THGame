@@ -82,8 +82,8 @@ phase 플래그(`THServerCommon/DefineEnum.cs`):
 > 워커 단위 게임 패킷(`COGetPlayerReq` 등)은 이 테이블이 아니라 **각 워커의 핸들러 테이블**에서
 > 처리한다(아래 3장). 즉 dispatch 테이블이 여럿이다:
 > - sessionId 단위 / Prepare·Arrange phase → `LogicEventor._handlers` (OutGame 도메인)
-> - `Player` 단위 / Work phase → `Player.Table`(`PacketHandlerTable<Player>`, 게임 도메인)
-> - `LoginSession` 단위 / Work phase → `LoginSession.Table` (인증 대기 — `COLoginReq`→`ODLoginReq` 송신)
+> - `Player` 단위 / Work phase → `Player.Dispatcher`(`PacketDispatcher<Player>`, 게임 도메인)
+> - `LoginSession` 단위 / Work phase → `LoginSession.Dispatcher` (인증 대기 — `COLoginReq`→`ODLoginReq` 송신)
 > - Data 계층 / DBWorker 스레드 → `DBService._handlers` (OD\* 요청 처리, 아래 2.5절)
 >
 > 한 패킷이 여러 테이블을 거칠 수 있다. 예) `NetDisconnect` 는 Eventor(Prepare)와 `Player`(Work)가,
@@ -189,14 +189,14 @@ public void Run(long tickMs, IReadOnlyCollection<ISessionWorker> workers,
 
 `Player` 가 패킷 핸들러 테이블과 처리 본문을 모두 소유한다(per-entity tick update 패턴).
 
-- **핸들러 테이블은 static 공유** (`private static readonly PacketHandlerTable<Player> Table`).
-  static 생성자에서 `Table.Register<T>(packetId, (p, pkt, m) => p.OnXxx(m))` 로 한 번 등록하고 모든 Player 가
-  공유한다. `PacketHandlerTable<TOwner>`(`Common/PacketHandlerTable.cs`)는 `MessageParser<T>` 로 ParseFrom 을
+- **핸들러 테이블은 static 공유** (`private static readonly PacketDispatcher<Player> Dispatcher`).
+  static 생성자에서 `Dispatcher.Register<T>(packetId, (p, pkt, m) => p.OnXxx(m))` 로 한 번 등록하고 모든 Player 가
+  공유한다. `PacketDispatcher<TOwner>`(`Common/PacketDispatcher.cs`)는 `MessageParser<T>` 로 ParseFrom 을
   수행하는 dispatch 델리게이트를 만들어 보관한다. 파싱에 실패하면 Warning 로그 후 무시한다.
   - 핸들러 인자: `p`(Player), `pkt`(`PacketMessage` — SessionID 등), `m`(파싱된 메시지). body 가 없는 패킷도
     같은 `Register<T>` 로 등록한다.
 - **`Execute(long tickMs, List<PacketMessage> packets)`** — worker phase 진입점:
-  1. `packets` 를 **도착 순서대로** 순회하며 `Table.Dispatch` (순서 보존). 미등록 패킷은 Debug 로그 후 건너뛰고,
+  1. `packets` 를 **도착 순서대로** 순회하며 `Dispatcher.Dispatch` (순서 보존). 미등록 패킷은 Debug 로그 후 건너뛰고,
      핸들러 예외는 패킷마다 try/catch 로 격리한다.
   2. tick 단위 Player 로직(버프 만료 / 타이머 등) 수행 — 현재 골격(TODO).
 - **응답 송신**은 `Player.Send(packetId, msg)` 헬퍼 — 자기 세션으로만 송신.
@@ -204,13 +204,13 @@ public void Run(long tickMs, IReadOnlyCollection<ISessionWorker> workers,
 
 게임 패킷 핸들러 추가 방법:
 1. `enum.proto` 에 패킷 ID, `protocol.proto` 에 메시지를 추가하고 `compile.bat` 으로 재생성
-2. `Player` static 생성자에 `Table.Register<새패킷>((int)EMessageID.새패킷, (p, pkt, m) => p.On새패킷(m));` 추가
+2. `Player` static 생성자에 `Dispatcher.Register<새패킷>((int)EMessageID.새패킷, (p, pkt, m) => p.On새패킷(m));` 추가
 3. `Player` 인스턴스 메서드 `private void On새패킷(새패킷 msg) { ... }` 구현
 4. 응답이 필요하면 `Send((int)EMessageID.응답, ack);`
 
 클라가 보내는 패킷이면 ID 를 CO 대역(10000~19999) 안에 둬야 OutGame 까지 들어온다(6.1절).
 
-`LoginSession`(`OutGame/LoginSession.cs`)도 같은 패턴(`PacketHandlerTable<LoginSession>` + `Execute`)을 따른다 —
+`LoginSession`(`OutGame/LoginSession.cs`)도 같은 패턴(`PacketDispatcher<LoginSession>` + `Execute`)을 따른다 —
 인증 대기 단계에서 `COLoginReq` 만 처리해 `ODLoginReq` 를 Data 계층으로 송신한다(위 2.5절).
 
 ---
@@ -228,7 +228,7 @@ worker phase 핸들러(`Player.On*` 및 tick 로직)는 **worker 스레드**에�
 - `PlayerArchive`(`OutGame/PlayerArchive.cs`)는 lock 없는 `Dictionary` 지만, 등록/제거는 Prepare/Event/Arrange
   (단일 tick 스레드)에서만 일어난다. Work 동안에는 `Values` 열거/읽기만 하고 archive 를 변경하지 않으므로
   안전하다.
-- `Player.Table` / `LoginSession.Table` 은 static 생성자에서만 채우고 이후 읽기 전용 → 병렬 읽기 안전.
+- `Player.Dispatcher` / `LoginSession.Dispatcher` 은 static 생성자에서만 채우고 이후 읽기 전용 → 병렬 읽기 안전.
 - 다른 서비스(Data, InGame)에 일을 시킬 때는 그 서비스의 큐에 넣기만 한다(`DBService.Send`,
   `InGameService.EnqueuePacket`). 둘 다 스레드 안전하다.
 - `NetworkManager._sessions` 는 `ConcurrentDictionary`; `Session.Send` 는 Interlocked /
@@ -244,7 +244,7 @@ worker phase 핸들러(`Player.On*` 및 tick 로직)는 **worker 스레드**에�
 | 파일 | 역할 |
 |------|------|
 | `GameServerApp.cs` | 서비스 시작/종료, 수신 패킷 라우팅(`PacketBand` 허용 목록, 6.1절), disconnect → `NetDisconnect` 주입 |
-| `Common/PacketHandlerTable.cs` | `Player`·`LoginSession`·`GameRoom` 공통 패킷 dispatch 테이블(static, 읽기 전용) |
+| `Common/PacketDispatcher.cs` | `Player`·`LoginSession`·`GameRoom` 공통 패킷 dispatch 테이블(static, 읽기 전용) |
 | `Common/PacketBand.cs` | 패킷 ID 대역 판정. 클라가 보낼 수 있는 패킷인지 확인(6.1절) |
 | `OutGame/OutGameService.cs` | tick 메인 루프(`MainLoop`), phase 호출, 패킷 그룹핑(끊긴 세션 패킷 버림) |
 | `OutGame/LogicEventor.cs` | Eventor 추상 베이스. sessionId 단위 핸들러 등록 + Prepare/Work/Arrange hook |
@@ -342,7 +342,7 @@ GameRoom.Tick(dtMs):
 ```
 
 - **룸 입력은 `PacketMessage` 하나로 통일했다.** 입장·퇴장·게임플레이 패킷이 모두 같은
-  `Inbox`(`ConcurrentQueue<PacketMessage>`)로 들어오고, `GameRoom` 의 static `PacketHandlerTable<GameRoom>` 이
+  `Inbox`(`ConcurrentQueue<PacketMessage>`)로 들어오고, `GameRoom` 의 static `PacketDispatcher<GameRoom>` 이
   dispatch 한다. 룸 안에서 다음 tick 으로 미룰 작업(스폰, 타이머 등)도 같은 Inbox 에 넣으면 된다.
 - **drain 은 시작 시점 `Count` 만큼만 한다.** 처리 중에 룸이 스스로 넣은 패킷은 다음 tick 으로 넘어간다.
   같은 tick 안에서 끝없이 drain 하는 것을 막기 위해서다. `Count` 를 믿을 수 있는 이유: Prepare 의 enqueue 는
@@ -350,7 +350,7 @@ GameRoom.Tick(dtMs):
 - **룸 내부 상태(Character 컬렉션, Position)는 그 룸을 맡은 워커 하나만 바꾼다(single-writer, lock 없음).**
   밖에서 바꾸려면 Inbox 로 패킷을 보낸다.
 - 이동(`GameRoom.MoveCharacter`)은 함수만 있고 연결된 패킷은 아직 없다. CI 대역에 `CIMoveReq` 를 추가해
-  `Table.Register` 로 연결한다(로드맵 세션 11~12).
+  `Dispatcher.Register` 로 연결한다(로드맵 세션 11~12).
 
 ### 6.5. 브로드캐스트 (확장 지점)
 

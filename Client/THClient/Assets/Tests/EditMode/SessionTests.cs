@@ -10,7 +10,7 @@ using TH.Network;
 namespace TH.Tests
 {
     // 실제 소켓으로 수신 스레드 → 큐 경로를 검증한다. 게임 서버 대신 테스트 안에서 루프백 리스너를 띄운다.
-    public class TcpConnectionTests
+    public class SessionTests
     {
         private const int TimeoutMs = 2000;
 
@@ -19,12 +19,12 @@ namespace TH.Tests
         {
             var listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start();
-            var connection = new TcpConnection();
+            var session = new Session();
             try
             {
                 int port = ((IPEndPoint)listener.LocalEndpoint).Port;
-                connection.Connect("127.0.0.1", port);
-                Assert.IsTrue(connection.IsConnected);
+                session.Connect("127.0.0.1", port);
+                Assert.IsTrue(session.IsConnected);
 
                 using (TcpClient server = listener.AcceptTcpClient())
                 {
@@ -34,10 +34,10 @@ namespace TH.Tests
                     server.GetStream().Write(first, 0, first.Length);
                     server.GetStream().Write(second, 0, second.Length);
 
-                    var received = new List<ReceivedPacket>();
+                    var received = new List<PacketMessage>();
                     Assert.IsTrue(WaitUntil(() =>
                     {
-                        connection.Poll(received.Add);
+                        session.Poll(received.Add);
                         return received.Count >= 2;
                     }), "패킷 2개를 시간 안에 받지 못함");
 
@@ -47,11 +47,11 @@ namespace TH.Tests
                 }
 
                 // 서버 쪽 소켓을 닫으면 수신 스레드가 끊김을 감지해야 한다.
-                Assert.IsTrue(WaitUntil(() => !connection.IsConnected), "서버 종료를 감지하지 못함");
+                Assert.IsTrue(WaitUntil(() => !session.IsConnected), "서버 종료를 감지하지 못함");
             }
             finally
             {
-                connection.Close();
+                session.Close();
                 listener.Stop();
             }
         }
@@ -61,13 +61,13 @@ namespace TH.Tests
         {
             var listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start();
-            var connection = new TcpConnection();
+            var session = new Session();
             try
             {
-                connection.Connect("127.0.0.1", ((IPEndPoint)listener.LocalEndpoint).Port);
+                session.Connect("127.0.0.1", ((IPEndPoint)listener.LocalEndpoint).Port);
                 using (TcpClient server = listener.AcceptTcpClient())
                 {
-                    Assert.IsTrue(connection.Send(102, new byte[] { 9, 8, 7 }));
+                    Assert.IsTrue(session.Send(102, new byte[] { 9, 8, 7 }));
 
                     // 서버 입장에서 헤더 8바이트 + payload 3바이트가 그대로 와야 한다.
                     server.ReceiveTimeout = TimeoutMs;
@@ -84,7 +84,7 @@ namespace TH.Tests
             }
             finally
             {
-                connection.Close();
+                session.Close();
                 listener.Stop();
             }
         }
