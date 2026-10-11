@@ -37,8 +37,7 @@ namespace TH.Tests
                     var received = new List<ReceivedPacket>();
                     Assert.IsTrue(WaitUntil(() =>
                     {
-                        while (connection.TryDequeue(out var packet))
-                            received.Add(packet);
+                        connection.Poll(received.Add);
                         return received.Count >= 2;
                     }), "패킷 2개를 시간 안에 받지 못함");
 
@@ -90,7 +89,7 @@ namespace TH.Tests
             }
         }
 
-        private static bool WaitUntil(Func<bool> condition)
+        internal static bool WaitUntil(Func<bool> condition)
         {
             var stopwatch = Stopwatch.StartNew();
             while (stopwatch.ElapsedMilliseconds < TimeoutMs)

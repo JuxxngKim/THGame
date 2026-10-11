@@ -37,7 +37,7 @@
 | [x] | 3 | Protobuf 직렬화 단위 테스트 1개(Unity Test Framework). 30분 분량이라 남는 시간은 세션 4 준비 | 테스트 통과 |
 | [x] | 4 | `PacketHeader` 복제(8바이트: int32 length LE + int32 packetID LE) + `TcpConnection` 수신 스레드 → `ConcurrentQueue` | 서버 접속 후 소켓 열림 로그 |
 | [x] | 5 | 송신 경로 + `PacketDispatcher`(메인 스레드 `Update`에서 큐 분배, `Dictionary<int, Action<byte[]>>` 핸들러 테이블) | 서버 `NetDisconnect` 로그로 왕복 확인 |
-| [ ] | 6 | `Close()` 단일 종료 경로, `OnDisconnected` 정확히 1회 보장(CAS), 에디터 Play 종료 시 소켓 정리 | 서버 로그에 세션 정리 1회만 기록 |
+| [x] | 6 | `Close()` 단일 종료 경로, `OnDisconnected` 정확히 1회 보장(CAS), 에디터 Play 종료 시 소켓 정리 | 서버 로그에 세션 정리 1회만 기록 |
 | [ ] | 7 | Title 씬: 접속 → `COLoginReq`(PID·AuthToken 더미) → `OCLoginAck` | 화면에 AccountID 표시 |
 | [ ] | 8 | `COEnterReq(StageID=1)` → `ICEnterNoti` 수신 → Field 씬 로드 | 씬 전환 |
 | [ ] | 9 | 캐릭터 프리팹 스폰(`Position` 반영), 원근 카메라 + 빌보드 스프라이트 | 캐릭터가 서버 좌표에 보임 |
@@ -138,4 +138,4 @@
 
 ## 다음 세션
 
-- [ ] **세션 6**: `TcpConnection` 단일 종료 경로. 지금은 `Close()`, 수신 스레드 `finally`, `Send` 실패 세 곳에서 따로 닫고 끊김을 알리는 이벤트가 없다. `Close()` 하나로 모으고 `OnDisconnected` 를 CAS 로 정확히 1회만 알린다(서버 `Session` 불변식 1·2와 같은 방식). 이벤트는 수신 스레드에서 발생할 수 있으니 메인 스레드로 넘겨서 알린다. Play 종료·도메인 리로드 때 소켓 정리도 이번 범위다. 세션 5 결과: `NetAliveReq` → `NetAliveAck` 왕복 성공(269ms, 대부분 서버 OutGame 300ms tick 대기).
+- [ ] **세션 7**: Title 씬과 첫 MonoBehaviour. 이 컴포넌트가 `TcpConnection`·`PacketDispatcher` 를 가지고 `Update` 에서 `DispatchAll`, `OnDestroy` 에서 `Close` 한다(`NetworkEditorCleanup` 은 에디터 전용 안전망이라 빌드에서는 이 경로뿐). `OnDisconnected` 의 `EDisconnectReason` 은 여기서 `Debug.Log` 로 남긴다. 게임 코드 asmdef 를 정하면서 `DefineEnum.cs` 를 공용 어셈블리로 옮길지도 같이 정한다. 세션 6 결과: EditMode 테스트 17개 통과, Play 종료 시 서버에 `Session N disconnected` 1줄. 안전망이 없으면 Stop 뒤에도 연결이 남는 것(종료 때 도메인 리로드 없음)도 확인했다.

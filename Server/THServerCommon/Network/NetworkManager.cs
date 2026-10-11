@@ -69,13 +69,18 @@ public sealed class NetworkManager : Singleton<NetworkManager>
     private void OnNewSession(Session session)
     {
         _sessions.TryAdd(session.SessionID, session);
+        Log.Information("Session {ID} connected", session.SessionID);
         session.OnDisconnected += OnSessionDisconnectedInternal;
         OnSessionConnected?.Invoke(session);
     }
 
     private void OnSessionDisconnectedInternal(Session session)
     {
+        // TryRemove 가 성공하는 건 세션당 1번뿐이라 이 로그도 1번만 남는다.
         if (_sessions.TryRemove(session.SessionID, out _))
+        {
+            Log.Information("Session {ID} disconnected", session.SessionID);
             OnSessionDisconnected?.Invoke(session);
+        }
     }
 }
