@@ -193,14 +193,15 @@ public void Run(long tickMs, IReadOnlyCollection<ISessionWorker> workers,
   static 생성자에서 `Dispatcher.Register<T>((player, msg) => player.OnXxx(msg))` 로 한 번 등록하고 모든 Player 가
   공유한다. `PacketDispatcher<TOwner>`(`Common/PacketDispatcher.cs`)는 `MessageParser<T>` 로 ParseFrom 을
   수행하는 dispatch 델리게이트를 만들어 보관한다. 파싱에 실패하면 Warning 로그 후 무시한다.
-  - packetID 는 따로 넘기지 않는다. proto 에 적힌 `MessageID` 필드(번호 99)의 default 를 등록할 때 descriptor 에서 읽는다.
+  - packetID 는 따로 넘기지 않는다. proto 에 적힌 `MessageID` 필드(이름으로 찾는다, 관례상 번호는 99)의 default 를 등록할 때 descriptor 에서 읽는다.
     `MessageID` 가 없거나, `[default]` 가 없거나, default 이름이 메시지 이름과 맞지 않거나(`CO_ENTER_REQ` ↔ `COEnterReq`,
     복붙 실수 방지), 같은 packetID 를 두 번 등록하면 예외가 난다.
   - static 생성자는 원래 처음 쓸 때(첫 로그인·입장) 돈다. 그때 예외가 나면 `TypeInitializationException` 이 영구히 남아
-    모든 로그인이 멈추므로, `GameServerApp.InitPacketHandlers`(`Start` 에서 호출)가 `RuntimeHelpers.RunClassConstructor` 로 `LoginSession`·`Player`·`GameRoom` 을
-    미리 돌린다. 등록 실수는 서버 시작 실패로 드러난다. `PacketDispatcher` 를 가진 타입을 새로 만들면 이 목록에 추가한다.
-  - 이 규칙은 `PacketDispatcher` 등록에만 해당한다. 송신(`Send((int)EMessageID.X, ...)`)이나 `LogicEventor`·`InGameService`·`DBService`
-    등록은 여전히 packetID 를 직접 쓴다.
+    모든 로그인이 멈추므로, `GameServerApp.InitPacketHandlers`(`Start` 에서 호출)가 미리 돌린다. 대상은 static `PacketDispatcher<>`
+    필드를 가진 타입을 reflection 으로 찾으므로 목록을 손으로 관리하지 않는다(시작 로그 `Packet handlers initialized: ...` 로 확인).
+    등록 실수는 서버 시작 실패로 드러난다.
+  - packetID 자동 해석은 `PacketDispatcher` 등록에만 해당한다. 송신(`Send((int)EMessageID.X, ...)`)이나 `LogicEventor`·`InGameService`·`DBService`
+    등록은 여전히 packetID 를 직접 쓴다. 다만 이 셋도 같은 packetID 를 두 번 등록하면 예외를 낸다(서비스 `Init` 안이라 역시 서버 시작 때 드러남).
   - 핸들러 인자: 주인(`player`/`loginSession`/`room`), 파싱된 메시지(`msg`). `PacketMessage`(SessionID 등)가 필요하면
     3인자 `(room, packet, msg)` 로 등록한다(`GameRoom`). 쓰지 않는 인자는 `_` 로 둔다.
 - **`Execute(long tickMs, List<PacketMessage> packets)`** — worker phase 진입점:

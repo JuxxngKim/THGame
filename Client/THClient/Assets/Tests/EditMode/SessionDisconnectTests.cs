@@ -171,6 +171,33 @@ namespace TH.Tests
         }
 
         [Test]
+        public void ServerClosesFirst_ThenCloseInsideHandler_DropsRemainingPackets()
+        {
+            // 강제 퇴장: 서버가 패킷을 보내고 바로 끊는다. 이유는 이미 RemoteClosed 로 정해진 상태에서
+            // 첫 패킷의 핸들러가 Close 한다. 이유가 바뀌지 않아도 남은 패킷은 핸들러에 가면 안 된다.
+            var joined = new List<byte>();
+            joined.AddRange(PacketAssemblerTests.MakePacket(10001, new byte[] { 1 }));
+            joined.AddRange(PacketAssemblerTests.MakePacket(10002, new byte[] { 2 }));
+            joined.AddRange(PacketAssemblerTests.MakePacket(10003, new byte[] { 3 }));
+            _server.GetStream().Write(joined.ToArray(), 0, joined.Count);
+            _server.Close();
+            Assert.IsTrue(SessionTests.WaitUntil(() => !_session.IsConnected), "서버 종료를 감지하지 못함");
+
+            var handled = new List<int>();
+            _session.Poll(packet =>
+            {
+                handled.Add(packet.PacketID);
+                if (packet.PacketID == 10001)
+                    _session.Close();
+            });
+
+            CollectionAssert.AreEqual(new[] { 10001 }, handled);
+            // 같은 Poll 안에서 알린다. 이유는 먼저 정해진 RemoteClosed 가 남는다.
+            Assert.AreEqual(1, _notifyCount);
+            Assert.AreEqual(EDisconnectReason.RemoteClosed, _reason);
+        }
+
+        [Test]
         public void ReentrantPoll_NotifiesOnce()
         {
             byte[] packet = PacketAssemblerTests.MakePacket(10003, new byte[] { 1 });

@@ -86,7 +86,7 @@ public sealed class GameRoom
     {
         if (_bySession.ContainsKey(sessionID))
         {
-            Log.Warning("Room enter skipped — already in room RoomID={RID} SessionID={SID}", ID, sessionID);
+            Log.Warning("Room enter skipped - already in room RoomID={RID} SessionID={SID}", ID, sessionID);
             return null;
         }
 

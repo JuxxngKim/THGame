@@ -75,7 +75,8 @@ public sealed class DBService : Singleton<DBService>
     {
         var parser = new MessageParser<T>(() => new T());
 
-        _handlers[packetID] = (sessionID, payload) =>
+        // 덮어쓰면 먼저 등록한 핸들러가 조용히 사라진다(PacketDispatcher.Register와 같은 이유).
+        bool added = _handlers.TryAdd(packetID, (sessionID, payload) =>
         {
             T msg;
             try
@@ -89,7 +90,10 @@ public sealed class DBService : Singleton<DBService>
             }
 
             handler(sessionID, msg);
-        };
+        });
+
+        if (!added)
+            throw new InvalidOperationException($"PacketID {packetID} is already registered ({typeof(T).Name})");
     }
 
     // worker 스레드가 호출한다. 자기 mailbox의 요청 1건을 핸들러로 dispatch한다. 미등록 패킷은 버린다.

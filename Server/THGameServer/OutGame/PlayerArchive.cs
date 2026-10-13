@@ -20,7 +20,7 @@ public sealed class PlayerArchive
     {
         if (_bySession.ContainsKey(sessionID))
         {
-            Log.Warning("PlayerArchive register skipped — already exists SessionID={ID}", sessionID);
+            Log.Warning("PlayerArchive register skipped - already exists SessionID={ID}", sessionID);
             return false;
         }
         _bySession.Add(sessionID, worker);

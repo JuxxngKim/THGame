@@ -38,7 +38,7 @@
 | [x] | 4 | `PacketHeader` 복제(8바이트: int32 length LE + int32 packetID LE) + `TcpConnection` 수신 스레드 → `ConcurrentQueue` | 서버 접속 후 소켓 열림 로그 |
 | [x] | 5 | 송신 경로 + `PacketDispatcher`(메인 스레드 `Update`에서 큐 분배, `Dictionary<int, Action<byte[]>>` 핸들러 테이블) | 서버 `NetDisconnect` 로그로 왕복 확인 |
 | [x] | 6 | `Close()` 단일 종료 경로, `OnDisconnected` 정확히 1회 보장(CAS), 에디터 Play 종료 시 소켓 정리 | 서버 로그에 세션 정리 1회만 기록 |
-| [ ] | 7 | Title 씬: 접속 → `COLoginReq`(PID·AuthToken 더미) → `OCLoginAck` | 화면에 AccountID 표시 |
+| [x] | 7 | Title 씬: 접속 → `COLoginReq`(PID·AuthToken 더미) → `OCLoginAck` | 화면에 AccountID 표시 |
 | [ ] | 8 | `COEnterReq(StageID=1)` → `ICEnterNoti` 수신 → Field 씬 로드 | 씬 전환 |
 | [ ] | 9 | 캐릭터 프리팹 스폰(`Position` 반영), 원근 카메라 + 빌보드 스프라이트 | 캐릭터가 서버 좌표에 보임 |
 | [ ] | 10 | 더미 클라 2개 + Unity 1개 동시 접속, 예외 경로(서버 꺼짐·재접속) 수동 테스트, 버그 수정 | 서버 종료 시 Unity가 Title로 복귀 |
@@ -48,6 +48,10 @@
 - 스레드 모델은 **수신 스레드 → 메인 스레드 dispatch** 단일 경로로 고정. Unity API 메인 스레드 제약 + 서버 single-writer 규약과 동일한 이유.
 - 프로토콜 공유는 **생성물 두 벌 커밋(A안)**. junction 방식은 Windows 전용·clone 후 수동 설정 필요·서버 폴더에 `.meta` 오염이라 배제.
 - 레퍼런스: `Server/THDummyClient/Program.cs`가 로그인→입장 시퀀스를 순수 TCP로 구현하고 있다.
+- **세션 7 리뷰에서 세션 10 으로 넘긴 것** (Title 복귀 흐름을 만들 때 같이 고치고 테스트한다):
+  - Title 재진입: 끊긴 뒤에도 `NetworkManager._session` 을 비우지 않아 재접속이 안 된다. 연결이 살아 있는 채 재진입하면 `COLoginReq` 를 또 보내고, 서버가 무시해서 "Logging in..." 에서 멈춘다. → 끊김 알림 때 `_session` 비우기, 로그인 상태(AccountID)를 `NetworkManager` 가 보관.
+  - 에디터 Stop 때 `Disconnected(LocalClose)` 가 온다 → 복귀 로직은 `LocalClose` 를 무시.
+  - 동기 접속: 서버가 없으면 Windows 는 거부까지 약 2초 블록, 그동안 "Connecting..." 도 그려지지 않는다. 진행 중인 접속은 `Close` 로 취소되지 않는다. → 백그라운드 접속 + 취소.
 
 ---
 
@@ -138,4 +142,4 @@
 
 ## 다음 세션
 
-- [ ] **세션 7**: Title 씬과 첫 MonoBehaviour. 이 컴포넌트가 `Session`·`PacketDispatcher` 를 가지고 `Update` 에서 `DispatchAll`, `OnDestroy` 에서 `Close` 한다(`NetworkEditorCleanup` 은 에디터 전용 안전망이라 빌드에서는 이 경로뿐). `OnDisconnected` 의 `EDisconnectReason` 은 여기서 `Debug.Log` 로 남긴다. 게임 코드 asmdef 를 정하면서 `DefineEnum.cs` 를 공용 어셈블리로 옮길지도 같이 정한다. 세션 6 결과: EditMode 테스트 17개 통과, Play 종료 시 서버에 `Session N disconnected` 1줄. 안전망이 없으면 Stop 뒤에도 연결이 남는 것(종료 때 도메인 리로드 없음)도 확인했다.
+- [ ] **세션 8**: 로그인 성공 뒤 `COEnterReq(StageID=1)` → `ICEnterNoti` 수신 → Field 씬 로드. `NetworkManager` 는 DontDestroyOnLoad 라 씬이 바뀌어도 연결이 유지된다. Field 씬 쪽 핸들러도 `OnEnable` 에서 Register, `OnDisable` 에서 Unregister 한다. 먼저 정할 것: Field 씬을 새로 만들지 `SampleScene` 을 바꿔 쓸지, `COEnterReq` 를 로그인 직후 자동으로 보낼지 버튼으로 보낼지, **씬 전환 중 패킷을 어떻게 받을지**(핸들러가 씬을 바꾸면 같은 `Poll` 의 뒤 패킷이 버려진다. 씬과 무관한 영속 매니저가 받을지, dispatch 를 잠깐 멈출지). 세션 7 결과: Play 하면 화면에 `AccountID: N`, Stop 하면 서버에 `Session N disconnected` 1줄. 서버 프로세스를 강제 종료하면 `Disconnected: SocketError`(RST), 서버가 없으면 `Connect failed`. **서버가 없을 때 Windows 는 접속 거부까지 약 2초 걸려서 그동안 화면이 멈춘다** → 세션 10 의 백그라운드 접속에서 해결.

@@ -141,7 +141,7 @@ public sealed class OutGameLogicEventor : LogicEventor
         // 완료 응답(DOExitGameSessionAck)의 Arrange에서 archive를 제거한다.
         if (_archive.Find<Player>(sessionID) is not null)
         {
-            Log.Debug("Disconnect — defer Player removal until ExitGameSession ack SessionID={ID}", sessionID);
+            Log.Debug("Disconnect - defer Player removal until ExitGameSession ack SessionID={ID}", sessionID);
             return;
         }
 

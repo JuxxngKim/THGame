@@ -35,6 +35,13 @@ namespace TH.Network
         // 메인 스레드 전용. OnDisconnected 를 이미 불렀는지.
         private bool _notified;
 
+        // Close() 를 불렀는지. 이유(_closeReason)와 따로 둔다.
+        // 서버가 먼저 끊어 이유가 이미 RemoteClosed 로 정해졌으면 Close() 의 CAS 가 지므로, 이유만 봐서는 Close 요청을 알 수 없다.
+        private volatile bool _closeRequested;
+
+        // Connect 를 이미 시작했는지. lock(_live) 안에서만 읽고 쓴다(동시 Connect 로 소켓이 두 개 생기는 것을 막는다).
+        private bool _connectStarted;
+
         // 끊김 알림. Poll 안에서 메인 스레드로 정확히 1회 부른다. 직접 Close() 한 경우도 LocalClose 로 알린다.
         // Poll 을 계속 부르는 동안에만 전달된다. 예를 들어 OnDestroy 에서 Close 하면 그 뒤로 Poll 이 없으니 알림도 없다.
         public Action<EDisconnectReason> OnDisconnected;
@@ -47,13 +54,19 @@ namespace TH.Network
 
         public bool IsConnected => _socket != null && Volatile.Read(ref _closeReason) == 0;
 
-        // 동기 접속. 실패하면 SocketException 을 던진다. 인스턴스 하나는 한 번만 접속한다.
-        // 접속을 기다리는 동안 다른 스레드가 Close 하면 예외 없이 돌아온다. 이때 IsConnected 는 false 다.
+        // 동기 접속. 실패하면 SocketException 을 던진다. 인스턴스 하나는 한 번만 접속한다(두 번째 호출은 예외).
+        // 접속을 기다리는 동안 다른 스레드가 Close 해도 진행 중인 접속을 끊지는 못한다(OS timeout 까지 기다린다).
+        // 그 뒤 접속이 성공하면 소켓을 닫고 예외 없이 돌아오고(IsConnected 는 false), 실패하면 원래대로 예외를 던진다.
+        // 진행 중인 접속 취소는 로드맵 세션 10 의 백그라운드 접속에서 한다.
         // 주의: 접속이 끝날 때까지 호출한 스레드를 막는다. 원격 서버에 메인 스레드에서 붙으면 화면이 멈출 수 있다.
         public void Connect(string host, int port)
         {
-            if (_socket != null || Volatile.Read(ref _closeReason) != 0)
-                throw new InvalidOperationException("Session is single-use. Create a new instance.");
+            lock (_live)
+            {
+                if (_connectStarted || Volatile.Read(ref _closeReason) != 0)
+                    throw new InvalidOperationException("Session is single-use. Create a new instance.");
+                _connectStarted = true;
+            }
 
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             try
@@ -129,7 +142,8 @@ namespace TH.Network
         // 순서가 중요하다: 이유를 먼저 읽고 → 큐를 비우고 → 아까 읽은 이유가 있으면 알린다.
         // 수신 스레드는 마지막 패킷을 큐에 넣은 뒤에 CAS 하므로, 이유가 보였다면 그 전 패킷은 이미 큐에 있다.
         // 반대로 큐를 비운 뒤에 이유를 읽으면, 그 사이에 들어온 마지막 패킷이 알림 뒤로 밀리거나 버려진다.
-        // 단, 직접 Close() 한 뒤에는 큐에 남은 패킷을 처리하지 않고 버린다(핸들러 안에서 Close 한 경우 포함).
+        // 단, 직접 Close() 한 뒤에는 큐에 남은 패킷을 핸들러에 넘기지 않는다(핸들러 안에서 Close 한 경우 포함).
+        // 서버가 먼저 끊었더라도 Close() 를 불렀으면 거기서 멈춘다(예: 강제 퇴장 패킷을 받고 서버가 바로 끊는 경우).
         // 처리한 패킷 수를 돌려준다.
         public int Poll(Action<PacketMessage> handle)
         {
@@ -138,14 +152,16 @@ namespace TH.Network
 
             var reason = (EDisconnectReason)Volatile.Read(ref _closeReason);
             int count = 0;
-            while (_received.TryDequeue(out var packet))
+            while (!_closeRequested && _received.TryDequeue(out var packet))
             {
-                if (Volatile.Read(ref _closeReason) == (int)EDisconnectReason.LocalClose)
-                    break;
-
                 handle(packet);
                 count++;
             }
+
+            // 직접 Close 했으면 남은 패킷을 처리하지 않으니 순서를 지킬 필요가 없다. 지금 이유를 다시 읽어 이번 Poll 에서 바로 알린다.
+            // 서버가 먼저 끊은 뒤 Close 한 경우 이유는 먼저 정해진 RemoteClosed 등이 그대로 남는다.
+            if (_closeRequested)
+                reason = (EDisconnectReason)Volatile.Read(ref _closeReason);
 
             // 핸들러가 Poll 을 다시 불러 그쪽에서 이미 알렸을 수 있다.
             if (reason != EDisconnectReason.None && !_notified)
@@ -156,9 +172,13 @@ namespace TH.Network
             return count;
         }
 
-        // 연결을 닫는다. 여러 번 불러도, 다른 종료와 겹쳐도 안전하다. 알림은 다음 Poll 에서 LocalClose 로 간다.
-        // 이 뒤로는 큐에 남은 패킷을 핸들러에 넘기지 않는다.
-        public void Close() => CloseWith(EDisconnectReason.LocalClose);
+        // 연결을 닫는다. 여러 번 불러도, 다른 종료와 겹쳐도 안전하다. 알림은 다음 Poll(핸들러 안이면 지금 Poll)에서 간다.
+        // 이유는 LocalClose 이고, 서버가 먼저 끊었으면 그쪽 이유가 남는다. 이 뒤로는 큐에 남은 패킷을 핸들러에 넘기지 않는다.
+        public void Close()
+        {
+            _closeRequested = true;
+            CloseWith(EDisconnectReason.LocalClose);
+        }
 
         // 열려 있는 연결을 모두 닫는다. 에디터 Play 종료·도메인 리로드 때 쓰는 안전망이다(NetworkEditorCleanup).
         public static void CloseAll()

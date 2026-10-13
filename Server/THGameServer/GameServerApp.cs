@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using Serilog;
 using Th;
 using TH.Common.Config;
@@ -6,7 +7,6 @@ using TH.Common.Network;
 using TH.Common.Time;
 using TH.Server.Common;
 using TH.Server.Data;
-using TH.Server.Game;
 using TH.Server.Logging;
 using TH.Server.Logic;
 
@@ -128,11 +128,26 @@ public sealed class GameServerApp
     // 패킷 핸들러 표(static 생성자)를 지금 만든다. 그냥 두면 첫 로그인·입장 때 만들어진다.
     // 그때 등록 실수(MessageID default 누락·복붙·중복)로 예외가 나면 TypeInitializationException 이 영구히 남아
     // 그 뒤 모든 로그인이 멈추는데, 서버는 겉보기에 정상이다. 여기서 터지면 Start 가 실패해 바로 드러난다.
-    // PacketDispatcher 를 가진 타입을 새로 만들면 여기에도 추가한다.
+    // 대상은 static PacketDispatcher<> 필드를 가진 타입을 reflection 으로 찾는다. 목록을 손으로 적으면 새 타입을 빠뜨릴 수 있다.
     private static void InitPacketHandlers()
     {
-        RuntimeHelpers.RunClassConstructor(typeof(LoginSession).TypeHandle);
-        RuntimeHelpers.RunClassConstructor(typeof(Player).TypeHandle);
-        RuntimeHelpers.RunClassConstructor(typeof(GameRoom).TypeHandle);
+        var initialized = new List<string>();
+        foreach (var type in typeof(GameServerApp).Assembly.GetTypes())
+        {
+            // 열린 generic 타입(PacketDispatcher<TOwner> 자신 등)은 static 생성자를 돌릴 수 없다.
+            if (type.IsGenericTypeDefinition)
+                continue;
+
+            bool hasDispatcher = type
+                .GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                .Any(f => f.FieldType.IsGenericType && f.FieldType.GetGenericTypeDefinition() == typeof(PacketDispatcher<>));
+            if (!hasDispatcher)
+                continue;
+
+            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+            initialized.Add(type.Name);
+        }
+
+        Log.Information("Packet handlers initialized: {Types}", string.Join(", ", initialized));
     }
 }

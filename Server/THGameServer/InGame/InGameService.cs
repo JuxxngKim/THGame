@@ -56,7 +56,8 @@ public sealed class InGameService : Singleton<InGameService>
     {
         var parser = new MessageParser<T>(() => new T());
 
-        _handlers[packetID] = packet =>
+        // 덮어쓰면 먼저 등록한 핸들러가 조용히 사라진다(PacketDispatcher.Register와 같은 이유).
+        bool added = _handlers.TryAdd(packetID, packet =>
         {
             T msg;
             try
@@ -71,7 +72,10 @@ public sealed class InGameService : Singleton<InGameService>
             }
 
             handler(packet, msg);
-        };
+        });
+
+        if (!added)
+            throw new InvalidOperationException($"PacketID {packetID} is already registered ({typeof(T).Name})");
     }
 
     // 입장. 공유 상태(SessionRoomMap/RoomRepository) 변경은 여기 Prepare에서 한다. 룸이 없으면 만든다.

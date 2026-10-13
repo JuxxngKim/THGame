@@ -90,7 +90,7 @@ public sealed class Player : ISessionWorker
         // 로그인 직후 상태에서만 입장을 허용한다. Entering(왕복 중) / InField(이미 입장)의 중복 요청은 막는다.
         if (State != EPlayerState.LoggedIn)
         {
-            Log.Warning("Enter rejected — invalid state SessionID={ID} State={State} StageID={Stage}",
+            Log.Warning("Enter rejected - invalid state SessionID={ID} State={State} StageID={Stage}",
                 SessionID, State, msg.StageID);
             return;
         }
@@ -109,7 +109,7 @@ public sealed class Player : ISessionWorker
     {
         if (State != EPlayerState.Entering)
         {
-            Log.Warning("IOEnterAck ignored — not entering SessionID={ID} State={State} RoomID={RID}",
+            Log.Warning("IOEnterAck ignored - not entering SessionID={ID} State={State} RoomID={RID}",
                 SessionID, State, msg.RoomID);
             return;
         }

@@ -26,7 +26,8 @@ public abstract class LogicEventor
     {
         var parser = new MessageParser<T>(() => new T());
 
-        _handlers[packetID] = new HandlerEntry(phases, (sessionID, payload, flag) =>
+        // 덮어쓰면 먼저 등록한 핸들러가 조용히 사라진다(PacketDispatcher.Register와 같은 이유).
+        bool added = _handlers.TryAdd(packetID, new HandlerEntry(phases, (sessionID, payload, flag) =>
         {
             T msg;
             try
@@ -40,7 +41,10 @@ public abstract class LogicEventor
             }
 
             handler(sessionID, msg, flag);
-        });
+        }));
+
+        if (!added)
+            throw new InvalidOperationException($"PacketID {packetID} is already registered ({typeof(T).Name})");
     }
 
     // 주기 작업 hook. tick 시작 시 호출되며 하위 클래스가 시간 기반 작업을 구현한다.

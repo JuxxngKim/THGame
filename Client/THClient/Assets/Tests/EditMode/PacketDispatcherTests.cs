@@ -69,5 +69,40 @@ namespace TH.Tests
             dispatcher.Register<NetAliveAck>(ack => { });
             Assert.Throws<InvalidOperationException>(() => dispatcher.Register<NetAliveAck>(ack => { }));
         }
+
+        [Test]
+        public void Unregister_ThenPacketIsUnhandled_AndCanRegisterAgain()
+        {
+            // 씬 재진입처럼 해제 후 다시 등록하는 흐름.
+            var dispatcher = new PacketDispatcher();
+            int unhandledID = 0;
+            dispatcher.OnUnhandled = packet => unhandledID = packet.PacketID;
+            Action<NetAliveAck> first = ack => { };
+            dispatcher.Register(first);
+
+            Assert.IsTrue(dispatcher.Unregister(first));
+            dispatcher.Dispatch(new PacketMessage((int)EMessageID.NetAliveAck, new NetAliveAck().ToByteArray()));
+            Assert.AreEqual((int)EMessageID.NetAliveAck, unhandledID);
+
+            int handled = 0;
+            dispatcher.Register<NetAliveAck>(ack => handled++);
+            dispatcher.Dispatch(new PacketMessage((int)EMessageID.NetAliveAck, new NetAliveAck().ToByteArray()));
+            Assert.AreEqual(1, handled);
+        }
+
+        [Test]
+        public void Unregister_OtherHandler_KeepsRegisteredOne()
+        {
+            // Register 가 중복으로 실패한 쪽이 OnDisable 에서 Unregister 해도, 먼저 등록한 핸들러는 남아야 한다.
+            var dispatcher = new PacketDispatcher();
+            int handled = 0;
+            dispatcher.Register<NetAliveAck>(ack => handled++);
+
+            Action<NetAliveAck> other = ack => { };
+            Assert.IsFalse(dispatcher.Unregister(other));
+
+            dispatcher.Dispatch(new PacketMessage((int)EMessageID.NetAliveAck, new NetAliveAck().ToByteArray()));
+            Assert.AreEqual(1, handled);
+        }
     }
 }

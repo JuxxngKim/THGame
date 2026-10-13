@@ -8,7 +8,20 @@ namespace TH.Network
     // 서버 PacketDispatcher 와 같은 방식: 등록할 때 파싱 델리게이트를 만들어 두고, dispatch 때는 찾아서 호출만 한다.
     public sealed class PacketDispatcher
     {
-        private readonly Dictionary<int, Action<byte[]>> _handlers = new Dictionary<int, Action<byte[]>>();
+        // 등록 하나. Unregister 가 "등록한 그 핸들러"인지 비교하려고 원래 핸들러도 같이 둔다.
+        private readonly struct Entry
+        {
+            public readonly Delegate Handler;
+            public readonly Action<byte[]> Invoke;
+
+            public Entry(Delegate handler, Action<byte[]> invoke)
+            {
+                Handler = handler;
+                Invoke = invoke;
+            }
+        }
+
+        private readonly Dictionary<int, Entry> _handlers = new Dictionary<int, Entry>();
         private readonly Action<PacketMessage> _dispatch;
 
         // 핸들러가 없는 패킷. 비워 두면 조용히 버린다.
@@ -31,13 +44,30 @@ namespace TH.Network
         {
             int packetID = ResolvePacketID<T>();
             var parser = new MessageParser<T>(() => new T());
-            if (!_handlers.TryAdd(packetID, payload => handler(parser.ParseFrom(payload))))
+            var entry = new Entry(handler, payload => handler(parser.ParseFrom(payload)));
+            if (!_handlers.TryAdd(packetID, entry))
                 throw new InvalidOperationException($"PacketID {packetID} is already registered ({typeof(T).Name})");
+        }
+
+        // 등록을 해제한다. 씬 오브젝트처럼 수명이 짧은 주인은 OnEnable 에서 Register, OnDisable 에서 Unregister 한다.
+        // 해제하지 않으면 그 오브젝트가 다시 생길 때(예: Title 씬 재진입) 중복 등록 예외가 나고,
+        // 파괴된 오브젝트의 핸들러가 남아 패킷이 오면 MissingReferenceException 이 난다.
+        // 등록한 그 핸들러일 때만 지운다. 남의 핸들러를 지우지 않기 위해서다
+        // (예: Register 가 중복으로 실패한 오브젝트가 OnDisable 에서 Unregister 를 불러도 먼저 등록한 쪽은 남는다).
+        // 메서드 그룹(OnLoginAck)은 같은 인스턴스·같은 메서드면 서로 같은 델리게이트로 비교된다. 지웠으면 true.
+        public bool Unregister<T>(Action<T> handler) where T : class, IMessage<T>, new()
+        {
+            int packetID = ResolvePacketID<T>();
+            if (!_handlers.TryGetValue(packetID, out var entry) || !entry.Handler.Equals(handler))
+                return false;
+
+            _handlers.Remove(packetID);
+            return true;
         }
 
         public void Dispatch(PacketMessage packet)
         {
-            if (!_handlers.TryGetValue(packet.PacketID, out var handle))
+            if (!_handlers.TryGetValue(packet.PacketID, out var entry))
             {
                 OnUnhandled?.Invoke(packet);
                 return;
@@ -45,7 +75,7 @@ namespace TH.Network
 
             try
             {
-                handle(packet.Payload);
+                entry.Invoke(packet.Payload);
             }
             catch (Exception ex) when (OnError != null)
             {
@@ -54,7 +84,7 @@ namespace TH.Network
         }
 
         // 연결의 수신 큐가 빌 때까지 꺼내 처리한다. Update 에서 매 프레임 한 번 부른다. 처리한 개수를 돌려준다.
-        // 연결이 끊겼으면 남은 패킷을 모두 처리한 뒤 session.OnDisconnected 가 1회 불린다.
+        // 연결이 끊겼으면 남은 패킷을 모두 처리한 뒤 session.OnDisconnected 가 1회 불린다(직접 Close 한 경우는 남은 패킷 없이).
         public int DispatchAll(Session session) => session.Poll(_dispatch);
 
         // proto 의 패킷 메시지에는 모두 `optional EMessageID MessageID = 99 [default = XXX];` 가 있고, 그 default 가 packetID 다.
